@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String        @id @default(cuid())
+  name        String
+  email       String        @unique
+  cnpj        String?       @unique
+  password    String
+  role        Role          @default(DESPACHANTE)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  Despachante Despachante?
+}
+
+model Despachante {
+  id         String      @id @default(cuid())
+  user       User        @relation(fields: [userId], references: [id])
+  userId     String      @unique
+  nome       String
+  cnpj       String?     @unique
+  motoristas Motorista[]
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+}
+
+model Motorista {
+  id             String      @id @default(cuid())
+  despachante    Despachante @relation(fields: [despachanteId], references: [id])
+  despachanteId  String
+  nome           String
+  cpf            String      @unique
+  email          String?
+  dataNascimento DateTime?
+  sexo           String?
+  identidade     String?
+  orgaoEmissor   String?
+  ufEmissor      String?
+  telefone       String?
+  cursoTipo      CursoTipo
+  documentos     Documento[]
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  @@index([despachanteId])
+  @@index([cpf])
+}
+
+model Documento {
+  id            String           @id @default(cuid())
+  motorista     Motorista        @relation(fields: [motoristaId], references: [id])
+  motoristaId   String
+  tipo          DocumentoTipo
+  filename      String
+  path          String
+  mimetype      String
+  size          Int
+  status        DocumentoStatus  @default(PENDENTE)
+  motivoNegacao String?
+  uploadedBy    String
+  uploadedAt    DateTime         @default(now())
+  reviewedBy    String?
+  reviewedAt    DateTime?
+  logs          LogDocumento[]
+
+  @@unique([motoristaId, tipo])
+  @@index([motoristaId])
+  @@index([status])
+}
+
+model LogDocumento {
+  id          String    @id @default(cuid())
+  documento   Documento @relation(fields: [documentoId], references: [id])
+  documentoId String
+  acao        String
+  adminId     String?
+  observacao  String?
+  createdAt   DateTime  @default(now())
+
+  @@index([documentoId])
+}
+
+enum Role {
+  ADMIN
+  DESPACHANTE
+}
+
+enum CursoTipo {
+  TAC
+  RT
+}
+
+enum DocumentoTipo {
+  CNH
+  COMPROVANTE_PAGAMENTO
+  DOCUMENTO1
+  DOCUMENTO2
+}
+
+enum DocumentoStatus {
+  PENDENTE
+  APROVADO
+  NEGADO
+}
