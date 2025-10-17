@@ -1,5 +1,5 @@
 import api from '@/lib/api';
-import { AuthResponse, LoginData, RegisterData, User } from '@/types';
+import { AuthResponse, LoginData, RegisterData, User, ApiResponse } from '@/types';
 
 class AuthService {
   async login(data: LoginData): Promise<AuthResponse> {
@@ -53,6 +53,29 @@ class AuthService {
   isAdmin(): boolean {
     const user = this.getUser();
     return user?.role === 'ADMIN';
+  }
+
+  async forgotPassword(email: string, captcha?: string): Promise<ApiResponse<null>> {
+    const res = await api.post<ApiResponse<null>>('/auth/forgot-password', { email, captcha });
+    return res.data;
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<ApiResponse<null>> {
+    const res = await api.post<ApiResponse<null>>('/auth/reset-password', { token, newPassword });
+    return res.data;
+  }
+
+  async getTourStatus(): Promise<boolean> {
+    try {
+      const res = await api.get<any>('/auth/tour-status');
+      return res.data.tourVisto || false;
+    } catch {
+      return false;
+    }
+  }
+
+  async markTourVisto(): Promise<void> {
+    await api.post('/auth/mark-tour-visto');
   }
 }
 

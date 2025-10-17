@@ -117,7 +117,7 @@ export default function AdminPage() {
       const response = await documentoService.getAllAdmin({})
       const docs = Array.isArray(response.documentos) ? response.documentos : []
       console.log('🟦 Documentos recebidos do backend:', docs)
-      docs.forEach((doc, idx) => {
+      docs.forEach((doc: Documento, idx: number) => {
         console.log(`  [${idx}] id=${doc.id} tipo=${doc.tipo} status=${doc.status}`)
       })
       setDocumentos(docs)
@@ -339,8 +339,8 @@ export default function AdminPage() {
                   <option value="TODOS">Todos os tipos</option>
                   <option value="CNH">CNH</option>
                   <option value="COMPROVANTE_PAGAMENTO">Comprovante</option>
-                  <option value="DOCUMENTO1">Documento 1</option>
-                  <option value="DOCUMENTO2">Documento 2</option>
+                  <option value="DOCUMENTO1">Lista de presença</option>
+                  <option value="DOCUMENTO2">Tabela de dados</option>
                 </Select>
               </div>
 

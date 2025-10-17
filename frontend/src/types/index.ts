@@ -31,6 +31,11 @@ export interface Documento {
   motivo?: string;
   uploadedAt: string;
   updatedAt: string;
+  motorista?: {
+    id: string;
+    nome: string;
+    cpf: string;
+  };
 }
 
 // Tipos de motorista
@@ -87,6 +92,7 @@ export interface ApiResponse<T> {
 export interface PaginatedResponse<T> {
   success: boolean;
   motoristas?: T[]; // Para /motoristas
+  documentos?: T[]; // Para /documentos
   data?: T[]; // Fallback genérico
   pagination: Pagination;
 }

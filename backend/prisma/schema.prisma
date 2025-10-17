@@ -14,6 +14,7 @@ model User {
   cnpj        String?       @unique
   password    String
   role        Role          @default(DESPACHANTE)
+  tourVisto   Boolean       @default(false)
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   Despachante Despachante?
@@ -31,11 +32,11 @@ model Despachante {
 }
 
 model Motorista {
-  id             String      @id @default(cuid())
-  despachante    Despachante @relation(fields: [despachanteId], references: [id])
+  id             String        @id @default(cuid())
+  despachante    Despachante   @relation(fields: [despachanteId], references: [id])
   despachanteId  String
   nome           String
-  cpf            String      @unique
+  cpf            String        @unique
   email          String?
   dataNascimento DateTime?
   sexo           String?
@@ -45,8 +46,9 @@ model Motorista {
   telefone       String?
   cursoTipo      CursoTipo
   documentos     Documento[]
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
+  certificados   Certificado[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
   @@index([despachanteId])
   @@index([cpf])
@@ -84,6 +86,23 @@ model LogDocumento {
   createdAt   DateTime  @default(now())
 
   @@index([documentoId])
+}
+
+model Certificado {
+  id          String    @id @default(cuid())
+  motorista   Motorista @relation(fields: [motoristaId], references: [id])
+  motoristaId String
+  filename    String
+  originalName String
+  path        String
+  mimetype    String
+  size        Int
+  enviadoPor  String    // ID do admin que enviou
+  enviadoEm   DateTime  @default(now())
+  baixadoEm   DateTime? // Quando o despachante baixou
+
+  @@index([motoristaId])
+  @@index([enviadoEm])
 }
 
 enum Role {

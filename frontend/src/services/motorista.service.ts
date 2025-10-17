@@ -6,9 +6,12 @@ class MotoristaService {
     page?: number;
     limit?: number;
     search?: string;
-  }): Promise<PaginatedResponse<Motorista>> {
-    const response = await api.get<PaginatedResponse<Motorista>>('/motoristas', { params });
-    return response.data;
+  }): Promise<{ motoristas: Motorista[]; pagination: { page: number; limit: number; total: number; pages: number } }> {
+    const response = await api.get<{ success: boolean; motoristas: Motorista[]; pagination: any }>('/motoristas', { params });
+    return {
+      motoristas: response.data.motoristas || [],
+      pagination: response.data.pagination || { page: 1, limit: 20, total: 0, pages: 0 }
+    };
   }
 
   async getById(id: string): Promise<Motorista> {

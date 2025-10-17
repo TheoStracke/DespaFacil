@@ -179,6 +179,7 @@ export default function LoginPage() {
                   type="button"
                   className="text-sm text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
                   disabled={loading}
+                  onClick={() => router.push('/forgot-password')}
                 >
                   Esqueci minha senha
                 </button>
@@ -221,25 +222,10 @@ export default function LoginPage() {
             </CardFooter>
           </form>
         </Card>
-
-        {/* Credenciais de teste */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="mt-6 p-4 rounded-lg bg-muted/50 border border-border"
+          
         >
-          <p className="text-xs font-semibold text-muted-foreground mb-2">
-            🔐 Credenciais de teste:
-          </p>
-          <div className="space-y-1 text-xs text-muted-foreground">
-            <p>
-              <strong>Admin:</strong> theostracke11@gmail.com
-            </p>
-            <p>
-              <strong>Senha:</strong> SenhaForte123!
-            </p>
-          </div>
+          
         </motion.div>
       </motion.div>
     </div>

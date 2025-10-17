@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { ToastProvider } from '@/components/ui/toast'
+import { WhatsAppSupport } from '@/components/ui/WhatsAppSupport'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -18,9 +19,13 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body className={inter.className}>
-        <ToastProvider>
+        {/* Faixa superior com cor da marca */}
+        <div className="w-full h-1.5 bg-brand" />
+        <ToastProvider>        
           {children}
         </ToastProvider>
+        {/* Botão flutuante de suporte WhatsApp em todas as páginas */}
+        <WhatsAppSupport />
       </body>
     </html>
   )

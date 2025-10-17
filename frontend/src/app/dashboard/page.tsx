@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import DespachanteTour from '@/components/dashboard/DespachanteTour'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import {
@@ -12,6 +13,8 @@ import {
   UserPlus,
   Upload,
   Filter,
+  Download,
+  Shield,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -32,6 +35,7 @@ import authService from '@/services/auth.service'
 import motoristaService from '@/services/motorista.service'
 import { MotoristaForm } from '@/components/dashboard/MotoristaForm'
 import { DocumentoUpload } from '@/components/dashboard/DocumentoUpload'
+import { CertificadosSection } from '@/components/dashboard/CertificadosSection'
 import type { Motorista, DocumentoStatus } from '@/types'
 
 export default function DashboardPage() {
@@ -102,10 +106,9 @@ export default function DashboardPage() {
       const response = await motoristaService.getAll({})
       console.log('📦 Resposta completa:', response)
       console.log('📋 response.motoristas:', response.motoristas)
-      console.log('📋 response.data:', response.data)
       
       // O backend retorna { success: true, motoristas: [...], pagination: {...} }
-      const data = response.motoristas || response.data || []
+      const data = response.motoristas || []
       console.log('✅ Motoristas carregados:', data.length, data)
       
       setMotoristas(data)
@@ -159,14 +162,14 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+      {/* Tour interativo apenas para despachante */}
+      {isDespachante && <DespachanteTour />}
       {/* Header */}
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40">
+  <header className="dashboard-header border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40">
         <div className="container flex h-16 items-center justify-between px-4">
-          <div className="flex items-center gap-2">
-            <LayoutDashboard className="h-6 w-6 text-primary" />
-            <div>
-              <h1 className="text-xl font-bold">DespaFacil</h1>
-              <p className="text-xs text-muted-foreground">Dashboard Despachante</p>
+          <div className="flex items-center gap-3">
+            <img src="/ui/logo.png" alt="DespaFacil" className="h-10 w-auto" />
+            <div className="border-l pl-3">
             </div>
           </div>
 
@@ -178,11 +181,16 @@ export default function DashboardPage() {
               </span>
             </div>
             {user?.role === 'ADMIN' && (
-              <Button variant="outline" size="sm" onClick={() => router.push('/admin')}>
+              <Button 
+                size="sm" 
+                onClick={() => router.push('/admin')}
+                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg"
+              >
+                <Shield className="h-4 w-4 mr-2" />
                 Painel Admin
               </Button>
             )}
-            <Button variant="ghost" size="sm" onClick={handleLogout}>
+            <Button variant="ghost" size="sm" onClick={handleLogout} className="dashboard-logout">
               <LogOut className="h-4 w-4 mr-2" />
               Sair
             </Button>
@@ -199,7 +207,7 @@ export default function DashboardPage() {
           className="space-y-6"
         >
           {/* Estatísticas */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 dashboard-status-badges">
             <Card>
               <CardHeader className="pb-2">
                 <CardDescription>Total de Motoristas</CardDescription>
@@ -228,6 +236,63 @@ export default function DashboardPage() {
             </Card>
           </div>
 
+          {/* Modelos de Documentos */}
+          <Card className="dashboard-modelos">
+            <CardHeader>
+              <CardTitle>Modelos de Documentos</CardTitle>
+              <CardDescription>
+                Baixe os modelos para preenchimento
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Button
+                  variant="outline"
+                  className="h-auto py-4 flex flex-col items-start gap-2"
+                  onClick={() => {
+                    const link = document.createElement('a')
+                    link.href = '/ModelosDoc/Estrada_Facil_Controle_de_Presença_TAC-RT.docx'
+                    link.download = 'Lista_de_Presenca.docx'
+                    link.click()
+                  }}
+                >
+                  <div className="flex items-center gap-2">
+                    <Download className="h-5 w-5" />
+                    <span className="font-semibold">Lista de Presença</span>
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    Modelo para controle de presença TAC-RT (.docx)
+                  </span>
+                </Button>
+                <Button
+                  variant="outline"
+                  className="h-auto py-4 flex flex-col items-start gap-2"
+                  onClick={() => {
+                    const link = document.createElement('a')
+                    link.href = '/ModelosDoc/CURSO_ANTT_(1).xlsx'
+                    link.download = 'Tabela_Dados_Curso.xlsx'
+                    link.click()
+                  }}
+                >
+                  <div className="flex items-center gap-2">
+                    <Download className="h-5 w-5" />
+                    <span className="font-semibold">Tabela de Dados</span>
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    Modelo para preenchimento dos dados do curso (.xlsx)
+                  </span>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Certificados - Apenas para Despachantes */}
+          {isDespachante && (
+            <div className="dashboard-certificados">
+              <CertificadosSection />
+            </div>
+          )}
+
           {/* Ações e Filtros */}
           <Card>
             <CardHeader>
@@ -248,7 +313,7 @@ export default function DashboardPage() {
                     <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                     Atualizar
                   </Button>
-                  <Button size="sm" onClick={() => setShowFormModal(true)}>
+                  <Button size="sm" onClick={() => setShowFormModal(true)} className="dashboard-add-motorista">
                     <UserPlus className="h-4 w-4 mr-2" />
                     Novo Motorista
                   </Button>
@@ -353,6 +418,7 @@ export default function DashboardPage() {
                                 size="sm"
                                 variant="outline"
                                 onClick={() => handleOpenUpload(motorista)}
+                                className="dashboard-upload-doc"
                               >
                                 <Upload className="h-4 w-4 mr-2" />
                                 Upload

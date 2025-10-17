@@ -181,6 +181,10 @@ export async function updateDocumentoStatus(
 export async function listDocumentosAdmin(filters: any) {
   const { status, from, to, despachanteId, motoristaId, page = 1, limit = 50 } = filters;
 
+  // Converter page e limit para números
+  const pageNum = parseInt(String(page), 10) || 1;
+  const limitNum = parseInt(String(limit), 10) || 50;
+
   const where: any = {};
 
   if (status) {
@@ -203,13 +207,13 @@ export async function listDocumentosAdmin(filters: any) {
     };
   }
 
-  const skip = (page - 1) * limit;
+  const skip = (pageNum - 1) * limitNum;
 
   const [documentos, total] = await Promise.all([
     prisma.documento.findMany({
       where,
       skip,
-      take: limit,
+      take: limitNum,
       include: {
         motorista: {
           include: {
@@ -229,10 +233,10 @@ export async function listDocumentosAdmin(filters: any) {
   return {
     documentos,
     pagination: {
-      page,
-      limit,
+      page: pageNum,
+      limit: limitNum,
       total,
-      pages: Math.ceil(total / limit),
+      pages: Math.ceil(total / limitNum),
     },
   };
 }
@@ -306,28 +310,87 @@ export async function sendCertificado(
     throw new Error('Motorista não encontrado');
   }
 
-  // Enviar email com certificado (não-bloqueante)
-  sendEmail({
-    to: motorista.despachante.user.email,
-    subject: `Certificado disponível - ${motorista.nome}`,
-    html: `
-      <h2>Certificado Disponível</h2>
-      <p>O certificado do motorista <strong>${motorista.nome}</strong> (CPF: ${motorista.cpf}) está disponível.</p>
-      <p>Entre em contato com a administração para receber o arquivo.</p>
-    `,
-  }).catch((err) => {
-    console.error('⚠️ Erro ao enviar email de certificado:', err.message);
+  console.log('');
+  console.log('📧 ========== INICIANDO ENVIO DE EMAIL ==========');
+  console.log('   Motorista:', motorista.nome);
+  console.log('   CPF:', motorista.cpf);
+  console.log('   Despachante:', motorista.despachante.user.name);
+  console.log('   Email destino:', motorista.despachante.user.email);
+  console.log('   Arquivo anexo:', file.originalname);
+  console.log('   Tamanho:', (file.size / 1024).toFixed(2), 'KB');
+  console.log('================================================');
+  console.log('');
+
+  // Salvar certificado no banco de dados
+  const certificado = await prisma.certificado.create({
+    data: {
+      motoristaId: motorista.id,
+      filename: file.filename,
+      originalName: file.originalname,
+      path: file.path,
+      mimetype: file.mimetype,
+      size: file.size,
+      enviadoPor: userId,
+    },
   });
 
-  // Criar log
-  await prisma.logDocumento.create({
-    data: {
-      documentoId: motorista.id, // Usar motoristaId como referência temporária
-      acao: 'CERTIFICADO_ENVIADO',
-      adminId: userId,
-      observacao: `Certificado enviado para ${motorista.nome}`,
-    } as any,
+  console.log('💾 Certificado salvo no banco de dados:', certificado.id);
+
+  // Enviar email de notificação (SEM anexo, apenas aviso)
+  sendEmail({
+    to: motorista.despachante.user.email,
+    subject: `📜 Novo Certificado Disponível - ${motorista.nome}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #2563eb;">📜 Novo Certificado Disponível</h2>
+        
+        <p>Olá <strong>${motorista.despachante.user.name}</strong>,</p>
+        
+        <p>Um novo certificado está disponível para o motorista:</p>
+        
+        <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="margin-top: 0; color: #1f2937;">Informações do Motorista</h3>
+          <p style="margin: 5px 0;"><strong>Nome:</strong> ${motorista.nome}</p>
+          <p style="margin: 5px 0;"><strong>CPF:</strong> ${motorista.cpf}</p>
+          <p style="margin: 5px 0;"><strong>Tipo de Curso:</strong> ${motorista.cursoTipo}</p>
+        </div>
+        
+        <div style="background-color: #eff6ff; padding: 15px; border-radius: 8px; border-left: 4px solid #2563eb;">
+          <p style="margin: 0; color: #1e40af;">
+            <strong>� Para baixar o certificado:</strong><br>
+            Acesse seu painel em <a href="http://localhost:3000/dashboard" style="color: #2563eb; text-decoration: none;">DespaFacil</a> e vá na seção "Certificados".
+          </p>
+        </div>
+        
+        <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+        
+        <p style="color: #9ca3af; font-size: 12px; text-align: center;">
+          DespaFacil - Sistema de Gestão de Documentos<br>
+          Este é um email automático, não responda.
+        </p>
+      </div>
+    `,
+  }).then(() => {
+    console.log('');
+    console.log('✅ ========== EMAIL DE NOTIFICAÇÃO ENVIADO ==========');
+    console.log('   Para:', motorista.despachante.user.email);
+    console.log('   Certificado salvo ID:', certificado.id);
+    console.log('====================================================');
+    console.log('');
+  }).catch((err) => {
+    console.log('');
+    console.error('❌ ========== ERRO AO ENVIAR EMAIL ==========');
+    console.error('   Para:', motorista.despachante.user.email);
+    console.error('   Erro:', err.message);
+    console.error('   Code:', err.code);
+    console.error('   Stack:', err.stack);
+    console.error('   OBS: Certificado foi salvo, mas email falhou');
+    console.error('=============================================');
+    console.error('');
   });
+
+  // Log simplificado sem vincular a um documento específico
+  console.log(`✅ Certificado enviado para ${motorista.nome} pelo admin ${userId}`);
 
   return { message: 'Certificado enviado com sucesso', motorista };
 }

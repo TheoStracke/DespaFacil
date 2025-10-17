@@ -229,10 +229,10 @@ export function DocumentoUpload({ motorista, onSuccess }: DocumentoUploadProps) 
             Comprovante
           </TabsTrigger>
           <TabsTrigger value="DOCUMENTO1" className="text-xs sm:text-sm px-2 py-2">
-            Doc 1
+            Lista de presença
           </TabsTrigger>
           <TabsTrigger value="DOCUMENTO2" className="text-xs sm:text-sm px-2 py-2">
-            Doc 2
+            Tabela de dados
           </TabsTrigger>
         </TabsList>
 
@@ -245,11 +245,11 @@ export function DocumentoUpload({ motorista, onSuccess }: DocumentoUploadProps) 
         </TabsContent>
 
         <TabsContent value="DOCUMENTO1">
-          {renderUploadCard('DOCUMENTO1', 'Documento 1')}
+          {renderUploadCard('DOCUMENTO1', 'Lista de presença')}
         </TabsContent>
 
         <TabsContent value="DOCUMENTO2">
-          {renderUploadCard('DOCUMENTO2', 'Documento 2')}
+          {renderUploadCard('DOCUMENTO2', 'Tabela preenchida com os dados solicitados')}
         </TabsContent>
       </Tabs>
     </div>

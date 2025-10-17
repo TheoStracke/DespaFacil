@@ -1,29 +1,29 @@
 # DespaFacil
 
-Sistema completo para despachantes gerenciarem motoristas e documentos, com painel administrativo para aprovação/negação de documentos.
+Plataforma para despachantes gerenciarem motoristas e documentos, com painel administrativo para aprovação/negação de documentos, emissão de certificados e onboarding guiado para primeiro acesso.
 
 ## 🚀 Stack Tecnológico
 
 ### Backend
-- **Runtime**: Node.js 18+
-- **Framework**: Express.js
-- **Linguagem**: TypeScript
-- **Banco de Dados**: PostgreSQL (Railway produção / Local desenvolvimento)
-- **ORM**: Prisma
-- **Autenticação**: JWT
-- **Upload**: Multer (local) / S3 (opcional)
-- **E-mail**: Nodemailer (SMTP Gmail)
+- Runtime: Node.js 18+
+- Framework: Express.js (TypeScript)
+- Banco: PostgreSQL (Railway em produção / local em dev)
+- ORM: Prisma
+- Autenticação: JWT
+- Upload: Multer (local) / S3 (opcional)
+- E-mail: Nodemailer (SMTP Gmail)
+- Segurança: Helmet, CORS, rate limiting, hCaptcha no reset de senha
 
 ### Frontend
-- **Framework**: Next.js 14+ (App Router)
-- **Linguagem**: TypeScript
-- **Estilo**: TailwindCSS + Shadcn/UI
-- **Formulários**: React Hook Form + Zod
-- **Máscaras**: react-input-mask
+- Framework: Next.js 14+ (App Router, TypeScript)
+- Estilo: TailwindCSS + Shadcn/UI
+- Formulários: React Hook Form + Zod
+- UI extra: framer-motion, lucide-react
+- Onboarding: react-joyride (tour guiado)
 
 ### Deploy
-- **Backend**: Railway
-- **Frontend**: Vercel
+- Backend: Railway (ou outro container host com Node 18+)
+- Frontend: Vercel
 
 ## 📁 Estrutura do Projeto
 
@@ -40,27 +40,33 @@ DespaFacil/
 │   │   ├── schema.prisma
 │   │   └── seed.ts
 │   └── README.md         # Documentação do backend
-├── frontend/             # Interface web (Next.js) - EM DESENVOLVIMENTO
+├── frontend/             # Interface web (Next.js)
 └── README.md             # Este arquivo
 ```
 
 ## 🎯 Funcionalidades
 
 ### Para Despachantes
-- ✅ Cadastro e login (email ou CNPJ)
-- ✅ Gerenciar motoristas (CRUD completo)
-- ✅ Upload de documentos por motorista (CNH, Comprovante, Documento1, Documento2)
-- ✅ Visualizar status de documentos (Pendente, Aprovado, Negado)
-- ✅ Receber notificações por email
+- Cadastro e login
+- Gerenciar motoristas (CRUD)
+- Upload de documentos (CNH, Comprovante, Documento 1, Documento 2)
+- Visualizar status (Pendente, Aprovado, Negado)
+- Receber notificações por e-mail
+- Tour guiado de primeiro acesso (uma vez por usuário)
 
 ### Para Administradores
-- ✅ Login com credenciais de admin
-- ✅ Visualizar todos os documentos com filtros
-- ✅ Aprovar ou negar documentos individualmente
-- ✅ Adicionar motivo ao negar
-- ✅ Exportar relatórios (CSV/XLSX)
-- ✅ Enviar certificados para motoristas
-- ✅ Visualizar logs de ações
+- Login de admin
+- Dashboard com filtros
+- Aprovar/Negar documentos (com motivo)
+- Exportar relatórios (CSV/XLSX)
+- Enviar certificados
+- Logs de auditoria
+- Seção de certificados oculta para admins (exibida somente para Despachante)
+
+### Globais
+- Esquecí minha senha com hCaptcha e e-mail de redefinição
+- Botão flutuante de suporte via WhatsApp em todas as páginas
+- Logo no cabeçalho do dashboard
 
 ## 🔐 Credenciais Padrão (Seed)
 
@@ -78,7 +84,7 @@ Após rodar o seed (`npm run seed` no backend):
 ### Pré-requisitos
 - Node.js 18+
 - PostgreSQL
-- Conta Gmail com App Password
+- Conta Gmail com App Password (ou SMTP equivalente)
 
 ### Backend
 
@@ -94,11 +100,16 @@ npm run dev
 
 O backend estará rodando em `http://localhost:4000`
 
-**📖 Documentação e Testes:**
-- [Início Rápido](backend/INICIO_RAPIDO.md) - Setup em 5 passos
-- [Guia de Testes](TESTES_BACKEND.md) - Todos os comandos curl
-- [README Backend](backend/README.md) - Documentação completa
-- [Scripts de Teste](backend/test-backend.ps1) - Testes automatizados
+Variáveis importantes do backend (.env):
+- DATABASE_URL
+- JWT_SECRET
+- SMTP_HOST/SMTP_PORT/SMTP_USER/SMTP_PASS
+- HCAPTCHA_SECRET (obrigatória para reset de senha)
+- FRONTEND_URL (opcional; fallback para http://localhost:3000)
+
+Notas:
+- Em dev, a API liga em http://localhost:4000
+- Em produção, defina BIND_HOST=0.0.0.0 para aceitar conexões externas
 
 ### Frontend
 
@@ -112,7 +123,8 @@ npm run dev
 
 O frontend estará rodando em `http://localhost:3000`
 
-*(Frontend em desenvolvimento)*
+Variáveis importantes do frontend (.env.local):
+- NEXT_PUBLIC_API_URL (ex.: http://localhost:4000)
 
 ## 📡 API Endpoints
 
@@ -175,12 +187,13 @@ O sistema mantém logs de todas as ações:
 
 ## 🔒 Segurança
 
-- ✅ Senhas criptografadas (bcrypt)
-- ✅ Tokens JWT com expiração
-- ✅ Validação de tipos de arquivo
-- ✅ Sanitização de nomes
-- ✅ CORS configurado
-- ✅ Rate limiting recomendado
+- Senhas criptografadas (bcrypt)
+- Tokens JWT com expiração
+- hCaptcha em fluxo sensível (esqueci minha senha)
+- Validação de tipos de arquivo e tamanho
+- Sanitização e normalização de nomes
+- CORS configurado e Helmet
+- Rate limiting em endpoints sensíveis
 
 ## 🐛 Troubleshooting
 
@@ -193,8 +206,7 @@ Ver [backend/README.md#-troubleshooting](backend/README.md#-troubleshooting)
 
 ---
 
-**Status do Projeto**:  
-✅ Etapa 1 (Backend) - **CONCLUÍDA**  
-🔄 Etapa 2 (Frontend) - EM DESENVOLVIMENTO  
-⏳ Etapa 3 (Deploy) - PENDENTE
+---
+
+Para um guia de deploy detalhado (Railway + Vercel) e alternativa barata, confira o arquivo DEPLOYMENT.md neste repositório.
 

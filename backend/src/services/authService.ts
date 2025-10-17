@@ -1,12 +1,13 @@
 import prisma from '../prisma/client';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import jwt, { type SignOptions, type Secret } from 'jsonwebtoken';
 import { sendEmail } from '../utils/mailer';
 import { validateCNPJ } from '../utils/validators';
+import axios from 'axios';
 
 const BCRYPT_ROUNDS = parseInt(process.env.BCRYPT_SALT_ROUNDS || '12', 10);
-const JWT_SECRET: string = process.env.JWT_SECRET || 'secret';
-const JWT_EXPIRES_IN: string = process.env.JWT_EXPIRES_IN || '1h';
+const JWT_SECRET: Secret = (process.env.JWT_SECRET || 'secret') as Secret;
+const JWT_EXPIRES_IN: SignOptions['expiresIn'] = (process.env.JWT_EXPIRES_IN || '1h') as SignOptions['expiresIn'];
 
 interface RegisterData {
   name: string;
@@ -114,7 +115,7 @@ export async function login(data: LoginData) {
   const token = jwt.sign(
     { sub: user.id, role: user.role },
     JWT_SECRET,
-    { expiresIn: JWT_EXPIRES_IN }
+    { expiresIn: JWT_EXPIRES_IN } as SignOptions
   );
 
   return {
@@ -128,15 +129,26 @@ export async function login(data: LoginData) {
   };
 }
 
-export async function forgotPassword(email: string) {
+export async function forgotPassword(email: string, captcha: string) {
+  // Validação do hCaptcha server-side
+  const secret = process.env.HCAPTCHA_SECRET;
+  if (!captcha) throw new Error('Captcha obrigatório');
+  if (!secret) throw new Error('hCaptcha secret não configurado');
+  const verifyUrl = 'https://hcaptcha.com/siteverify';
+  const verifyRes = await axios.post(
+    verifyUrl,
+    new URLSearchParams({ secret, response: captcha }),
+    { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+  );
+  if (!verifyRes.data.success) throw new Error('Falha ao validar captcha');
+
   const user = await prisma.user.findUnique({ where: { email } });
-  
   if (!user) {
     // Não revelar se o email existe ou não
     return;
   }
 
-  const resetToken = jwt.sign({ sub: user.id }, JWT_SECRET, { expiresIn: '1h' });
+  const resetToken = jwt.sign({ sub: user.id }, JWT_SECRET, { expiresIn: '1h' } as SignOptions);
 
   await sendEmail({
     to: email,
@@ -144,16 +156,20 @@ export async function forgotPassword(email: string) {
     html: `
       <h2>Redefinição de senha</h2>
       <p>Você solicitou a redefinição de senha.</p>
-      <p>Use o token abaixo para redefinir sua senha:</p>
-      <p><strong>${resetToken}</strong></p>
-      <p>Este token expira em 1 hora.</p>
+      <p>Clique no link abaixo para redefinir sua senha. Se você não solicitou, ignore este email.</p>
+      <p>
+        <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}" target="_blank" rel="noopener noreferrer">
+          Redefinir minha senha
+        </a>
+      </p>
+      <p>Este link expira em 1 hora.</p>
     `,
   });
 }
 
 export async function resetPassword(token: string, newPassword: string) {
   try {
-    const decoded: any = jwt.verify(token, JWT_SECRET);
+  const decoded: any = jwt.verify(token, JWT_SECRET);
     const userId = decoded.sub;
 
     if (newPassword.length < 8) {
@@ -169,4 +185,22 @@ export async function resetPassword(token: string, newPassword: string) {
   } catch (err) {
     throw new Error('Token inválido ou expirado');
   }
+}
+
+export async function markTourVisto(userId: string) {
+  await prisma.user.update({
+    where: { id: userId },
+    // @ts-ignore - prisma client types not regenerated yet
+    data: { tourVisto: true },
+  });
+}
+
+export async function getTourStatus(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    // @ts-ignore - prisma client types not regenerated yet
+    select: { tourVisto: true },
+  });
+  // @ts-ignore - prisma client types not regenerated yet
+  return user?.tourVisto || false;
 }

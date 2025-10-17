@@ -44,6 +44,10 @@ export async function createMotorista(data: any, userId: string) {
 export async function listMotoristas(userId: string, role: string, filters: any) {
   const { search, despachanteId, page = 1, limit = 20 } = filters;
 
+  // Converter page e limit para números
+  const pageNum = parseInt(String(page), 10) || 1;
+  const limitNum = parseInt(String(limit), 10) || 20;
+
   const where: any = {};
 
   if (role === 'DESPACHANTE') {
@@ -61,13 +65,13 @@ export async function listMotoristas(userId: string, role: string, filters: any)
     ];
   }
 
-  const skip = (page - 1) * limit;
+  const skip = (pageNum - 1) * limitNum;
 
   const [motoristas, total] = await Promise.all([
     prisma.motorista.findMany({
       where,
       skip,
-      take: limit,
+      take: limitNum,
       include: {
         despachante: {
           include: {
@@ -84,10 +88,10 @@ export async function listMotoristas(userId: string, role: string, filters: any)
   return {
     motoristas,
     pagination: {
-      page,
-      limit,
+      page: pageNum,
+      limit: limitNum,
       total,
-      pages: Math.ceil(total / limit),
+      pages: Math.ceil(total / limitNum),
     },
   };
 }
