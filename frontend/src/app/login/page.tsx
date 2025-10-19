@@ -97,11 +97,12 @@ export default function LoginPage() {
       }, 500)
     } catch (error: any) {
       console.error('Erro no login:', error)
-      
+      // Mostra mensagem detalhada do backend, seja 'error' ou 'message'
+      const backendMsg = error.response?.data?.error || error.response?.data?.message;
       toast({
         type: 'error',
         title: 'Erro ao fazer login',
-        description: error.response?.data?.message || 'Credenciais inválidas. Verifique seus dados e tente novamente.',
+        description: backendMsg || 'Credenciais inválidas. Verifique seus dados e tente novamente.',
       })
     } finally {
       setLoading(false)
