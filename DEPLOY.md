@@ -46,7 +46,7 @@ Este guia ensina como fazer deploy do **DespaFacil** do zero, mesmo sem experiê
 DATABASE_URL=postgresql://postgres:senha@host:port/railway
 
 # JWT
-JWT_SECRET=sua-chave-secreta-super-forte-aqui-min-32-caracteres
+JWT_SECRET=c725de316c65d90b85f74e2f1637cfc909262d65e439d08cc987aa7b8d08c87f
 JWT_EXPIRES_IN=7d
 
 # BCRYPT
