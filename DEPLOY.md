@@ -201,7 +201,7 @@ NEXT_PUBLIC_HCAPTCHA_SITE_KEY=sua-chave-hcaptcha
 2. Vá no serviço do **Backend** → **"Variables"**
 3. Atualize `CORS_ORIGIN` com a URL da Vercel:
    ```env
-   CORS_ORIGIN=https://seu-app.vercel.app
+   CORS_ORIGIN=despa-facil.vercel.app
    ```
 4. O Railway vai fazer redeploy automaticamente
 
@@ -235,9 +235,9 @@ Para envio de emails (reset de senha, etc), você precisa de um serviço SMTP:
    ```env
    SMTP_HOST=smtp.gmail.com
    SMTP_PORT=587
-   SMTP_USER=seuemail@gmail.com
-   SMTP_PASS=senha-de-app-gerada
-   EMAIL_FROM=seuemail@gmail.com
+   SMTP_USER=pleuskick@gmail.com
+   SMTP_PASS=iuxnicaesuubuczya
+   EMAIL_FROM=pleuskick@gmail.com
    ```
 
 #### Opção 2: SendGrid (Recomendado para produção)
