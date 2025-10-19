@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   description: 'Sistema para gestão de motoristas e documentos',
   icons: {
     icon: [
-      { url: '/ui/favicon.png', type: 'image/png' },
+      { url: '/favicon.ico', type: 'image/x-icon' },
     ],
   },
 }
@@ -24,6 +24,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR">
+      <head>
+        <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+      </head>
       <body className={inter.className}>
         {/* Faixa superior com cor da marca */}
         <div className="w-full h-1.5 bg-brand" />
