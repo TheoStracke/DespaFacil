@@ -1,18 +1,11 @@
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import BackButton from '@/components/ui/BackButton'
 
 export default function Sobre() {
-  const router = useRouter()
   return (
     <main className="max-w-xl mx-auto py-12 px-4">
       <div className="mb-4">
-        <button
-          onClick={() => router.back()}
-          className="text-sm text-blue-600 hover:text-blue-800 underline"
-          aria-label="Voltar"
-        >
-          ← Voltar
-        </button>
+        <BackButton />
       </div>
       <h1 className="text-2xl font-bold mb-4">Sobre o DespaFacil</h1>
       <p className="mb-4">
