@@ -10,6 +10,11 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'DespaFacil - Sistema de Gestão',
   description: 'Sistema para gestão de motoristas e documentos',
+  icons: {
+    icon: [
+      { url: '/ui/favicon.png', type: 'image/png' },
+    ],
+  },
 }
 
 export default function RootLayout({
