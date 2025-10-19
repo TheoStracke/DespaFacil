@@ -19,8 +19,9 @@ describe('Validators', () => {
 
   describe('validateCNPJ', () => {
     it('deve validar CNPJ correto', () => {
-      expect(validateCNPJ('00.000.000/0001-91')).toBe(true);
-      expect(validateCNPJ('00000000000191')).toBe(true);
+      // Usa um CNPJ conhecido como válido para testes
+      expect(validateCNPJ('11.444.777/0001-61')).toBe(true);
+      expect(validateCNPJ('11444777000161')).toBe(true);
     });
 
     it('deve rejeitar CNPJ inválido', () => {

@@ -9,46 +9,42 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { useToast } from '@/components/ui/toast'
 import authService from '@/services/auth.service'
-import { maskCPFOrCNPJ, unmaskCPF, validateCPFOrCNPJ } from '@/lib/masks'
+import { maskCNPJ, validateCNPJ, unmaskCNPJ } from '@/lib/masks'
 
 export default function LoginPage() {
   const router = useRouter()
   const { toast } = useToast()
   
-  const [cpfOrEmail, setCpfOrEmail] = useState('')
+  const [cnpj, setCnpj] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
-  const [errors, setErrors] = useState({ cpfOrEmail: '', password: '' })
+  const [errors, setErrors] = useState({ cnpj: '', password: '' })
 
-  // Aplicar máscara ao digitar CPF
-  const handleCpfOrEmailChange = (value: string) => {
-    // Se contém @ é email, senão aplica máscara de CPF/CNPJ
-    if (value.includes('@')) {
-      setCpfOrEmail(value)
-    } else {
-      setCpfOrEmail(maskCPFOrCNPJ(value))
-    }
-    
-    // Limpar erro ao digitar
-    if (errors.cpfOrEmail) {
-      setErrors(prev => ({ ...prev, cpfOrEmail: '' }))
+  // Aplicar máscara ao digitar CNPJ
+  const handleCnpjChange = (value: string) => {
+    setCnpj(maskCNPJ(value))
+    if (errors.cnpj) {
+      setErrors(prev => ({ ...prev, cnpj: '' }))
     }
   }
 
   // Validação dos campos
   const validate = (): boolean => {
-    const newErrors = { cpfOrEmail: '', password: '' }
+    const newErrors = { cnpj: '', password: '' }
     let isValid = true
 
-    // Validar CPF/Email
-    if (!cpfOrEmail.trim()) {
-      newErrors.cpfOrEmail = 'CPF/CNPJ ou Email é obrigatório'
+    // Validar CNPJ
+    if (!cnpj.trim()) {
+      newErrors.cnpj = 'CNPJ é obrigatório'
       isValid = false
-    } else if (!cpfOrEmail.includes('@')) {
-      // Se não é email, validar como CPF/CNPJ
-      if (!validateCPFOrCNPJ(cpfOrEmail)) {
-        newErrors.cpfOrEmail = 'CPF/CNPJ inválido'
-        isValid = false
+    } else {
+      const value = cnpj.replace(/\D/g, "");
+      if (value.length !== 14) {
+        newErrors.cnpj = 'CNPJ deve ter 14 dígitos'
+        isValid = false;
+      } else if (!validateCNPJ(cnpj)) {
+        newErrors.cnpj = 'CNPJ inválido'
+        isValid = false;
       }
     }
 
@@ -81,10 +77,8 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      // Remover máscara se for CPF/CNPJ
-      const emailOrCnpj = cpfOrEmail.includes('@') 
-        ? cpfOrEmail 
-        : unmaskCPF(cpfOrEmail)
+      // Remover máscara do CNPJ
+      const emailOrCnpj = unmaskCNPJ(cnpj)
 
       await authService.login({
         emailOrCnpj,
@@ -143,17 +137,19 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
-              {/* Campo CPF/CNPJ ou Email */}
+              {/* Campo CNPJ */}
               <Input
-                label="CPF/CNPJ ou Email"
+                label="CNPJ"
                 type="text"
-                value={cpfOrEmail}
-                onChange={(e) => handleCpfOrEmailChange(e.target.value)}
-                placeholder="000.000.000-00 ou email@example.com"
-                error={errors.cpfOrEmail}
+                value={cnpj}
+                onChange={(e) => handleCnpjChange(e.target.value)}
+                placeholder="00.000.000/0000-00"
+                error={errors.cnpj}
                 required
                 disabled={loading}
                 autoFocus
+                autoComplete="username"
+                maxLength={18}
               />
 
               {/* Campo Senha */}

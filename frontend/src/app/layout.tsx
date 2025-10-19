@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { ToastProvider } from '@/components/ui/toast'
 import { WhatsAppSupport } from '@/components/ui/WhatsAppSupport'
+import Footer from '@/components/Footer'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -26,6 +27,7 @@ export default function RootLayout({
         </ToastProvider>
         {/* Botão flutuante de suporte WhatsApp em todas as páginas */}
         <WhatsAppSupport />
+        <Footer />
       </body>
     </html>
   )

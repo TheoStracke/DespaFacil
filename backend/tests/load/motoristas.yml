@@ -1,0 +1,18 @@
+config:
+  target: "http://127.0.0.1:4002"
+  phases:
+    - duration: 60
+      arrivalRate: 50
+      name: list-500
+    - duration: 60
+      arrivalRate: 100
+      name: list-1000
+  processor: ./processor.js
+scenarios:
+  - name: List motoristas
+    flow:
+      - function: login
+      - get:
+          url: "/api/motoristas"
+          headers:
+            Authorization: "Bearer {{ token }}"

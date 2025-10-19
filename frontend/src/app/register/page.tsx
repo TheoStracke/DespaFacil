@@ -250,15 +250,26 @@ export default function RegisterPage() {
                 disabled={loading}
               />
 
-              {/* CNPJ */}
+              {/* CNPJ (apenas CNPJ, não aceita email) */}
               <Input
                 label="CNPJ"
                 value={formData.cnpj}
-                onChange={(e) => handleChange('cnpj', e.target.value)}
+                onChange={(e) => {
+                  // Permitir apenas números e máscara de CNPJ
+                  const onlyNumbers = e.target.value.replace(/\D/g, "");
+                  // Limitar a 14 dígitos
+                  if (onlyNumbers.length <= 14) {
+                    handleChange('cnpj', e.target.value);
+                  }
+                }}
                 placeholder="00.000.000/0000-00"
                 error={errors.cnpj}
                 required
                 disabled={loading}
+                inputMode="numeric"
+                pattern="\d{2}\.\d{3}\.\d{3}/\d{4}-\d{2}"
+                maxLength={18}
+                autoComplete="off"
               />
 
               {/* Senha */}

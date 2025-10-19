@@ -1,0 +1,23 @@
+config:
+  target: "http://127.0.0.1:4003"
+  phases:
+    - duration: 60
+      arrivalRate: 10
+      name: warmup
+    - duration: 60
+      arrivalRate: 100
+      name: ramp-500
+    - duration: 60
+      arrivalRate: 200
+      name: ramp-1000
+  defaults:
+    headers:
+      Content-Type: application/json
+scenarios:
+  - name: Login load
+    flow:
+      - post:
+          url: "/api/auth/login"
+          json:
+            emailOrCnpj: "despachante@test.local"
+            password: "SenhaForte123!"

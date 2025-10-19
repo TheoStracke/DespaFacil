@@ -1,0 +1,56 @@
+config:
+  target: "http://127.0.0.1:4004"
+  phases:
+    - duration: 1800  # 30 minutes
+      arrivalRate: 30
+      name: constant-soak
+  processor: ./processor-soak.js
+  defaults:
+    headers:
+      Accept: application/json
+scenarios:
+  # Mix de 4 fluxos para cobrir sucesso, erros e segurança
+  - name: Fluxo Despachante - sucesso e listagens
+    weight: 4
+    flow:
+      - function: prepDesp
+      - get:
+          url: "/api/motoristas"
+          headers:
+            Authorization: "Bearer {{ despToken }}"
+      - function: uploadValido
+      - get:
+          url: "/api/certificados"
+          headers:
+            Authorization: "Bearer {{ despToken }}"
+
+  - name: Fluxo Upload inválido (segurança)
+    weight: 2
+    flow:
+      - function: prepDesp
+      - function: uploadInvalido
+
+  - name: Fluxo Login fuzz/erros
+    weight: 2
+    flow:
+      - function: fuzzLogin
+
+  - name: Fluxo Token inválido e acesso negado
+    weight: 1
+    flow:
+      - function: prepDesp
+      - function: invalidToken
+      - get:
+          url: "/api/admin/documentos"
+          headers:
+            Authorization: "Bearer {{ badToken }}"
+      - post:
+          url: "/api/documentos/upload"
+          headers:
+            Authorization: "Bearer {{ badToken }}"
+          formData:
+            motoristaId: "{{ motoristaId }}"
+            tipo: "CNH"
+            file:
+              path: "./fixtures/sample.pdf"
+              contentType: "application/pdf"

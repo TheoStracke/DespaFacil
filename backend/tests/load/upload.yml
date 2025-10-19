@@ -1,0 +1,21 @@
+config:
+  target: "http://127.0.0.1:4003"
+  phases:
+    - duration: 60
+      arrivalRate: 20
+      name: upload-500
+  processor: ./processor.js
+scenarios:
+  - name: Upload documento
+    flow:
+      - function: login
+      - post:
+          url: "/api/documentos/upload"
+          headers:
+            Authorization: "Bearer {{ token }}"
+          formData:
+            motoristaId: "{{ motoristaId }}"
+            tipo: "CNH"
+            file:
+              path: "./fixtures/sample.pdf"
+              contentType: "application/pdf"

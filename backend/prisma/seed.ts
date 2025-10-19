@@ -10,34 +10,53 @@ async function main() {
   console.log('🌱 Iniciando seed...');
 
   const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS || '12', 10);
-  const adminPassword = process.env.SEED_ADMIN_PASSWORD || 'SenhaForte123!';
-  const hashedPassword = await bcrypt.hash(adminPassword, saltRounds);
+  
+  // Senhas específicas para cada admin
+  const vellumPassword = 'Vellum@25';
+  const estradaFacilPassword = 'estradaFacil@25';
+  
+  const hashedVellumPassword = await bcrypt.hash(vellumPassword, saltRounds);
+  const hashedEstradaFacilPassword = await bcrypt.hash(estradaFacilPassword, saltRounds);
 
-  // Criar admins
+  // Criar admins com CNPJs
   const admins = [
-    { email: 'theostracke11@gmail.com', name: 'Theo Stracke' },
-    { email: 'pleuskick@gmail.com', name: 'Pleu Kick' },
+    { 
+      name: 'Rede Vellum', 
+      cnpj: '43403910000128', 
+      email: 'vellum@admin.local',
+      password: hashedVellumPassword 
+    },
+    { 
+      name: 'Estrada Fácil', 
+      cnpj: '20692051000139', 
+      email: 'estradafacil@admin.local',
+      password: hashedEstradaFacilPassword 
+    },
   ];
 
   for (const admin of admins) {
-    const existing = await prisma.user.findUnique({ where: { email: admin.email } });
+    const existing = await prisma.user.findUnique({ where: { cnpj: admin.cnpj } });
     if (!existing) {
       await prisma.user.create({
         data: {
           name: admin.name,
           email: admin.email,
-          password: hashedPassword,
+          cnpj: admin.cnpj,
+          password: admin.password,
           role: 'ADMIN',
         },
       });
-      console.log(`✅ Admin criado: ${admin.email}`);
+      console.log(`✅ Admin criado: ${admin.name} (CNPJ: ${admin.cnpj})`);
     } else {
-      console.log(`ℹ️  Admin já existe: ${admin.email}`);
+      console.log(`ℹ️  Admin já existe: ${admin.name}`);
     }
   }
 
   // Criar despachante de teste
   const despachanteEmail = 'despachante@test.local';
+  const despachantePassword = 'SenhaForte123!';
+  const hashedDespachantePassword = await bcrypt.hash(despachantePassword, saltRounds);
+  
   let despachanteUser = await prisma.user.findUnique({ where: { email: despachanteEmail } });
 
   if (!despachanteUser) {
@@ -46,7 +65,7 @@ async function main() {
         name: 'Despachante Teste',
         email: despachanteEmail,
         cnpj: '00000000000191',
-        password: hashedPassword,
+        password: hashedDespachantePassword,
         role: 'DESPACHANTE',
       },
     });
@@ -91,11 +110,11 @@ async function main() {
   console.log('📋 Credenciais de acesso:');
   console.log('');
   console.log('👤 Admins:');
-  console.log(`   - theostracke11@gmail.com / ${adminPassword}`);
-  console.log(`   - pleuskick@gmail.com / ${adminPassword}`);
+  console.log(`   - Rede Vellum (CNPJ: 43.403.910/0001-28) / ${vellumPassword}`);
+  console.log(`   - Estrada Fácil (CNPJ: 20.692.051/0001-39) / ${estradaFacilPassword}`);
   console.log('');
   console.log('👤 Despachante de teste:');
-  console.log(`   - ${despachanteEmail} / ${adminPassword}`);
+  console.log(`   - ${despachanteEmail} / ${despachantePassword}`);
   console.log('');
 }
 

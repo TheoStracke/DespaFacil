@@ -1,0 +1,1 @@
+This is not a valid PDF/PNG/JPG file. Used to trigger multer file type validation errors during soak tests.

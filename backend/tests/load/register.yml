@@ -1,0 +1,16 @@
+config:
+  target: "http://127.0.0.1:4002"
+  phases:
+    - duration: 60
+      arrivalRate: 20
+      name: register-500
+scenarios:
+  - name: Register users
+    flow:
+      - post:
+          url: "/api/auth/register"
+          json:
+            name: "User {{ $randomNumber(1000000, 9999999) }}"
+            email: "user{{ $randomNumber(1000000, 9999999) }}@test.local"
+            password: "SenhaForte123!"
+            confirmPassword: "SenhaForte123!"

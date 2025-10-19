@@ -1,3 +1,29 @@
+# Node
+node_modules/
+
+# Env & secrets
+.env
+**/.env
+backend/.env
+frontend/.env
+
+# Logs & reports
+*.log
+**/reports/
+
+# Uploads & storage
+**/uploads/
+
+# Build outputs
+**/dist/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
 # Logs
 logs
 *.log

@@ -24,12 +24,25 @@ if (process.env.TRUST_PROXY === '1') {
 app.use(helmet());
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
-app.use(cors({
-  origin: process.env.FRONTEND_URL || '*',
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  credentials: true,
-}));
-app.use(morgan('dev'));
+// CORS restrito em produção (FRONTEND_URL pode ser lista separada por vírgula)
+const allowedOrigins = (process.env.FRONTEND_URL || '').split(',').map((s) => s.trim()).filter(Boolean);
+const isProd = process.env.NODE_ENV === 'production';
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!isProd) return callback(null, true); // liberar em dev
+      if (!origin) return callback(null, true); // permitir ferramentas sem Origin
+      if (allowedOrigins.length === 0) return callback(null, true); // fallback se não configurado
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error('Not allowed by CORS'));
+    },
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    credentials: true,
+  })
+);
+
+// Logging: detalhado em dev, combined em prod
+app.use(morgan(isProd ? 'combined' : 'dev'));
 
 // Health check
 app.get('/', (req: Request, res: Response) => {
