@@ -180,6 +180,9 @@ export default function DashboardPage() {
                 {user?.name || user?.email}
               </span>
             </div>
+            <Button variant="outline" size="sm" onClick={() => router.push('/profile')}>
+              Editar Perfil
+            </Button>
             {user?.role === 'ADMIN' && (
               <Button 
                 size="sm" 
