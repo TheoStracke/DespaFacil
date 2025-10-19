@@ -23,17 +23,19 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" className="h-full">
       <head>
         <link rel="icon" href="/favicon.ico" type="image/x-icon" />
         <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
       </head>
-      <body className={inter.className}>
+      <body className={`${inter.className} min-h-screen flex flex-col`}> 
         {/* Faixa superior com cor da marca */}
         <div className="w-full h-1.5 bg-brand" />
-        <ToastProvider>        
-          {children}
-        </ToastProvider>
+        <main className="flex-1">
+          <ToastProvider>        
+            {children}
+          </ToastProvider>
+        </main>
         {/* Botão flutuante de suporte WhatsApp em todas as páginas */}
         <WhatsAppSupport />
         <Footer />

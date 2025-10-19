@@ -1,6 +1,19 @@
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+
 export default function Sobre() {
+  const router = useRouter()
   return (
     <main className="max-w-xl mx-auto py-12 px-4">
+      <div className="mb-4">
+        <button
+          onClick={() => router.back()}
+          className="text-sm text-blue-600 hover:text-blue-800 underline"
+          aria-label="Voltar"
+        >
+          ← Voltar
+        </button>
+      </div>
       <h1 className="text-2xl font-bold mb-4">Sobre o DespaFacil</h1>
       <p className="mb-4">
         O <b>DespaFacil</b> é uma plataforma para despachantes gerenciarem motoristas, documentos e certificados de forma simples, segura e digital. Nosso objetivo é facilitar o dia a dia do despachante, reduzindo burocracia e centralizando tudo em um só lugar.
