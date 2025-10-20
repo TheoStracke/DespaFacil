@@ -134,13 +134,29 @@ export async function forgotPassword(email: string, captcha: string) {
   const secret = process.env.HCAPTCHA_SECRET;
   if (!captcha) throw new Error('Captcha obrigatório');
   if (!secret) throw new Error('hCaptcha secret não configurado');
+  
   const verifyUrl = 'https://hcaptcha.com/siteverify';
-  const verifyRes = await axios.post(
-    verifyUrl,
-    new URLSearchParams({ secret, response: captcha }),
-    { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
-  );
-  if (!verifyRes.data.success) throw new Error('Falha ao validar captcha');
+  try {
+    const verifyRes = await axios.post(
+      verifyUrl,
+      new URLSearchParams({ secret, response: captcha }),
+      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+    );
+    
+    console.log('[HCAPTCHA] Resposta:', verifyRes.data);
+    
+    if (!verifyRes.data.success) {
+      console.error('[HCAPTCHA] Falha na validação:', verifyRes.data['error-codes']);
+      throw new Error('Falha ao validar captcha. Tente novamente.');
+    }
+  } catch (error: any) {
+    console.error('[HCAPTCHA] Erro na chamada:', error.message);
+    if (error.response) {
+      console.error('[HCAPTCHA] Status:', error.response.status);
+      console.error('[HCAPTCHA] Data:', error.response.data);
+    }
+    throw new Error('Erro ao validar captcha. Tente novamente.');
+  }
 
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) {

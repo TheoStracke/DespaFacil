@@ -356,9 +356,8 @@ export default function DashboardPage() {
                       <TableHead>Curso</TableHead>
                       <TableHead>CNH</TableHead>
                       <TableHead>Comprovante</TableHead>
-                      <TableHead>Doc 1</TableHead>
-                      <TableHead>Doc 2</TableHead>
-                      <TableHead>Ações</TableHead>
+                      <TableHead>Lista de Presença</TableHead>
+                      <TableHead>Dados</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>

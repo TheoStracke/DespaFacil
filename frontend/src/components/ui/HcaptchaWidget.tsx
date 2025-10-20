@@ -17,6 +17,7 @@ export default function HcaptchaWidget({ sitekey, onVerify, onExpire }: Hcaptcha
       script.defer = true;
       script.onload = () => {
         if (window.hcaptcha && widgetRef.current) {
+          widgetRef.current.innerHTML = '';
           window.hcaptcha.render(widgetRef.current, {
             sitekey,
             callback: onVerify,
@@ -26,6 +27,7 @@ export default function HcaptchaWidget({ sitekey, onVerify, onExpire }: Hcaptcha
       };
       document.body.appendChild(script);
     } else if (widgetRef.current) {
+      widgetRef.current.innerHTML = '';
       window.hcaptcha.render(widgetRef.current, {
         sitekey,
         callback: onVerify,

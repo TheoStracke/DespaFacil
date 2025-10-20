@@ -22,10 +22,15 @@ export async function login(req: Request, res: Response) {
 export async function forgotPassword(req: Request, res: Response) {
   try {
     const { email, captcha } = req.body;
+    console.log('[FORGOT-PASSWORD] Request:', { email: email ? '***' : undefined, captchaLength: captcha?.length });
+    
+    if (!email) throw new Error('Email obrigatório');
     if (!captcha) throw new Error('Captcha obrigatório');
+    
     await authService.forgotPassword(email, captcha);
     res.json({ success: true, message: 'Email de recuperação enviado' });
   } catch (err: any) {
+    console.error('[FORGOT-PASSWORD] Erro:', err.message);
     res.status(400).json({ success: false, error: err.message });
   }
 }
