@@ -54,7 +54,7 @@ export function SolicitarParceiraModal({ isOpen, onClose, formData }: SolicitarP
         toast({
           type: 'success',
           title: 'Solicitação enviada com sucesso!',
-          description: 'Você receberá um email quando sua solicitação for aprovada. Após a aprovação, poderá fazer login com suas credenciais.',
+          description: 'Você receberá um email quando sua solicitação for aprovada. Para garantir que receba nossos emails, adicione despafacilrepo@gmail.com aos seus contatos.',
         })
         onClose()
       } else {

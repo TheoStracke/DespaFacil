@@ -40,6 +40,30 @@ export async function sendSendGridEmail({
             value: html,
           }
         ],
+        // Configurações anti-spam
+        tracking_settings: {
+          click_tracking: {
+            enable: true,
+            enable_text: false
+          },
+          open_tracking: {
+            enable: true
+          },
+          subscription_tracking: {
+            enable: false
+          }
+        },
+        mail_settings: {
+          bypass_list_management: {
+            enable: false
+          },
+          footer: {
+            enable: false
+          },
+          sandbox_mode: {
+            enable: false
+          }
+        }
       },
       {
         headers: {

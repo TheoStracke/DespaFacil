@@ -47,6 +47,7 @@ export async function notifyCadastroCriado(email: string, nome: string) {
           <p>Olá, <strong>${nome}</strong>!</p>
           <p>Seu cadastro foi realizado com sucesso na plataforma DespaFacil.</p>
           <p>Agora você já pode acessar todos os recursos disponíveis e começar a gerenciar seus documentos de forma simples e eficiente.</p>
+          <p><strong>📧 Importante:</strong> Para garantir que você receba nossos emails, adicione <strong>despafacilrepo@gmail.com</strong> aos seus contatos.</p>
           <p>Se tiver alguma dúvida, entre em contato conosco.</p>
           <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/login" class="button">Acessar Plataforma</a>
         </div>
