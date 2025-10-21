@@ -13,7 +13,7 @@ export default function Sobre() {
       </p>
       <p className="mb-4">
         <b>Suporte:</b> Atendimento exclusivo via WhatsApp.<br />
-        <a href="https://wa.me/SEU_NUMERO" target="_blank" rel="noopener" className="text-green-600 underline">Fale conosco no WhatsApp</a>
+  <a href="https://wa.me/5548988614963" target="_blank" rel="noopener" className="text-green-600 underline">Fale conosco no WhatsApp</a>
       </p>
       <p className="mb-4">
         <b>Versão:</b> 1.0.0<br />

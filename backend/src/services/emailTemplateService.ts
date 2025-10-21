@@ -1,4 +1,7 @@
 import mjml2html from 'mjml';
+import { getAppUrl } from '../utils/appUrl';
+
+const APP_URL = getAppUrl();
 
 interface EmailTemplateData {
   nome: string;
@@ -86,8 +89,8 @@ export function getWelcomeTemplate(data: { nome: string; loginUrl: string }): st
             <mj-text font-size="12px" color="#9aa1a6" align="center">
               Precisa de ajuda? Entre em contato: <a href="mailto:despafacilrepo@gmail.com" style="color:#667eea; text-decoration:none;">despafacilrepo@gmail.com</a>
               <br /><br />
-              <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/politica-privacidade" style="color:#667eea; text-decoration:none;">Política de Privacidade</a> — 
-              <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/termos-uso" style="color:#667eea; text-decoration:none;">Termos de Uso</a>
+              <a href="${APP_URL}/politica-privacidade" style="color:#667eea; text-decoration:none;">Política de Privacidade</a> — 
+              <a href="${APP_URL}/termos-uso" style="color:#667eea; text-decoration:none;">Termos de Uso</a>
             </mj-text>
           </mj-column>
         </mj-section>
@@ -163,8 +166,8 @@ export function getFirstLoginTemplate(data: { nome: string }): string {
             <mj-divider border-color="#e6eef5" />
             <mj-text font-size="12px" color="#9aa1a6" align="center" padding-top="16px">
               © 2025 DespaFacil. Gestão de Despachantes Documentalistas.<br/>
-              <a href="${process.env.FRONTEND_URL}/politica-privacidade" style="color:#667eea; text-decoration:none;">Política de Privacidade</a> — 
-              <a href="${process.env.FRONTEND_URL}/termos-uso" style="color:#667eea; text-decoration:none;">Termos de Uso</a>
+              <a href="${APP_URL}/politica-privacidade" style="color:#667eea; text-decoration:none;">Política de Privacidade</a> — 
+              <a href="${APP_URL}/termos-uso" style="color:#667eea; text-decoration:none;">Termos de Uso</a>
             </mj-text>
           </mj-column>
         </mj-section>
@@ -230,8 +233,8 @@ export function getPartnerRequestTemplate(data: { nome: string }): string {
             <mj-divider border-color="#e6eef5" />
             <mj-text font-size="12px" color="#9aa1a6" align="center" padding-top="16px">
               © 2025 DespaFacil. Todos os direitos reservados.<br/>
-              <a href="${process.env.FRONTEND_URL}/politica-privacidade" style="color:#667eea; text-decoration:none;">Política de Privacidade</a> — 
-              <a href="${process.env.FRONTEND_URL}/termos-uso" style="color:#667eea; text-decoration:none;">Termos de Uso</a>
+              <a href="${APP_URL}/politica-privacidade" style="color:#667eea; text-decoration:none;">Política de Privacidade</a> — 
+              <a href="${APP_URL}/termos-uso" style="color:#667eea; text-decoration:none;">Termos de Uso</a>
             </mj-text>
           </mj-column>
         </mj-section>
@@ -328,8 +331,8 @@ export function getAdminNotificationTemplate(data: {
             <mj-divider border-color="#e6eef5" />
             <mj-text font-size="12px" color="#9aa1a6" align="center" padding-top="16px">
               © 2025 DespaFacil. Gestão de Despachantes Documentalistas.<br/>
-              <a href="${process.env.FRONTEND_URL}/politica-privacidade" style="color:#667eea; text-decoration:none;">Política de Privacidade</a> — 
-              <a href="${process.env.FRONTEND_URL}/termos-uso" style="color:#667eea; text-decoration:none;">Termos de Uso</a>
+              <a href="${APP_URL}/politica-privacidade" style="color:#667eea; text-decoration:none;">Política de Privacidade</a> — 
+              <a href="${APP_URL}/termos-uso" style="color:#667eea; text-decoration:none;">Termos de Uso</a>
             </mj-text>
           </mj-column>
         </mj-section>
@@ -404,8 +407,8 @@ export function getApprovalTemplate(data: { nome: string; loginUrl: string }): s
             <mj-divider border-color="#e6eef5" />
             <mj-text font-size="12px" color="#9aa1a6" align="center" padding-top="16px">
               © 2025 DespaFacil. Gestão de Despachantes Documentalistas.<br/>
-              <a href="${process.env.FRONTEND_URL}/politica-privacidade" style="color:#667eea; text-decoration:none;">Política de Privacidade</a> — 
-              <a href="${process.env.FRONTEND_URL}/termos-uso" style="color:#667eea; text-decoration:none;">Termos de Uso</a>
+              <a href="${APP_URL}/politica-privacidade" style="color:#667eea; text-decoration:none;">Política de Privacidade</a> — 
+              <a href="${APP_URL}/termos-uso" style="color:#667eea; text-decoration:none;">Termos de Uso</a>
             </mj-text>
           </mj-column>
         </mj-section>
@@ -475,8 +478,8 @@ export function getRejectionTemplate(data: { nome: string; motivo: string }): st
             <mj-divider border-color="#e6eef5" />
             <mj-text font-size="12px" color="#9aa1a6" align="center" padding-top="16px">
               © 2025 DespaFacil. Gestão de Despachantes Documentalistas.<br/>
-              <a href="${process.env.FRONTEND_URL}/politica-privacidade" style="color:#667eea; text-decoration:none;">Política de Privacidade</a> — 
-              <a href="${process.env.FRONTEND_URL}/termos-uso" style="color:#667eea; text-decoration:none;">Termos de Uso</a>
+              <a href="${APP_URL}/politica-privacidade" style="color:#667eea; text-decoration:none;">Política de Privacidade</a> — 
+              <a href="${APP_URL}/termos-uso" style="color:#667eea; text-decoration:none;">Termos de Uso</a>
             </mj-text>
           </mj-column>
         </mj-section>

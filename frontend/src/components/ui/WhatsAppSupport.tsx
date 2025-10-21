@@ -8,7 +8,7 @@ export function WhatsAppSupport() {
   const [isOpen, setIsOpen] = useState(false)
 
   const handleStartChat = () => {
-    window.open('https://wa.me/+5548988614963', '_blank')
+    window.open('https://wa.me/5548988614963', '_blank')
     setIsOpen(false)
   }
 

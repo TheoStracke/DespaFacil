@@ -1,5 +1,6 @@
 
 import { sendSendGridEmail } from './sendGridService';
+import { getAppUrl } from '../utils/appUrl';
 import {
   getWelcomeTemplate,
   getFirstLoginTemplate,
@@ -34,9 +35,10 @@ export async function sendMail({ to, subject, html }: EmailOptions) {
 
 // 1. Notificação de cadastro criado
 export async function notifyCadastroCriado(email: string, nome: string) {
+  const APP_URL = getAppUrl();
   const html = getWelcomeTemplate({
     nome,
-    loginUrl: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/login`
+    loginUrl: `${APP_URL}/login`
   });
   
   await sendMail({
@@ -77,6 +79,7 @@ export async function notifyAdminNovaSolicitacao(dados: {
   nomeResponsavel: string;
   mensagem?: string;
 }) {
+  const APP_URL = getAppUrl();
   const html = getAdminNotificationTemplate({
     empresa: dados.empresa,
     cnpj: dados.cnpj,
@@ -84,7 +87,7 @@ export async function notifyAdminNovaSolicitacao(dados: {
     telefone: dados.telefone,
     nomeResponsavel: dados.nomeResponsavel,
     mensagem: dados.mensagem || 'Sem mensagem',
-    adminPanelUrl: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/admin/solicitacoes`
+    adminPanelUrl: `${APP_URL}/admin/solicitacoes`
   });
   
   await sendMail({
@@ -96,9 +99,10 @@ export async function notifyAdminNovaSolicitacao(dados: {
 
 // 5. Notificação de solicitação aprovada
 export async function notifySolicitacaoAprovada(email: string, nome: string) {
+  const APP_URL = getAppUrl();
   const html = getApprovalTemplate({
     nome,
-    loginUrl: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/login`
+    loginUrl: `${APP_URL}/login`
   });
   
   await sendMail({

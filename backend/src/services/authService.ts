@@ -6,6 +6,7 @@ import { validateCNPJ } from '../utils/validators';
 import axios from 'axios';
 import { getParceiroStatus } from './parceiroService';
 import { notifyCadastroCriado, notifyPrimeiroLogin } from './emailService';
+import { getAppUrl } from '../utils/appUrl';
 
 const BCRYPT_ROUNDS = parseInt(process.env.BCRYPT_SALT_ROUNDS || '12', 10);
 const JWT_SECRET: Secret = (process.env.JWT_SECRET || 'secret') as Secret;
@@ -203,7 +204,7 @@ export async function forgotPassword(email: string, captcha: string) {
       <p>Você solicitou a redefinição de senha.</p>
       <p>Clique no link abaixo para redefinir sua senha. Se você não solicitou, ignore este email.</p>
       <p>
-        <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}" target="_blank" rel="noopener noreferrer">
+        <a href="${getAppUrl()}/reset-password?token=${resetToken}" target="_blank" rel="noopener noreferrer">
           Redefinir minha senha
         </a>
       </p>

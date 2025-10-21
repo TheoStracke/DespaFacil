@@ -2,6 +2,7 @@ import prisma from '../prisma/client';
 import { sendEmail } from '../utils/mailer';
 import path from 'path';
 import fs from 'fs';
+import { getAppUrl } from '../utils/appUrl';
 
 export async function uploadDocumento(
   motoristaId: string,
@@ -358,7 +359,7 @@ export async function sendCertificado(
         <div style="background-color: #eff6ff; padding: 15px; border-radius: 8px; border-left: 4px solid #2563eb;">
           <p style="margin: 0; color: #1e40af;">
             <strong>� Para baixar o certificado:</strong><br>
-            Acesse seu painel em <a href="http://localhost:3000/dashboard" style="color: #2563eb; text-decoration: none;">DespaFacil</a> e vá na seção "Certificados".
+            Acesse seu painel em <a href="${getAppUrl()}/dashboard" style="color: #2563eb; text-decoration: none;">DespaFacil</a> e vá na seção "Certificados".
           </p>
         </div>
         
