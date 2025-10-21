@@ -1,5 +1,5 @@
 
-import { sendResendEmail } from './resendService';
+import { sendSendGridEmail } from './sendGridService';
 
 interface EmailOptions {
   to: string;
@@ -9,15 +9,16 @@ interface EmailOptions {
 
 export async function sendMail({ to, subject, html }: EmailOptions) {
   try {
-    await sendResendEmail({
-      from: 'DespaFacil <despafacilrepo@gmail.com>',
+    await sendSendGridEmail({
+      from: 'despafacilrepo@gmail.com',
       to,
       subject,
       html,
+      replyTo: 'despafacilrepo@gmail.com'
     });
     console.log(`✅ E-mail enviado para ${to}`);
   } catch (error) {
-    console.error('❌ Erro ao enviar e-mail via Resend:', error);
+    console.error('❌ Erro ao enviar e-mail via SendGrid:', error);
     throw error;
   }
 }
