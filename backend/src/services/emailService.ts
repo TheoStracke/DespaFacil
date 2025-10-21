@@ -1,14 +1,5 @@
-import nodemailer from 'nodemailer';
 
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.SMTP_USER || 'despafacilrepo@gmail.com',
-    pass: process.env.SMTP_PASS,
-  },
-});
+import { sendResendEmail } from './resendService';
 
 interface EmailOptions {
   to: string;
@@ -18,15 +9,15 @@ interface EmailOptions {
 
 export async function sendMail({ to, subject, html }: EmailOptions) {
   try {
-    await transporter.sendMail({
-      from: '"DespaFacil" <despafacilrepo@gmail.com>',
+    await sendResendEmail({
+      from: 'DespaFacil <despafacilrepo@gmail.com>',
       to,
       subject,
       html,
     });
     console.log(`✅ E-mail enviado para ${to}`);
   } catch (error) {
-    console.error('❌ Erro ao enviar e-mail:', error);
+    console.error('❌ Erro ao enviar e-mail via Resend:', error);
     throw error;
   }
 }
