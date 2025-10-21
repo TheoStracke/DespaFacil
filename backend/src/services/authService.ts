@@ -135,20 +135,7 @@ export async function login(data: LoginData) {
     throw new Error('Credenciais inválidas');
   }
 
-  // Verificar se é o primeiro login e enviar e-mail
-  if (user.primeiroLogin) {
-    try {
-      await notifyPrimeiroLogin(user.email, user.name);
-      // Atualizar flag de primeiro login
-      await prisma.user.update({
-        where: { id: user.id },
-        data: { primeiroLogin: false },
-      });
-    } catch (emailError) {
-      console.error('❌ Erro ao enviar e-mail de primeiro login:', emailError);
-      // Não falha o login se o e-mail falhar
-    }
-  }
+  // Removido envio de e-mail de primeiro login para acelerar o login
 
   if (!JWT_SECRET) {
     throw new Error('JWT_SECRET not configured');
