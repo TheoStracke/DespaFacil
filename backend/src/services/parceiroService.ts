@@ -1,5 +1,6 @@
 import prisma from '../prisma/client';
 import bcrypt from 'bcryptjs';
+import { notifySolicitacaoCadastro, notifyAdminNovaSolicitacao, notifySolicitacaoAprovada, notifySolicitacaoNegada } from './emailService';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const BCRYPT_ROUNDS = parseInt(process.env.BCRYPT_SALT_ROUNDS || '12', 10);
@@ -89,6 +90,25 @@ export async function solicitarParceria(input: { cnpj: string; empresa: string; 
     },
   });
 
+  // Enviar e-mails de notificação
+  try {
+    // E-mail para o usuário confirmando recebimento
+    await notifySolicitacaoCadastro(input.email, input.nomeResponsavel || input.empresa);
+    
+    // E-mail para o admin notificando nova solicitação
+    await notifyAdminNovaSolicitacao({
+      empresa: input.empresa,
+      cnpj,
+      email: input.email,
+      telefone: input.telefone,
+      nomeResponsavel: input.nomeResponsavel || 'Não informado',
+      mensagem: input.mensagem,
+    });
+  } catch (emailError) {
+    console.error('❌ Erro ao enviar e-mails de notificação:', emailError);
+    // Não falha a solicitação se o e-mail falhar
+  }
+
   return { ok: true, solicitacaoId: solicitacao.id };
 }
 
@@ -147,6 +167,13 @@ export async function aprovarSolicitacao(id: string, adminId?: string) {
     // Não falhar a aprovação se houver erro na criação do usuário
   }
 
+  // Enviar e-mail de aprovação
+  try {
+    await notifySolicitacaoAprovada(s.email, s.nomeResponsavel || s.empresa);
+  } catch (emailError) {
+    console.error('❌ Erro ao enviar e-mail de aprovação:', emailError);
+  }
+
   return { ok: true };
 }
 
@@ -160,5 +187,13 @@ export async function rejeitarSolicitacao(id: string, observacoes?: string, admi
     } 
   });
   await (prisma as any).parceiro.updateMany({ where: { cnpj: s.cnpj }, data: { status: 'REJEITADO' as any } });
+  
+  // Enviar e-mail de rejeição
+  try {
+    await notifySolicitacaoNegada(s.email, s.nomeResponsavel || s.empresa, observacoes);
+  } catch (emailError) {
+    console.error('❌ Erro ao enviar e-mail de rejeição:', emailError);
+  }
+  
   return { ok: true, message: 'Solicitação rejeitada. O usuário poderá tentar novamente após 24 horas.' };
 }

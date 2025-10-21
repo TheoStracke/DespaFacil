@@ -8,17 +8,18 @@ datasource db {
 }
 
 model User {
-  id          String        @id @default(cuid())
-  name        String
-  email       String        @unique
-  cnpj        String?       @unique
-  telefone    String?
-  password    String
-  role        Role          @default(DESPACHANTE)
-  tourVisto   Boolean       @default(false)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  Despachante Despachante?
+  id            String        @id @default(cuid())
+  name          String
+  email         String        @unique
+  cnpj          String?       @unique
+  telefone      String?
+  password      String
+  role          Role          @default(DESPACHANTE)
+  tourVisto     Boolean       @default(false)
+  primeiroLogin Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  Despachante   Despachante?
 }
 
 model Despachante {

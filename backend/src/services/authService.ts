@@ -5,6 +5,7 @@ import { sendEmail } from '../utils/mailer';
 import { validateCNPJ } from '../utils/validators';
 import axios from 'axios';
 import { getParceiroStatus } from './parceiroService';
+import { notifyCadastroCriado, notifyPrimeiroLogin } from './emailService';
 
 const BCRYPT_ROUNDS = parseInt(process.env.BCRYPT_SALT_ROUNDS || '12', 10);
 const JWT_SECRET: Secret = (process.env.JWT_SECRET || 'secret') as Secret;
@@ -95,6 +96,14 @@ export async function register(data: RegisterData) {
     },
   });
 
+  // Enviar e-mail de boas-vindas
+  try {
+    await notifyCadastroCriado(email, name);
+  } catch (emailError) {
+    console.error('❌ Erro ao enviar e-mail de boas-vindas:', emailError);
+    // Não falha o cadastro se o e-mail falhar
+  }
+
   return {
     id: user.id,
     name: user.name,
@@ -124,6 +133,21 @@ export async function login(data: LoginData) {
   const validPassword = await bcrypt.compare(password, user.password);
   if (!validPassword) {
     throw new Error('Credenciais inválidas');
+  }
+
+  // Verificar se é o primeiro login e enviar e-mail
+  if (user.primeiroLogin) {
+    try {
+      await notifyPrimeiroLogin(user.email, user.name);
+      // Atualizar flag de primeiro login
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { primeiroLogin: false },
+      });
+    } catch (emailError) {
+      console.error('❌ Erro ao enviar e-mail de primeiro login:', emailError);
+      // Não falha o login se o e-mail falhar
+    }
   }
 
   if (!JWT_SECRET) {
