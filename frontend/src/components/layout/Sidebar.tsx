@@ -40,7 +40,7 @@ export function Sidebar({ user, isDespachante }: SidebarProps) {
       icon: LayoutDashboard,
       label: 'Dashboard',
       href: '/dashboard',
-      show: isDespachante,
+      show: true,
     },
     {
       icon: Shield,
@@ -197,7 +197,7 @@ export function Sidebar({ user, isDespachante }: SidebarProps) {
           `}
           >
             <div className="w-8 h-8 bg-gradient-to-br from-[#010E9B] to-[#FF8601] rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
-              {user?.nome?.charAt(0).toUpperCase() || 'U'}
+              {user?.name?.charAt(0).toUpperCase() || 'U'}
             </div>
             
             <AnimatePresence>
@@ -209,7 +209,7 @@ export function Sidebar({ user, isDespachante }: SidebarProps) {
                   className="overflow-hidden"
                 >
                   <p className="text-sm font-medium text-gray-900 truncate">
-                    {user?.nome || 'Usuário'}
+                    {user?.name || 'Usuário'}
                   </p>
                   <p className="text-xs text-gray-500 truncate">
                     {isDespachante ? 'Despachante' : 'Admin'}
