@@ -31,6 +31,13 @@ export function DocumentoUpload({ motorista, onSuccess }: DocumentoUploadProps) 
     TABELA_DADOS: null,
   });
 
+  const [loading, setLoading] = useState<Record<DocumentoTipo, boolean>>({
+    CNH: false,
+    COMPROVANTE_PAGAMENTO: false,
+    LISTA_PRESENCA: false,
+    TABELA_DADOS: false,
+  });
+
   const handleFileChange = (tipo: DocumentoTipo, e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     
