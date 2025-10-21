@@ -23,27 +23,22 @@ export function getWelcomeTemplate(data: { nome: string; loginUrl: string }): st
       </mj-head>
 
       <mj-body background-color="#f4f6f8">
-        <!-- Header com Logo -->
         <mj-section background-color="#ffffff" padding="20px">
           <mj-column>
-            <mj-image 
-              src="${process.env.FRONTEND_URL}/ui/logo.png" 
-              alt="DespaFacil" 
-              width="180px"
-              align="center"
-            />
+            <mj-text align="center" font-size="24px" font-weight="bold" color="#667eea">
+              DespaFacil
+            </mj-text>
             <mj-text align="center" font-size="12px" color="#666666">
               Gestão Inteligente para Despachantes
             </mj-text>
           </mj-column>
         </mj-section>
 
-        <!-- Hero -->
         <mj-section padding="0 16px" background-color="#f4f6f8">
           <mj-column>
             <mj-wrapper css-class="card" padding="32px" background-color="#ffffff">
               <mj-text mj-class="h1" align="center" padding-bottom="10px">
-                🎉 Bem-vindo ao DespaFacil!
+                Bem-vindo ao DespaFacil!
               </mj-text>
               
               <mj-text mj-class="lead" padding-top="10px">
@@ -58,11 +53,10 @@ export function getWelcomeTemplate(data: { nome: string; loginUrl: string }): st
                 Agora você pode gerenciar processos, emitir certificados e acompanhar solicitações de forma simples e eficiente.
               </mj-text>
 
-              <!-- Alert Box -->
               <mj-section css-class="alert-box" padding="16px" background-color="#fff3cd">
                 <mj-column>
                   <mj-text font-size="14px" color="#856404" line-height="20px">
-                    <strong>📧 Importante:</strong> Para garantir que você receba nossas notificações, adicione <strong>despafacilrepo@gmail.com</strong> aos seus contatos.
+                    <strong>Importante:</strong> Para garantir que você receba nossas notificações, adicione <strong>despafacilrepo@gmail.com</strong> aos seus contatos.
                   </mj-text>
                 </mj-column>
               </mj-section>
@@ -132,12 +126,9 @@ export function getFirstLoginTemplate(data: { nome: string }): string {
       <mj-body background-color="#f4f6f8">
         <mj-section background-color="#ffffff" padding="20px">
           <mj-column>
-            <mj-image 
-              src="${process.env.FRONTEND_URL}/ui/logo.png" 
-              alt="DespaFacil" 
-              width="180px"
-              align="center"
-            />
+            <mj-text align="center" font-size="24px" font-weight="bold" color="#667eea">
+              DespaFacil
+            </mj-text>
           </mj-column>
         </mj-section>
 
@@ -145,7 +136,7 @@ export function getFirstLoginTemplate(data: { nome: string }): string {
           <mj-column>
             <mj-wrapper css-class="card" padding="32px" background-color="#ffffff">
               <mj-text align="center" font-size="28px" font-weight="700" color="#667eea" padding-bottom="10px">
-                👋 Primeiro Acesso Detectado!
+                Primeiro Acesso Detectado!
               </mj-text>
               
               <mj-text font-size="16px" line-height="22px" padding-top="16px">
@@ -153,7 +144,7 @@ export function getFirstLoginTemplate(data: { nome: string }): string {
               </mj-text>
               
               <mj-text font-size="15px" line-height="22px" padding-top="12px">
-                Detectamos que este é seu <strong>primeiro login</strong> na plataforma DespaFacil. 🎉
+                Detectamos que este é seu <strong>primeiro login</strong> na plataforma DespaFacil.
               </mj-text>
               
               <mj-text font-size="15px" line-height="22px" padding-top="12px">
@@ -171,7 +162,9 @@ export function getFirstLoginTemplate(data: { nome: string }): string {
           <mj-column>
             <mj-divider border-color="#e6eef5" />
             <mj-text font-size="12px" color="#9aa1a6" align="center" padding-top="16px">
-              © 2025 DespaFacil. Gestão de Despachantes Documentalistas.
+              © 2025 DespaFacil. Gestão de Despachantes Documentalistas.<br/>
+              <a href="${process.env.FRONTEND_URL}/politica-privacidade" style="color:#667eea; text-decoration:none;">Política de Privacidade</a> — 
+              <a href="${process.env.FRONTEND_URL}/termos-uso" style="color:#667eea; text-decoration:none;">Termos de Uso</a>
             </mj-text>
           </mj-column>
         </mj-section>
@@ -200,12 +193,9 @@ export function getPartnerRequestTemplate(data: { nome: string }): string {
       <mj-body background-color="#f4f6f8">
         <mj-section background-color="#ffffff" padding="20px">
           <mj-column>
-            <mj-image 
-              src="${process.env.FRONTEND_URL}/ui/logo.png" 
-              alt="DespaFacil" 
-              width="180px"
-              align="center"
-            />
+            <mj-text align="center" font-size="24px" font-weight="bold" color="#667eea">
+              DespaFacil
+            </mj-text>
           </mj-column>
         </mj-section>
 
@@ -213,7 +203,7 @@ export function getPartnerRequestTemplate(data: { nome: string }): string {
           <mj-column>
             <mj-wrapper css-class="card" padding="32px" background-color="#ffffff">
               <mj-text align="center" font-size="28px" font-weight="700" color="#03324a" padding-bottom="10px">
-                📋 Solicitação Recebida
+                Solicitação Recebida
               </mj-text>
               
               <mj-text font-size="16px" line-height="22px" padding-top="16px">
@@ -239,7 +229,9 @@ export function getPartnerRequestTemplate(data: { nome: string }): string {
           <mj-column>
             <mj-divider border-color="#e6eef5" />
             <mj-text font-size="12px" color="#9aa1a6" align="center" padding-top="16px">
-              © 2025 DespaFacil. Todos os direitos reservados.
+              © 2025 DespaFacil. Todos os direitos reservados.<br/>
+              <a href="${process.env.FRONTEND_URL}/politica-privacidade" style="color:#667eea; text-decoration:none;">Política de Privacidade</a> — 
+              <a href="${process.env.FRONTEND_URL}/termos-uso" style="color:#667eea; text-decoration:none;">Termos de Uso</a>
             </mj-text>
           </mj-column>
         </mj-section>
@@ -277,12 +269,9 @@ export function getAdminNotificationTemplate(data: {
       <mj-body background-color="#f4f6f8">
         <mj-section background-color="#ffffff" padding="20px">
           <mj-column>
-            <mj-image 
-              src="${process.env.FRONTEND_URL}/ui/logo.png" 
-              alt="DespaFacil" 
-              width="180px"
-              align="center"
-            />
+            <mj-text align="center" font-size="24px" font-weight="bold" color="#667eea">
+              DespaFacil
+            </mj-text>
           </mj-column>
         </mj-section>
 
@@ -290,7 +279,7 @@ export function getAdminNotificationTemplate(data: {
           <mj-column>
             <mj-wrapper css-class="card" padding="32px" background-color="#ffffff">
               <mj-text align="center" font-size="28px" font-weight="700" color="#f093fb" padding-bottom="10px">
-                🔔 Nova Solicitação de Parceria
+                Nova Solicitação de Parceria
               </mj-text>
               
               <mj-text font-size="15px" line-height="22px" padding-top="16px">
@@ -338,7 +327,9 @@ export function getAdminNotificationTemplate(data: {
           <mj-column>
             <mj-divider border-color="#e6eef5" />
             <mj-text font-size="12px" color="#9aa1a6" align="center" padding-top="16px">
-              © 2025 DespaFacil. Gestão de Despachantes Documentalistas.
+              © 2025 DespaFacil. Gestão de Despachantes Documentalistas.<br/>
+              <a href="${process.env.FRONTEND_URL}/politica-privacidade" style="color:#667eea; text-decoration:none;">Política de Privacidade</a> — 
+              <a href="${process.env.FRONTEND_URL}/termos-uso" style="color:#667eea; text-decoration:none;">Termos de Uso</a>
             </mj-text>
           </mj-column>
         </mj-section>
@@ -367,12 +358,9 @@ export function getApprovalTemplate(data: { nome: string; loginUrl: string }): s
       <mj-body background-color="#f4f6f8">
         <mj-section background-color="#ffffff" padding="20px">
           <mj-column>
-            <mj-image 
-              src="${process.env.FRONTEND_URL}/ui/logo.png" 
-              alt="DespaFacil" 
-              width="180px"
-              align="center"
-            />
+            <mj-text align="center" font-size="24px" font-weight="bold" color="#667eea">
+              DespaFacil
+            </mj-text>
           </mj-column>
         </mj-section>
 
@@ -380,7 +368,7 @@ export function getApprovalTemplate(data: { nome: string; loginUrl: string }): s
           <mj-column>
             <mj-wrapper css-class="card" padding="32px" background-color="#ffffff">
               <mj-text align="center" font-size="28px" font-weight="700" color="#28a745" padding-bottom="10px">
-                ✅ Solicitação Aprovada!
+                Solicitação Aprovada!
               </mj-text>
               
               <mj-text font-size="16px" line-height="22px" padding-top="16px">
@@ -415,7 +403,9 @@ export function getApprovalTemplate(data: { nome: string; loginUrl: string }): s
           <mj-column>
             <mj-divider border-color="#e6eef5" />
             <mj-text font-size="12px" color="#9aa1a6" align="center" padding-top="16px">
-              © 2025 DespaFacil. Gestão de Despachantes Documentalistas.
+              © 2025 DespaFacil. Gestão de Despachantes Documentalistas.<br/>
+              <a href="${process.env.FRONTEND_URL}/politica-privacidade" style="color:#667eea; text-decoration:none;">Política de Privacidade</a> — 
+              <a href="${process.env.FRONTEND_URL}/termos-uso" style="color:#667eea; text-decoration:none;">Termos de Uso</a>
             </mj-text>
           </mj-column>
         </mj-section>
@@ -445,12 +435,9 @@ export function getRejectionTemplate(data: { nome: string; motivo: string }): st
       <mj-body background-color="#f4f6f8">
         <mj-section background-color="#ffffff" padding="20px">
           <mj-column>
-            <mj-image 
-              src="${process.env.FRONTEND_URL}/ui/logo.png" 
-              alt="DespaFacil" 
-              width="180px"
-              align="center"
-            />
+            <mj-text align="center" font-size="24px" font-weight="bold" color="#667eea">
+              DespaFacil
+            </mj-text>
           </mj-column>
         </mj-section>
 
@@ -458,7 +445,7 @@ export function getRejectionTemplate(data: { nome: string; motivo: string }): st
           <mj-column>
             <mj-wrapper css-class="card" padding="32px" background-color="#ffffff">
               <mj-text align="center" font-size="28px" font-weight="700" color="#dc3545" padding-bottom="10px">
-                ❌ Solicitação Não Aprovada
+                Solicitação Não Aprovada
               </mj-text>
               
               <mj-text font-size="16px" line-height="22px" padding-top="16px">
@@ -487,7 +474,9 @@ export function getRejectionTemplate(data: { nome: string; motivo: string }): st
           <mj-column>
             <mj-divider border-color="#e6eef5" />
             <mj-text font-size="12px" color="#9aa1a6" align="center" padding-top="16px">
-              © 2025 DespaFacil. Gestão de Despachantes Documentalistas.
+              © 2025 DespaFacil. Gestão de Despachantes Documentalistas.<br/>
+              <a href="${process.env.FRONTEND_URL}/politica-privacidade" style="color:#667eea; text-decoration:none;">Política de Privacidade</a> — 
+              <a href="${process.env.FRONTEND_URL}/termos-uso" style="color:#667eea; text-decoration:none;">Termos de Uso</a>
             </mj-text>
           </mj-column>
         </mj-section>
@@ -516,12 +505,9 @@ export function getCertificateTemplate(data: { nome: string; curso: string; cert
       <mj-body background-color="#f4f6f8">
         <mj-section background-color="#ffffff" padding="20px">
           <mj-column>
-            <mj-image 
-              src="${process.env.FRONTEND_URL}/ui/logo.png" 
-              alt="DespaFacil" 
-              width="180px"
-              align="center"
-            />
+            <mj-text align="center" font-size="24px" font-weight="bold" color="#667eea">
+              DespaFacil
+            </mj-text>
           </mj-column>
         </mj-section>
 
@@ -529,7 +515,7 @@ export function getCertificateTemplate(data: { nome: string; curso: string; cert
           <mj-column>
             <mj-wrapper css-class="card" padding="32px" background-color="#ffffff">
               <mj-text align="center" font-size="28px" font-weight="700" color="#ffc107" padding-bottom="10px">
-                🎓 Certificado Disponível!
+                Certificado Disponível!
               </mj-text>
               
               <mj-text font-size="16px" line-height="22px" padding-top="16px">
@@ -560,7 +546,9 @@ export function getCertificateTemplate(data: { nome: string; curso: string; cert
           <mj-column>
             <mj-divider border-color="#e6eef5" />
             <mj-text font-size="12px" color="#9aa1a6" align="center" padding-top="16px">
-              © 2025 DespaFacil. Gestão de Despachantes Documentalistas.
+              © 2025 DespaFacil. Gestão de Despachantes Documentalistas.<br/>
+              <a href="${process.env.FRONTEND_URL}/politica-privacidade" style="color:#667eea; text-decoration:none;">Política de Privacidade</a> — 
+              <a href="${process.env.FRONTEND_URL}/termos-uso" style="color:#667eea; text-decoration:none;">Termos de Uso</a>
             </mj-text>
           </mj-column>
         </mj-section>
