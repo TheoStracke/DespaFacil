@@ -10,17 +10,21 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useToast } from '@/components/ui/toast'
 import authService from '@/services/auth.service'
+import { getStatus } from '@/services/parceiro.service'
 import { maskCNPJ, unmaskCNPJ, validateCNPJ } from '@/lib/masks'
+import { SolicitarParceiraModal } from '@/components/SolicitarParceiraModal'
 
 export default function RegisterPage() {
   const router = useRouter()
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
+  const [showModal, setShowModal] = useState(false)
   
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     cnpj: '',
+    telefone: '',
     password: '',
     confirmPassword: '',
   })
@@ -139,10 +143,30 @@ export default function RegisterPage() {
     setLoading(true)
 
     try {
+      // Checar status de parceiro antes de registrar
+      const cnpjClean = unmaskCNPJ(formData.cnpj)
+      try {
+        const status = await getStatus(cnpjClean)
+        if (!status.canRegister) {
+          setLoading(false)
+          if (status.status === 'LEAD') {
+            toast({ type: 'warning', title: 'Aguardando aprovação', description: 'Seu CNPJ está em análise. Aguarde a aprovação antes de se cadastrar.' })
+          } else if (status.status === 'REJEITADO') {
+            toast({ type: 'error', title: 'CNPJ rejeitado', description: 'Sua solicitação foi rejeitada. Você poderá solicitar novamente após 24 horas.' })
+          } else {
+            // CNPJ não é parceiro - abrir modal para solicitar
+            toast({ type: 'info', title: 'CNPJ não aprovado', description: 'Envie uma solicitação de parceria para continuar.' })
+            setShowModal(true)
+          }
+          return
+        }
+      } catch {}
+
       const dataToSend = {
         name: formData.name.trim(),
         email: formData.email.trim().toLowerCase(),
-        cnpj: unmaskCNPJ(formData.cnpj),
+        cnpj: cnpjClean,
+        telefone: formData.telefone.trim(),
         password: formData.password,
         confirmPassword: formData.confirmPassword,
       }
@@ -272,6 +296,17 @@ export default function RegisterPage() {
                 autoComplete="off"
               />
 
+              {/* Telefone */}
+              <Input
+                label="Telefone"
+                value={formData.telefone}
+                onChange={(e) => handleChange('telefone', e.target.value)}
+                placeholder="(11) 99999-9999"
+                error={errors.telefone}
+                required
+                disabled={loading}
+              />
+
               {/* Senha */}
               <div>
                 <Input
@@ -377,9 +412,23 @@ export default function RegisterPage() {
 
         {/* Footer */}
         <p className="text-center text-xs text-muted-foreground mt-8">
-          Ao criar uma conta, você concorda com nossos Termos de Uso e Política de Privacidade
+          Ao criar uma conta, você concorda com nossos{' '}
+          <Link href="/termos-de-uso" className="text-blue-600 hover:text-blue-800 underline">
+            Termos de Uso
+          </Link>
+          {' '}e{' '}
+          <Link href="/politica-de-privacidade" className="text-blue-600 hover:text-blue-800 underline">
+            Política de Privacidade
+          </Link>
         </p>
       </motion.div>
+
+      {/* Modal de Solicitação de Parceria */}
+      <SolicitarParceiraModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        formData={formData}
+      />
     </div>
   )
 }

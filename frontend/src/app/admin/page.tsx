@@ -14,6 +14,7 @@ import {
   XCircle,
   Search,
   Filter,
+  UserPlus,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -284,6 +285,14 @@ export default function AdminPage() {
                   </CardDescription>
                 </div>
                 <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => router.push('/admin/solicitacoes')}
+                  >
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Solicitações
+                  </Button>
                   <Button
                     variant="outline"
                     size="sm"

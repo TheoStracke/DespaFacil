@@ -272,7 +272,7 @@ export default function DashboardPage() {
                   className="h-auto py-4 flex flex-col items-start gap-2"
                   onClick={() => {
                     const link = document.createElement('a')
-                    link.href = '/ModelosDoc/CURSO_ANTT_(1).xlsx'
+                    link.href = '/ModelosDoc/CURSO_ANTT.xlsx'
                     link.download = 'Tabela_Dados_Curso.xlsx'
                     link.click()
                   }}

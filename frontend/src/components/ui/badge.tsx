@@ -64,6 +64,7 @@ export function getStatusBadgeVariant(status: string): BadgeProps["variant"] {
     case "APROVADO":
       return "success"
     case "NEGADO":
+    case "REJEITADO":
       return "destructive"
     case "PENDENTE":
       return "warning"

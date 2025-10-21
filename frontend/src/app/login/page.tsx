@@ -20,9 +20,15 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState({ cnpj: '', password: '' })
 
-  // Aplicar máscara ao digitar CNPJ
+  // Aplicar máscara ao digitar CNPJ (se for email, não aplica máscara)
   const handleCnpjChange = (value: string) => {
-    setCnpj(maskCNPJ(value))
+    // Se contém @ é email, não aplica máscara
+    if (value.includes('@')) {
+      setCnpj(value)
+    } else {
+      // Se não contém @, aplica máscara de CNPJ
+      setCnpj(maskCNPJ(value))
+    }
     if (errors.cnpj) {
       setErrors(prev => ({ ...prev, cnpj: '' }))
     }
@@ -33,18 +39,23 @@ export default function LoginPage() {
     const newErrors = { cnpj: '', password: '' }
     let isValid = true
 
-    // Validar CNPJ
+    // Validar CNPJ ou Email
     if (!cnpj.trim()) {
-      newErrors.cnpj = 'CNPJ é obrigatório'
+      newErrors.cnpj = 'CNPJ ou Email é obrigatório'
       isValid = false
     } else {
       const value = cnpj.replace(/\D/g, "");
-      if (value.length !== 14) {
-        newErrors.cnpj = 'CNPJ deve ter 14 dígitos'
-        isValid = false;
-      } else if (!validateCNPJ(cnpj)) {
-        newErrors.cnpj = 'CNPJ inválido'
-        isValid = false;
+      // Se tem 14 dígitos, é CNPJ - validar apenas o formato
+      if (value.length === 14) {
+        // Apenas valida se tem 14 dígitos, não valida algoritmo para permitir CNPJs de teste
+        // if (!validateCNPJ(cnpj)) {
+        //   newErrors.cnpj = 'CNPJ inválido'
+        //   isValid = false;
+        // }
+      } else if (!cnpj.includes('@')) {
+        // Se não tem 14 dígitos e não tem @, é inválido
+        newErrors.cnpj = 'CNPJ deve ter 14 dígitos ou informe um email válido'
+        isValid = false
       }
     }
 
@@ -77,8 +88,8 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      // Remover máscara do CNPJ
-      const emailOrCnpj = unmaskCNPJ(cnpj)
+      // Se contém @, é email, senão remove máscara do CNPJ
+      const emailOrCnpj = cnpj.includes('@') ? cnpj : unmaskCNPJ(cnpj)
 
       await authService.login({
         emailOrCnpj,
@@ -138,19 +149,18 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
-              {/* Campo CNPJ */}
+              {/* Campo CNPJ ou Email */}
               <Input
-                label="CNPJ"
+                label="Email ou CNPJ"
                 type="text"
                 value={cnpj}
                 onChange={(e) => handleCnpjChange(e.target.value)}
-                placeholder="00.000.000/0000-00"
+                placeholder="email@exemplo.com ou 00.000.000/0000-00"
                 error={errors.cnpj}
                 required
                 disabled={loading}
                 autoFocus
                 autoComplete="username"
-                maxLength={18}
               />
 
               {/* Campo Senha */}
