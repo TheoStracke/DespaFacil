@@ -5,16 +5,12 @@ import DespachanteTour from '@/components/dashboard/DespachanteTour'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import {
-  LayoutDashboard,
-  LogOut,
-  User,
   RefreshCw,
   Search,
   UserPlus,
   Upload,
   Filter,
   Download,
-  Shield,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -36,6 +32,7 @@ import motoristaService from '@/services/motorista.service'
 import { MotoristaForm } from '@/components/dashboard/MotoristaForm'
 import { DocumentoUpload } from '@/components/dashboard/DocumentoUpload'
 import { CertificadosSection } from '@/components/dashboard/CertificadosSection'
+import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import type { Motorista, DocumentoStatus } from '@/types'
 
 export default function DashboardPage() {
@@ -128,11 +125,6 @@ export default function DashboardPage() {
     }
   }
 
-  const handleLogout = () => {
-    authService.logout()
-    router.push('/login')
-  }
-
   const handleOpenUpload = (motorista: Motorista) => {
     setSelectedMotorista(motorista)
     setShowUploadModal(true)
@@ -161,54 +153,16 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+    <DashboardLayout user={user} isDespachante={isDespachante}>
       {/* Tour interativo apenas para despachante */}
       {isDespachante && <DespachanteTour />}
-      {/* Header */}
-  <header className="dashboard-header border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40">
-        <div className="container flex h-16 items-center justify-between px-4">
-          <div className="flex items-center gap-3">
-            <img src="/ui/logo.png" alt="DespaFacil" className="h-10 w-auto" />
-            <div className="border-l pl-3">
-            </div>
-          </div>
 
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <User className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">
-                {user?.name || user?.email}
-              </span>
-            </div>
-            <Button variant="outline" size="sm" onClick={() => router.push('/profile')}>
-              Editar Perfil
-            </Button>
-            {user?.role === 'ADMIN' && (
-              <Button 
-                size="sm" 
-                onClick={() => router.push('/admin')}
-                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg"
-              >
-                <Shield className="h-4 w-4 mr-2" />
-                Painel Admin
-              </Button>
-            )}
-            <Button variant="ghost" size="sm" onClick={handleLogout} className="dashboard-logout">
-              <LogOut className="h-4 w-4 mr-2" />
-              Sair
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      {/* Content */}
-      <main className="container mx-auto p-6 space-y-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="space-y-6"
-        >
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="space-y-6"
+      >
           {/* Estatísticas */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 dashboard-status-badges">
             <Card>
@@ -435,8 +389,6 @@ export default function DashboardPage() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
-      </main>
 
       {/* Modal de Cadastro */}
       <Dialog open={showFormModal} onOpenChange={setShowFormModal}>
@@ -466,6 +418,7 @@ export default function DashboardPage() {
           </DialogContent>
         </Dialog>
       )}
-    </div>
+      </motion.div>
+    </DashboardLayout>
   )
 }

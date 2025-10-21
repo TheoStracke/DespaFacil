@@ -4,9 +4,6 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import {
-  LayoutDashboard,
-  LogOut,
-  User,
   RefreshCw,
   Download,
   Send,
@@ -34,6 +31,7 @@ import authService from '@/services/auth.service'
 import documentoService from '@/services/documento.service'
 import { DocumentoActionDialog } from '@/components/admin/DocumentoActionDialog'
 import { SendCertificadoDialog } from '@/components/admin/SendCertificadoDialog'
+import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import type { Documento, DocumentoStatus } from '@/types'
 
 export default function AdminPage() {
@@ -135,11 +133,6 @@ export default function AdminPage() {
     }
   }
 
-  const handleLogout = () => {
-    authService.logout()
-    router.push('/login')
-  }
-
   const handleAprovarNegar = (documento: Documento, action: 'APROVAR' | 'NEGAR') => {
     setActionDialog({
       open: true,
@@ -231,49 +224,14 @@ export default function AdminPage() {
     }
   }
 
-  if (loading && !user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    )
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
-      {/* Header */}
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40">
-        <div className="container flex h-16 items-center justify-between px-4">
-          <div className="flex items-center gap-2">
-            <LayoutDashboard className="h-6 w-6 text-primary" />
-            <div>
-              <h1 className="text-xl font-bold">DespaFacil - Admin</h1>
-              <p className="text-xs text-muted-foreground">Painel Administrativo</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <User className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">
-                {user?.nome || user?.email}
-              </span>
-            </div>
-            <Button variant="ghost" size="sm" onClick={handleLogout}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Sair
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      {/* Content */}
-      <main className="container mx-auto p-6 space-y-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
+    <DashboardLayout user={user} isDespachante={false}>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="space-y-6"
+      >
           {/* Ações principais */}
           <Card>
             <CardHeader>
@@ -486,8 +444,6 @@ export default function AdminPage() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
-      </main>
 
       {/* Modais */}
       <DocumentoActionDialog
@@ -505,6 +461,7 @@ export default function AdminPage() {
         onSend={handleSendCertificado}
         loading={actionLoading}
       />
-    </div>
+      </motion.div>
+    </DashboardLayout>
   )
 }

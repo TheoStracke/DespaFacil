@@ -1,11 +1,15 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Poppins } from 'next/font/google'
 import './globals.css'
 import { ToastProvider } from '@/components/ui/toast'
 import { WhatsAppSupport } from '@/components/ui/WhatsAppSupport'
 import Footer from '@/components/Footer'
 
-const inter = Inter({ subsets: ['latin'] })
+const poppins = Poppins({ 
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-poppins',
+})
 
 export const metadata: Metadata = {
   title: 'DespaFacil - Sistema de Gestão',
@@ -28,7 +32,7 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" type="image/x-icon" />
         <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
       </head>
-      <body className={`${inter.className} min-h-screen flex flex-col`}> 
+      <body className={`${poppins.className} min-h-screen flex flex-col`}> 
         {/* Faixa superior com cor da marca */}
         <div className="w-full h-1.5 bg-brand" />
         <main className="flex-1">
