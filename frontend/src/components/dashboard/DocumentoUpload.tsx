@@ -17,19 +17,19 @@ interface DocumentoUploadProps {
 
 export function DocumentoUpload({ motorista, onSuccess }: DocumentoUploadProps) {
   const { toast } = useToast()
-  const [loading, setLoading] = useState<Record<DocumentoTipo, boolean>>({
+  const [uploadedDocs, setUploadedDocs] = useState<Record<DocumentoTipo, boolean>>({
     CNH: false,
     COMPROVANTE_PAGAMENTO: false,
-    DOCUMENTO1: false,
-    DOCUMENTO2: false,
-  })
+    LISTA_PRESENCA: false,
+    TABELA_DADOS: false,
+  });
 
   const [selectedFiles, setSelectedFiles] = useState<Record<DocumentoTipo, File | null>>({
     CNH: null,
     COMPROVANTE_PAGAMENTO: null,
-    DOCUMENTO1: null,
-    DOCUMENTO2: null,
-  })
+    LISTA_PRESENCA: null,
+    TABELA_DADOS: null,
+  });
 
   const handleFileChange = (tipo: DocumentoTipo, e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -228,10 +228,10 @@ export function DocumentoUpload({ motorista, onSuccess }: DocumentoUploadProps) 
           <TabsTrigger value="COMPROVANTE_PAGAMENTO" className="text-xs sm:text-sm px-2 py-2">
             Comprovante
           </TabsTrigger>
-          <TabsTrigger value="DOCUMENTO1" className="text-xs sm:text-sm px-2 py-2">
+          <TabsTrigger value="LISTA_PRESENCA" className="text-xs sm:text-sm px-2 py-2">
             Lista de presença
           </TabsTrigger>
-          <TabsTrigger value="DOCUMENTO2" className="text-xs sm:text-sm px-2 py-2">
+          <TabsTrigger value="TABELA_DADOS" className="text-xs sm:text-sm px-2 py-2">
             Tabela de dados
           </TabsTrigger>
         </TabsList>
@@ -244,12 +244,12 @@ export function DocumentoUpload({ motorista, onSuccess }: DocumentoUploadProps) 
           {renderUploadCard('COMPROVANTE_PAGAMENTO', 'Comprovante de Pagamento')}
         </TabsContent>
 
-        <TabsContent value="DOCUMENTO1">
-          {renderUploadCard('DOCUMENTO1', 'Lista de presença')}
+        <TabsContent value="LISTA_PRESENCA">
+          {renderUploadCard('LISTA_PRESENCA', 'Lista de presença')}
         </TabsContent>
 
-        <TabsContent value="DOCUMENTO2">
-          {renderUploadCard('DOCUMENTO2', 'Tabela preenchida com os dados solicitados')}
+        <TabsContent value="TABELA_DADOS">
+          {renderUploadCard('TABELA_DADOS', 'Tabela preenchida com os dados solicitados')}
         </TabsContent>
       </Tabs>
     </div>

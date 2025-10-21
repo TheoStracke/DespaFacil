@@ -16,7 +16,7 @@ export interface AuthResponse {
 }
 
 // Tipos de documento
-export type DocumentoTipo = 'CNH' | 'COMPROVANTE_PAGAMENTO' | 'DOCUMENTO1' | 'DOCUMENTO2';
+export type DocumentoTipo = 'CNH' | 'COMPROVANTE_PAGAMENTO' | 'LISTA_PRESENCA' | 'TABELA_DADOS';
 export type DocumentoStatus = 'PENDENTE' | 'APROVADO' | 'NEGADO';
 
 export interface Documento {

@@ -401,15 +401,15 @@ export default function DashboardPage() {
                             )}
                           </TableCell>
                           <TableCell>
-                            {getDocumentoStatus(motorista, 'DOCUMENTO1') ? (
-                              <StatusBadge status={getDocumentoStatus(motorista, 'DOCUMENTO1')!} />
+                            {getDocumentoStatus(motorista, 'LISTA_PRESENCA') ? (
+                              <StatusBadge status={getDocumentoStatus(motorista, 'LISTA_PRESENCA')!} />
                             ) : (
                               <span className="text-xs text-muted-foreground">-</span>
                             )}
                           </TableCell>
                           <TableCell>
-                            {getDocumentoStatus(motorista, 'DOCUMENTO2') ? (
-                              <StatusBadge status={getDocumentoStatus(motorista, 'DOCUMENTO2')!} />
+                            {getDocumentoStatus(motorista, 'TABELA_DADOS') ? (
+                              <StatusBadge status={getDocumentoStatus(motorista, 'TABELA_DADOS')!} />
                             ) : (
                               <span className="text-xs text-muted-foreground">-</span>
                             )}

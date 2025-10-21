@@ -120,8 +120,8 @@ enum CursoTipo {
 enum DocumentoTipo {
   CNH
   COMPROVANTE_PAGAMENTO
-  DOCUMENTO1
-  DOCUMENTO2
+  LISTA_PRESENCA
+  TABELA_DADOS
 }
 
 enum DocumentoStatus {
