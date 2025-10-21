@@ -52,6 +52,7 @@ export function Sidebar({ user, isDespachante }: SidebarProps) {
   const handleLogout = () => {
     authService.logout()
     toast({
+      type: 'success',
       title: 'Logout realizado',
       description: 'Até logo!',
     })
