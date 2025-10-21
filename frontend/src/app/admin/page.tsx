@@ -306,8 +306,8 @@ export default function AdminPage() {
                   <option value="TODOS">Todos os tipos</option>
                   <option value="CNH">CNH</option>
                   <option value="COMPROVANTE_PAGAMENTO">Comprovante</option>
-                  <option value="LISTA_PRESENCA">Lista de presença</option>
-                  <option value="TABELA_DADOS">Tabela de dados</option>
+                  <option value="DOCUMENTO1">Documento 1</option>
+                  <option value="DOCUMENTO2">Documento 2</option>
                 </Select>
               </div>
 
