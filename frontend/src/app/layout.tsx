@@ -33,8 +33,8 @@ export default function RootLayout({
         <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
       </head>
       <body className={`${poppins.className} min-h-screen flex flex-col`}> 
-        {/* Faixa superior com cor da marca */}
-        <div className="w-full h-1.5 bg-brand" />
+  {/* Faixa superior com cor da marca (azul) */}
+  <div className="w-full h-1.5 bg-brand-blue" />
         <main className="flex-1">
           <ToastProvider>        
             {children}

@@ -31,6 +31,7 @@ import { StatusBadge } from '@/components/ui/badge'
 import { useToast } from '@/components/ui/toast'
 import authService from '@/services/auth.service'
 import api from '@/lib/api'
+import { DashboardLayout } from '@/components/layout/DashboardLayout'
 
 interface SolicitacaoCadastro {
   id: string
@@ -51,6 +52,7 @@ export default function SolicitacoesPage() {
   const router = useRouter()
   const { toast } = useToast()
   
+  const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [solicitacoes, setSolicitacoes] = useState<SolicitacaoCadastro[]>([])
   const [filteredSolicitacoes, setFilteredSolicitacoes] = useState<SolicitacaoCadastro[]>([])
@@ -70,7 +72,9 @@ export default function SolicitacoesPage() {
       router.push('/login')
       return
     }
-
+    // Seta usuário para layout e carrega dados
+    const userData = authService.getUser()
+    setUser(userData)
     loadSolicitacoes()
   }, [router])
 
@@ -194,20 +198,14 @@ export default function SolicitacoesPage() {
     }
   }
 
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-          <p className="mt-4 text-sm text-muted-foreground">Carregando solicitações...</p>
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6">
-      <div className="mx-auto max-w-7xl space-y-6">
+    <DashboardLayout user={user} isDespachante={false}>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="space-y-6"
+      >
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -226,6 +224,15 @@ export default function SolicitacoesPage() {
           </div>
         </div>
 
+        {loading ? (
+          <div className="flex h-[60vh] items-center justify-center">
+            <div className="text-center">
+              <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+              <p className="mt-4 text-sm text-muted-foreground">Carregando solicitações...</p>
+            </div>
+          </div>
+        ) : (
+        <>
         {/* Filtros */}
         <Card>
           <CardHeader>
@@ -341,20 +348,20 @@ export default function SolicitacoesPage() {
                           <code className="text-xs">{formatCNPJ(solicitacao.cnpj)}</code>
                         </TableCell>
                         <TableCell>
-                          <div className="space-y-1 text-sm">
-                            <div className="flex items-center gap-1 text-slate-600">
-                              <Mail className="h-3 w-3" />
+                            <div className="space-y-1 text-sm">
+                            <div className="flex items-center gap-2 text-slate-600">
+                              <Mail className="h-4 w-4" />
                               {solicitacao.email}
                             </div>
-                            <div className="flex items-center gap-1 text-slate-600">
-                              <Phone className="h-3 w-3" />
+                            <div className="flex items-center gap-2 text-slate-600">
+                              <Phone className="h-4 w-4" />
                               {solicitacao.telefone}
                             </div>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-1 text-sm text-slate-600">
-                            <Calendar className="h-3 w-3" />
+                          <div className="flex items-center gap-2 text-sm text-slate-600">
+                            <Calendar className="h-4 w-4" />
                             {formatDate(solicitacao.createdAt)}
                           </div>
                         </TableCell>
@@ -375,7 +382,7 @@ export default function SolicitacoesPage() {
                                 onClick={() => handleAprovar(solicitacao.id)}
                                 className="border-green-600 text-green-600 hover:bg-green-50"
                               >
-                                <CheckCircle className="mr-1 h-3 w-3" />
+                                <CheckCircle className="mr-1 h-4 w-4" />
                                 Aprovar
                               </Button>
                               <Button
@@ -384,7 +391,7 @@ export default function SolicitacoesPage() {
                                 onClick={() => handleNegar(solicitacao.id)}
                                 className="border-red-600 text-red-600 hover:bg-red-50"
                               >
-                                <XCircle className="mr-1 h-3 w-3" />
+                                <XCircle className="mr-1 h-4 w-4" />
                                 Negar
                               </Button>
                             </div>
@@ -398,7 +405,9 @@ export default function SolicitacoesPage() {
             )}
           </CardContent>
         </Card>
-      </div>
-    </div>
+        </>
+        )}
+      </motion.div>
+    </DashboardLayout>
   )
 }

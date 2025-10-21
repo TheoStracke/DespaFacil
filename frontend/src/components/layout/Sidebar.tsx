@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   Shield,
   User,
+  UserPlus,
   LogOut,
   Menu,
   X,
@@ -47,6 +48,12 @@ export function Sidebar({ user, isDespachante }: SidebarProps) {
       href: '/admin',
       show: !isDespachante,
     },
+    {
+      icon: UserPlus,
+      label: 'Solicitações',
+      href: '/admin/solicitacoes',
+      show: !isDespachante,
+    },
   ]
 
   const handleLogout = () => {
@@ -73,8 +80,8 @@ export function Sidebar({ user, isDespachante }: SidebarProps) {
           w-full flex items-center gap-3 px-3 py-3 rounded-lg
           transition-colors relative group
           ${isActive 
-            ? 'bg-[#FF8601] text-white' 
-            : 'text-gray-600 hover:bg-[#F4F0E5]'
+            ? 'bg-[#010E9B] text-white' 
+            : 'text-gray-700 hover:bg-[#F4F0E5]'
           }
         `}
         whileHover={{ x: 2 }}
@@ -98,7 +105,7 @@ export function Sidebar({ user, isDespachante }: SidebarProps) {
         {/* Tooltip on hover (desktop only) */}
         {!isExpanded && (
           <div className="
-            absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm
+            absolute left-full ml-2 px-2 py-1 bg-[#010E9B] text-white text-sm
             rounded opacity-0 pointer-events-none group-hover:opacity-100
             transition-opacity whitespace-nowrap z-50 hidden lg:block
           ">
@@ -152,7 +159,7 @@ export function Sidebar({ user, isDespachante }: SidebarProps) {
             className="flex items-center gap-2"
             layout
           >
-            <div className="w-8 h-8 bg-gradient-to-br from-[#FF8601] to-[#010E9B] rounded-lg flex items-center justify-center text-white font-bold text-sm">
+            <div className="w-8 h-8 bg-gradient-to-br from-[#010E9B] to-[#FF8601] rounded-lg flex items-center justify-center text-white font-bold text-sm">
               DF
             </div>
             <AnimatePresence>
@@ -182,11 +189,14 @@ export function Sidebar({ user, isDespachante }: SidebarProps) {
         {/* User Profile & Logout */}
         <div className="p-4 border-t border-gray-200 space-y-2">
           {/* User Info */}
-          <div className={`
-            flex items-center gap-3 px-3 py-2 rounded-lg
-            bg-[#F4F0E5] relative group
-          `}>
-            <div className="w-8 h-8 bg-gradient-to-br from-[#FF8601] to-[#010E9B] rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
+          <div
+            onClick={() => router.push('/profile')}
+            className={`
+            flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer
+            bg-[#F4F0E5] relative group hover:ring-1 hover:ring-[#010E9B]/30
+          `}
+          >
+            <div className="w-8 h-8 bg-gradient-to-br from-[#010E9B] to-[#FF8601] rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
               {user?.nome?.charAt(0).toUpperCase() || 'U'}
             </div>
             
@@ -211,11 +221,11 @@ export function Sidebar({ user, isDespachante }: SidebarProps) {
             {/* Tooltip for user (desktop only) */}
             {!isExpanded && (
               <div className="
-                absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm
+                absolute left-full ml-2 px-2 py-1 bg-[#010E9B] text-white text-sm
                 rounded opacity-0 pointer-events-none group-hover:opacity-100
                 transition-opacity whitespace-nowrap z-50 hidden lg:block
               ">
-                {user?.nome || 'Usuário'}
+                Editar perfil
               </div>
             )}
           </div>
@@ -249,7 +259,7 @@ export function Sidebar({ user, isDespachante }: SidebarProps) {
             {/* Tooltip (desktop only) */}
             {!isExpanded && (
               <div className="
-                absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm
+                absolute left-full ml-2 px-2 py-1 bg-[#010E9B] text-white text-sm
                 rounded opacity-0 pointer-events-none group-hover:opacity-100
                 transition-opacity whitespace-nowrap z-50 hidden lg:block
               ">
