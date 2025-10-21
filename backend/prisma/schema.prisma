@@ -12,6 +12,7 @@ model User {
   name        String
   email       String        @unique
   cnpj        String?       @unique
+  telefone    String?
   password    String
   role        Role          @default(DESPACHANTE)
   tourVisto   Boolean       @default(false)
@@ -126,4 +127,45 @@ enum DocumentoStatus {
   PENDENTE
   APROVADO
   NEGADO
+}
+
+// Parceiros e Solicitações de Parceria
+enum ParceiroStatus {
+  LEAD
+  PARCEIRO
+  REJEITADO
+}
+
+enum SolicitacaoStatus {
+  PENDENTE
+  APROVADO
+  REJEITADO
+}
+
+model Parceiro {
+  id        String         @id @default(cuid())
+  cnpj      String         @unique
+  empresa   String
+  telefone  String?
+  status    ParceiroStatus @default(LEAD)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+}
+
+model SolicitacaoCadastro {
+  id           String            @id @default(cuid())
+  cnpj         String
+  empresa      String
+  telefone     String
+  email        String
+  senha        String            // Senha hash para criar usuário na aprovação
+  nomeResponsavel String?        // Nome do responsável pela empresa
+  mensagem     String?
+  status       SolicitacaoStatus @default(PENDENTE)
+  analisadoPor String?
+  observacoes  String?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  @@index([cnpj, createdAt])
 }

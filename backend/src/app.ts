@@ -8,6 +8,7 @@ import authRoutes from './routes/auth';
 import motoristaRoutes from './routes/motoristas';
 import documentoRoutes from './routes/documentos';
 import adminRoutes from './routes/admin';
+import parceiroRoutes from './routes/parceiros';
 import certificadoRoutes from './routes/certificados';
 import userRoutes from './routes/users';
 import { errorHandler } from './middlewares/errorHandler';
@@ -80,6 +81,7 @@ app.use('/api/documentos', documentoRoutes);
 app.use('/api/certificados', certificadoRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/parceiros', parceiroRoutes);
 
 // Error handler (deve ser o último middleware)
 app.use(errorHandler);

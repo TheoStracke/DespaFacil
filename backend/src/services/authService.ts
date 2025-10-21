@@ -4,6 +4,7 @@ import jwt, { type SignOptions, type Secret } from 'jsonwebtoken';
 import { sendEmail } from '../utils/mailer';
 import { validateCNPJ } from '../utils/validators';
 import axios from 'axios';
+import { getParceiroStatus } from './parceiroService';
 
 const BCRYPT_ROUNDS = parseInt(process.env.BCRYPT_SALT_ROUNDS || '12', 10);
 const JWT_SECRET: Secret = (process.env.JWT_SECRET || 'secret') as Secret;
@@ -13,6 +14,7 @@ interface RegisterData {
   name: string;
   email: string;
   cnpj?: string;
+  telefone?: string;
   password: string;
   confirmPassword: string;
 }
@@ -23,7 +25,7 @@ interface LoginData {
 }
 
 export async function register(data: RegisterData) {
-  const { name, email, cnpj, password, confirmPassword } = data;
+  const { name, email, cnpj, telefone, password, confirmPassword } = data;
 
   if (!email || !password || !name) {
     throw new Error('Campos obrigatórios: name, email, password');
@@ -37,10 +39,27 @@ export async function register(data: RegisterData) {
     throw new Error('A senha deve ter no mínimo 8 caracteres');
   }
 
-  // Validar CNPJ se fornecido (temporariamente desabilitado)
-  // if (cnpj && !validateCNPJ(cnpj)) {
+  // CNPJ é obrigatório para cadastro de despachante e deve ser parceiro aprovado
+  if (!cnpj) {
+    throw new Error('CNPJ é obrigatório');
+  }
+  // Validação básica/algorítmica do CNPJ (pode ser ajustada conforme utilitário)
+  // if (!validateCNPJ(cnpj)) {
   //   throw new Error('CNPJ inválido');
   // }
+
+  // Checar status de parceiro: apenas PARCEIRO pode registrar
+  const parceiro = await getParceiroStatus(cnpj);
+  if (!parceiro.canRegister) {
+    if (parceiro.status === 'LEAD') {
+      throw new Error('CNPJ aguardando aprovação. Aguarde o contato do time.');
+    }
+    if (parceiro.status === 'REJEITADO') {
+      throw new Error('CNPJ rejeitado. Entre em contato para mais informações.');
+    }
+    // NONE ou outros estados
+    throw new Error('CNPJ não aprovado como parceiro. Solicite parceria antes de cadastrar.');
+  }
 
   // Verificar se email já existe
   const existingEmail = await prisma.user.findUnique({ where: { email } });
@@ -49,11 +68,9 @@ export async function register(data: RegisterData) {
   }
 
   // Verificar se CNPJ já existe
-  if (cnpj) {
-    const existingCnpj = await prisma.user.findUnique({ where: { cnpj } });
-    if (existingCnpj) {
-      throw new Error('CNPJ já cadastrado');
-    }
+  const existingCnpj = await prisma.user.findUnique({ where: { cnpj } });
+  if (existingCnpj) {
+    throw new Error('CNPJ já cadastrado');
   }
 
   const hashedPassword = await bcrypt.hash(password, BCRYPT_ROUNDS);
@@ -63,6 +80,7 @@ export async function register(data: RegisterData) {
       name,
       email,
       cnpj,
+      telefone,
       password: hashedPassword,
       role: 'DESPACHANTE',
     },

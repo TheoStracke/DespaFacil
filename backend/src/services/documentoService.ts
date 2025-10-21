@@ -272,7 +272,7 @@ export async function exportDocumentos(filters: any) {
     orderBy: { uploadedAt: 'desc' },
   });
 
-  return documentos.map((doc) => ({
+  return documentos.map((doc: any) => ({
     'Nome Despachante': doc.motorista.despachante.user.name,
     'Email Despachante': doc.motorista.despachante.user.email,
     'Nome Motorista': doc.motorista.nome,
