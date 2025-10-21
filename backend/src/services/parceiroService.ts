@@ -93,19 +93,19 @@ export async function solicitarParceria(input: { cnpj: string; empresa: string; 
   // Enviar e-mails de notificação
   try {
     // E-mail para o usuário confirmando recebimento
-    await notifySolicitacaoCadastro(input.email, input.nomeResponsavel || input.empresa);
-    
+    notifySolicitacaoCadastro(input.email, input.nomeResponsavel || input.empresa)
+      .catch(err => console.error('Erro ao enviar e-mail ao usuário:', err));
     // E-mail para o admin notificando nova solicitação
-    await notifyAdminNovaSolicitacao({
+    notifyAdminNovaSolicitacao({
       empresa: input.empresa,
       cnpj,
       email: input.email,
       telefone: input.telefone,
       nomeResponsavel: input.nomeResponsavel || 'Não informado',
       mensagem: input.mensagem,
-    });
+    }).catch(err => console.error('Erro ao enviar e-mail ao admin:', err));
   } catch (emailError) {
-    console.error('❌ Erro ao enviar e-mails de notificação:', emailError);
+    console.error('❌ Erro ao disparar e-mails:', emailError);
     // Não falha a solicitação se o e-mail falhar
   }
 
