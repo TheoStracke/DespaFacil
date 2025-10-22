@@ -16,6 +16,7 @@ import {
 import { Button } from '@/components/ui/button'
 import authService from '@/services/auth.service'
 import { useToast } from '@/components/ui/toast'
+import { useNotifications } from '@/hooks/useNotifications'
 
 interface SidebarProps {
   user: any
@@ -27,6 +28,7 @@ interface MenuItem {
   label: string
   href: string
   show: boolean
+  badge?: number
 }
 
 export function Sidebar({ user, isDespachante }: SidebarProps) {
@@ -35,6 +37,9 @@ export function Sidebar({ user, isDespachante }: SidebarProps) {
   const { toast } = useToast()
   const [isExpanded, setIsExpanded] = useState(false)
   const [isMobileOpen, setIsMobileOpen] = useState(false)
+  
+  // Buscar notificações
+  const { documentosPendentes, solicitacoesPendentes } = useNotifications(!isDespachante)
 
   const menuItems: MenuItem[] = [
     {
@@ -48,12 +53,14 @@ export function Sidebar({ user, isDespachante }: SidebarProps) {
       label: 'Painel Admin',
       href: '/admin',
       show: !isDespachante,
+      badge: documentosPendentes,
     },
     {
       icon: UserPlus,
       label: 'Solicitações',
       href: '/admin/solicitacoes',
       show: !isDespachante,
+      badge: solicitacoesPendentes,
     },
     {
       icon: Send,
@@ -76,6 +83,7 @@ export function Sidebar({ user, isDespachante }: SidebarProps) {
   const NavItem = ({ item }: { item: MenuItem }) => {
     const Icon = item.icon
     const isActive = pathname === item.href
+    const showBadge = item.badge && item.badge > 0
 
     return (
       <motion.button
@@ -94,7 +102,14 @@ export function Sidebar({ user, isDespachante }: SidebarProps) {
         whileHover={{ x: 2 }}
         whileTap={{ scale: 0.98 }}
       >
-        <Icon className="w-5 h-5 flex-shrink-0" />
+        <div className="relative flex-shrink-0">
+          <Icon className="w-5 h-5" />
+          {showBadge && !isExpanded && (
+            <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#FF8601] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+              {item.badge! > 9 ? '9+' : item.badge}
+            </span>
+          )}
+        </div>
         
         <AnimatePresence>
           {isExpanded && (
@@ -102,12 +117,22 @@ export function Sidebar({ user, isDespachante }: SidebarProps) {
               initial={{ opacity: 0, width: 0 }}
               animate={{ opacity: 1, width: 'auto' }}
               exit={{ opacity: 0, width: 0 }}
-              className="whitespace-nowrap overflow-hidden"
+              className="whitespace-nowrap overflow-hidden flex-1 text-left"
             >
               {item.label}
             </motion.span>
           )}
         </AnimatePresence>
+
+        {showBadge && isExpanded && (
+          <motion.span
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="ml-auto px-2 py-0.5 bg-[#FF8601] text-white text-xs font-bold rounded-full flex-shrink-0"
+          >
+            {item.badge! > 99 ? '99+' : item.badge}
+          </motion.span>
+        )}
 
         {/* Tooltip on hover (desktop only) */}
         {!isExpanded && (
@@ -117,6 +142,11 @@ export function Sidebar({ user, isDespachante }: SidebarProps) {
             transition-opacity whitespace-nowrap z-50 hidden lg:block
           ">
             {item.label}
+            {showBadge && (
+              <span className="ml-2 px-1.5 py-0.5 bg-[#FF8601] text-white text-xs font-bold rounded">
+                {item.badge! > 9 ? '9+' : item.badge}
+              </span>
+            )}
           </div>
         )}
       </motion.button>
