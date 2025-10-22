@@ -74,15 +74,24 @@ export default function ContatoPage() {
     },
     {
       icon: Phone,
-      label: 'Telefone',
-      value: '+55 (48) 99178-3993',
+      label: 'Suporte Técnico (Sistema)',
+      value: '48 99178-3993',
       color: 'text-green-600',
       link: 'https://wa.me/5548991783993',
+      description: 'Dúvidas sobre erros, bugs ou funcionamento do sistema.'
+    },
+    {
+      icon: Phone,
+      label: 'Suporte Educacional (Processos)',
+      value: '48 99607-3477',
+      color: 'text-emerald-600',
+      link: 'https://wa.me/5548996073477',
+      description: 'Dúvidas sobre processos, preenchimento de dados, documentação etc.'
     },
     {
       icon: MapPin,
       label: 'Endereço',
-      value: 'Rua Joaquim Carneiro, 120 - Sala 305\nFlorianópolis, SC - Brasil',
+      value: 'Rua Joaquim Carneiro, 120 - Sala 305\nCapoeiras - Florianópolis, SC - Brasil',
       color: 'text-blue-600',
     },
     {
@@ -151,6 +160,9 @@ export default function ContatoPage() {
                         <p className="text-gray-700 whitespace-pre-line">
                           {info.value}
                         </p>
+                        {info.description && (
+                          <p className="text-xs text-gray-500 mt-1">{info.description}</p>
+                        )}
                       </div>
                     </motion.div>
                   )
