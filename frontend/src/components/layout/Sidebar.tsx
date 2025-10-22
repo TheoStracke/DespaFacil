@@ -105,9 +105,13 @@ export function Sidebar({ user, isDespachante }: SidebarProps) {
         <div className="relative flex-shrink-0">
           <Icon className="w-5 h-5" />
           {showBadge && !isExpanded && (
-            <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#FF8601] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+            <motion.span
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              className="absolute -top-1 -right-1 w-4 h-4 bg-[#FF8601] text-white text-[10px] font-bold rounded-full flex items-center justify-center"
+            >
               {item.badge! > 9 ? '9+' : item.badge}
-            </span>
+            </motion.span>
           )}
         </div>
         
@@ -128,6 +132,7 @@ export function Sidebar({ user, isDespachante }: SidebarProps) {
           <motion.span
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
             className="ml-auto px-2 py-0.5 bg-[#FF8601] text-white text-xs font-bold rounded-full flex-shrink-0"
           >
             {item.badge! > 99 ? '99+' : item.badge}
