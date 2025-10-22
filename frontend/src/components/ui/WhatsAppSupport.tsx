@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { MessageCircle, X } from 'lucide-react'
+import { Headset, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 export function WhatsAppSupport() {
@@ -41,7 +41,7 @@ export function WhatsAppSupport() {
               onClick={handleStartChat}
               className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-lg"
             >
-              <MessageCircle className="h-5 w-5" />
+              <Headset className="h-5 w-5" />
               Iniciar Atendimento
             </button>
           </motion.div>
@@ -58,7 +58,7 @@ export function WhatsAppSupport() {
         {isOpen ? (
           <X className="h-6 w-6" />
         ) : (
-          <MessageCircle className="h-6 w-6" />
+          <Headset className="h-6 w-6" />
         )}
       </motion.button>
     </div>

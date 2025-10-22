@@ -144,6 +144,16 @@ export default function DashboardPage() {
     return doc?.status || null
   }
 
+  const getDocumentoLabel = (tipo: string) => {
+    const labels: Record<string, string> = {
+      'DOCUMENTO1': 'Lista de Presença',
+      'DOCUMENTO2': 'Tabela de Dados',
+      'CNH': 'CNH',
+      'COMPROVANTE_PAGAMENTO': 'Comprovante'
+    }
+    return labels[tipo] || tipo
+  }
+
   if (loading && !user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -308,10 +318,11 @@ export default function DashboardPage() {
                       <TableHead>CPF</TableHead>
                       <TableHead>Email</TableHead>
                       <TableHead>Curso</TableHead>
-                      <TableHead>CNH</TableHead>
-                      <TableHead>Comprovante</TableHead>
-                      <TableHead>Lista de Presença</TableHead>
-                      <TableHead>Tabela de Dados</TableHead>
+                      <TableHead>{getDocumentoLabel('CNH')}</TableHead>
+                      <TableHead>{getDocumentoLabel('COMPROVANTE_PAGAMENTO')}</TableHead>
+                      <TableHead>{getDocumentoLabel('DOCUMENTO1')}</TableHead>
+                      <TableHead>{getDocumentoLabel('DOCUMENTO2')}</TableHead>
+                      <TableHead>Ações</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>

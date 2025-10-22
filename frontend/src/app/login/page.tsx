@@ -3,13 +3,15 @@
 import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { LogIn, Loader2 } from 'lucide-react'
+import Image from 'next/image'
+import { LogIn, Loader2, Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { useToast } from '@/components/ui/toast'
 import authService from '@/services/auth.service'
 import { maskCNPJ, validateCNPJ, unmaskCNPJ } from '@/lib/masks'
+ 
 
 export default function LoginPage() {
   const router = useRouter()
@@ -19,6 +21,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState({ cnpj: '', password: '' })
+  const [showPassword, setShowPassword] = useState(false)
+  
 
   // Aplicar máscara ao digitar CNPJ (se for email, não aplica máscara)
   const handleCnpjChange = (value: string) => {
@@ -101,11 +105,8 @@ export default function LoginPage() {
         title: 'Login realizado!',
         description: 'Bem-vindo de volta 👋',
       })
-
-      // Redirecionar para dashboard
-      setTimeout(() => {
-        router.push('/dashboard')
-      }, 500)
+      // Redirecionar diretamente para o dashboard
+      router.push('/dashboard')
     } catch (error: any) {
       console.error('Erro no login:', error)
       // Mostra mensagem detalhada do backend, seja 'error' ou 'message'
@@ -121,12 +122,21 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/5 p-4">
+    <div 
+      className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
+      style={{
+        backgroundImage: 'url(/ui/background.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      
       <motion.div
         initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
+        className="w-full max-w-md relative z-10"
       >
         <Card className="shadow-xl">
           <CardHeader className="space-y-1 text-center">
@@ -134,14 +144,10 @@ export default function LoginPage() {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-              className="flex justify-center mb-4"
+              className="flex justify-center mb-6"
             >
-              <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
-                <LogIn className="h-8 w-8 text-primary" />
-              </div>
+              <Image src="/ui/logo.png" alt="Logo" width={400} height={400} className="object-contain" priority />
             </motion.div>
-            
-            <CardTitle className="text-2xl font-bold">DespaFacil</CardTitle>
             <CardDescription>
               Entre com suas credenciais para acessar o sistema
             </CardDescription>
@@ -164,21 +170,36 @@ export default function LoginPage() {
               />
 
               {/* Campo Senha */}
-              <Input
-                label="Senha"
-                type="password"
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value)
-                  if (errors.password) {
-                    setErrors(prev => ({ ...prev, password: '' }))
-                  }
-                }}
-                placeholder="••••••••"
-                error={errors.password}
-                required
-                disabled={loading}
-              />
+              <div className="relative">
+                <Input
+                  label="Senha"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value)
+                    if (errors.password) {
+                      setErrors(prev => ({ ...prev, password: '' }))
+                    }
+                  }}
+                  placeholder="••••••••"
+                  error={errors.password}
+                  required
+                  disabled={loading}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-[2.65rem] text-gray-500 hover:text-gray-700 focus:outline-none transition-colors"
+                  tabIndex={-1}
+                  disabled={loading}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
+              </div>
 
               {/* Link Esqueci minha senha */}
               <div className="flex justify-end">

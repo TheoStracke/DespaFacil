@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
+import Image from 'next/image'
 import {
   LayoutDashboard,
   Shield,
@@ -53,14 +54,14 @@ export function Sidebar({ user, isDespachante }: SidebarProps) {
       label: 'Painel Admin',
       href: '/admin',
       show: !isDespachante,
-      badge: documentosPendentes,
+      badge: documentosPendentes > 0 ? documentosPendentes : undefined,
     },
     {
       icon: UserPlus,
       label: 'Solicitações',
       href: '/admin/solicitacoes',
       show: !isDespachante,
-      badge: solicitacoesPendentes,
+      badge: solicitacoesPendentes > 0 ? solicitacoesPendentes : undefined,
     },
     {
       icon: Send,
@@ -117,27 +118,27 @@ export function Sidebar({ user, isDespachante }: SidebarProps) {
         
         <AnimatePresence>
           {isExpanded && (
-            <motion.span
+            <motion.div
               initial={{ opacity: 0, width: 0 }}
               animate={{ opacity: 1, width: 'auto' }}
               exit={{ opacity: 0, width: 0 }}
-              className="whitespace-nowrap overflow-hidden flex-1 text-left"
+              className="whitespace-nowrap overflow-hidden flex-1 flex items-center justify-between gap-2"
             >
-              {item.label}
-            </motion.span>
+              <span className="text-left">
+                {item.label}
+              </span>
+              {showBadge && (
+                <motion.span
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="px-2 py-0.5 bg-[#FF8601] text-white text-xs font-bold rounded-full flex-shrink-0"
+                >
+                  {item.badge! > 99 ? '99+' : item.badge}
+                </motion.span>
+              )}
+            </motion.div>
           )}
         </AnimatePresence>
-
-        {showBadge && isExpanded && (
-          <motion.span
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            className="ml-auto px-2 py-0.5 bg-[#FF8601] text-white text-xs font-bold rounded-full flex-shrink-0"
-          >
-            {item.badge! > 99 ? '99+' : item.badge}
-          </motion.span>
-        )}
 
         {/* Tooltip on hover (desktop only) */}
         {!isExpanded && (
@@ -147,11 +148,6 @@ export function Sidebar({ user, isDespachante }: SidebarProps) {
             transition-opacity whitespace-nowrap z-50 hidden lg:block
           ">
             {item.label}
-            {showBadge && (
-              <span className="ml-2 px-1.5 py-0.5 bg-[#FF8601] text-white text-xs font-bold rounded">
-                {item.badge! > 9 ? '9+' : item.badge}
-              </span>
-            )}
           </div>
         )}
       </motion.button>
@@ -196,24 +192,48 @@ export function Sidebar({ user, isDespachante }: SidebarProps) {
         `}
       >
         {/* Logo/Brand */}
-        <div className="h-16 flex items-center justify-center border-b border-gray-200">
+        <div className="h-16 flex items-center justify-center border-b border-gray-200 px-2">
           <motion.div
-            className="flex items-center gap-2"
+            className="flex items-center justify-center w-full"
             layout
           >
-            <div className="w-8 h-8 bg-gradient-to-br from-[#010E9B] to-[#FF8601] rounded-lg flex items-center justify-center text-white font-bold text-sm">
-              DF
-            </div>
-            <AnimatePresence>
-              {isExpanded && (
-                <motion.span
-                  initial={{ opacity: 0, width: 0 }}
-                  animate={{ opacity: 1, width: 'auto' }}
-                  exit={{ opacity: 0, width: 0 }}
-                  className="font-bold text-gray-900 whitespace-nowrap overflow-hidden"
+            <AnimatePresence mode="wait">
+              {isExpanded ? (
+                <motion.div
+                  key="logo-full"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.2 }}
+                  className="relative w-full h-12 flex items-center justify-center"
                 >
-                  DespaFacil
-                </motion.span>
+                  <Image
+                    src="/ui/logo.png"
+                    alt="DespaFacil Logo"
+                    width={180}
+                    height={48}
+                    className="object-contain"
+                    priority
+                  />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="favicon"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.2 }}
+                  className="relative w-10 h-10 flex items-center justify-center"
+                >
+                  <Image
+                    src="/favicon.ico"
+                    alt="DespaFacil"
+                    width={40}
+                    height={40}
+                    className="object-contain"
+                    priority
+                  />
+                </motion.div>
               )}
             </AnimatePresence>
           </motion.div>

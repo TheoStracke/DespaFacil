@@ -4,7 +4,7 @@ import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { UserPlus, ArrowLeft, CheckCircle2, AlertCircle } from 'lucide-react'
+import { UserPlus, ArrowLeft, CheckCircle2, AlertCircle, Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -19,6 +19,8 @@ export default function RegisterPage() {
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
   const [showModal, setShowModal] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   
   const [formData, setFormData] = useState({
     name: '',
@@ -218,12 +220,21 @@ export default function RegisterPage() {
   const strength = formData.password ? passwordStrength(formData.password) : null
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-primary/10 flex items-center justify-center p-4">
+    <div 
+      className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
+      style={{
+        backgroundImage: 'url(/ui/background.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
+        className="w-full max-w-md relative z-10"
       >
         {/* Logo/Header */}
         <div className="text-center mb-8">
@@ -231,9 +242,9 @@ export default function RegisterPage() {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-            className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground mb-4"
+            className="flex justify-center mb-4"
           >
-            <UserPlus className="h-8 w-8" />
+            <img src="/ui/logo.png" alt="Logo" width="120" height="120" className="object-contain" />
           </motion.div>
           <h1 className="text-3xl font-bold">Criar Conta</h1>
           <p className="text-muted-foreground mt-2">
@@ -309,16 +320,31 @@ export default function RegisterPage() {
 
               {/* Senha */}
               <div>
-                <Input
-                  label="Senha"
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) => handleChange('password', e.target.value)}
-                  placeholder="••••••••"
-                  error={errors.password}
-                  required
-                  disabled={loading}
-                />
+                <div className="relative">
+                  <Input
+                    label="Senha"
+                    type={showPassword ? "text" : "password"}
+                    value={formData.password}
+                    onChange={(e) => handleChange('password', e.target.value)}
+                    placeholder="••••••••"
+                    error={errors.password}
+                    required
+                    disabled={loading}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-[2.65rem] text-gray-500 hover:text-gray-700 focus:outline-none transition-colors"
+                    tabIndex={-1}
+                    disabled={loading}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5" />
+                    ) : (
+                      <Eye className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
                 
                 {/* Indicador de força da senha */}
                 {formData.password && strength && (
@@ -371,16 +397,31 @@ export default function RegisterPage() {
               </div>
 
               {/* Confirmar Senha */}
-              <Input
-                label="Confirmar Senha"
-                type="password"
-                value={formData.confirmPassword}
-                onChange={(e) => handleChange('confirmPassword', e.target.value)}
-                placeholder="••••••••"
-                error={errors.confirmPassword}
-                required
-                disabled={loading}
-              />
+              <div className="relative">
+                <Input
+                  label="Confirmar Senha"
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={formData.confirmPassword}
+                  onChange={(e) => handleChange('confirmPassword', e.target.value)}
+                  placeholder="••••••••"
+                  error={errors.confirmPassword}
+                  required
+                  disabled={loading}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-[2.65rem] text-gray-500 hover:text-gray-700 focus:outline-none transition-colors"
+                  tabIndex={-1}
+                  disabled={loading}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
+              </div>
 
               {/* Botão de Cadastro */}
               <Button type="submit" className="w-full" disabled={loading} loading={loading}>
