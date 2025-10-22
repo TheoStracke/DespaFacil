@@ -15,20 +15,20 @@ export function getWelcomeTemplate(data: { nome: string; loginUrl: string }): st
       <mj-head>
         <mj-attributes>
           <mj-all font-family="Poppins, Arial, sans-serif" color="#222222" />
-          <mj-class name="h1" font-size="28px" font-weight="700" color="#03324a" />
+          <mj-class name="h1" font-size="28px" font-weight="700" color="#010E9B" />
           <mj-class name="lead" font-size="16px" color="#4a4a4a" />
-          <mj-button background-color="#667eea" color="#ffffff" border-radius="8px" padding="12px 24px" />
+          <mj-button background-color="#FF8601" color="#ffffff" border-radius="8px" padding="12px 24px" />
         </mj-attributes>
         <mj-style>
           .card { border-radius: 12px; box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06); }
-          .alert-box { background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; border-radius: 4px; }
+          .alert-box { background-color: #fff3cd; border-left: 4px solid #FF8601; padding: 15px; border-radius: 4px; }
         </mj-style>
       </mj-head>
 
       <mj-body background-color="#f4f6f8">
         <mj-section background-color="#ffffff" padding="20px">
           <mj-column>
-            <mj-text align="center" font-size="24px" font-weight="bold" color="#667eea">
+            <mj-text align="center" font-size="24px" font-weight="bold" color="#010E9B">
               DespaFacil
             </mj-text>
             <mj-text align="center" font-size="12px" color="#666666">
@@ -66,7 +66,7 @@ export function getWelcomeTemplate(data: { nome: string; loginUrl: string }): st
 
               <mj-button 
                 href="${data.loginUrl}"
-                background-color="#667eea"
+                background-color="#FF8601"
                 padding-top="24px"
                 font-weight="600"
               >
@@ -87,10 +87,10 @@ export function getWelcomeTemplate(data: { nome: string; loginUrl: string }): st
             <mj-divider border-color="#e6eef5" padding="16px 0" />
 
             <mj-text font-size="12px" color="#9aa1a6" align="center">
-              Precisa de ajuda? Entre em contato: <a href="mailto:despafacilrepo@gmail.com" style="color:#667eea; text-decoration:none;">despafacilrepo@gmail.com</a>
+              Precisa de ajuda? Entre em contato: <a href="mailto:despafacilrepo@gmail.com" style="color:#FF8601; text-decoration:none;">despafacilrepo@gmail.com</a>
               <br /><br />
-              <a href="${APP_URL}/politica-privacidade" style="color:#667eea; text-decoration:none;">Política de Privacidade</a> — 
-              <a href="${APP_URL}/termos-uso" style="color:#667eea; text-decoration:none;">Termos de Uso</a>
+              <a href="${APP_URL}/politica-privacidade" style="color:#010E9B; text-decoration:none;">Política de Privacidade</a> — 
+              <a href="${APP_URL}/termos-uso" style="color:#010E9B; text-decoration:none;">Termos de Uso</a>
             </mj-text>
           </mj-column>
         </mj-section>
@@ -119,7 +119,7 @@ export function getFirstLoginTemplate(data: { nome: string }): string {
       <mj-head>
         <mj-attributes>
           <mj-all font-family="Poppins, Arial, sans-serif" color="#222222" />
-          <mj-button background-color="#667eea" color="#ffffff" border-radius="8px" padding="12px 24px" />
+          <mj-button background-color="#FF8601" color="#ffffff" border-radius="8px" padding="12px 24px" />
         </mj-attributes>
         <mj-style>
           .card { border-radius: 12px; box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06); }
@@ -129,7 +129,7 @@ export function getFirstLoginTemplate(data: { nome: string }): string {
       <mj-body background-color="#f4f6f8">
         <mj-section background-color="#ffffff" padding="20px">
           <mj-column>
-            <mj-text align="center" font-size="24px" font-weight="bold" color="#667eea">
+            <mj-text align="center" font-size="24px" font-weight="bold" color="#010E9B">
               DespaFacil
             </mj-text>
           </mj-column>
@@ -138,7 +138,7 @@ export function getFirstLoginTemplate(data: { nome: string }): string {
         <mj-section padding="0 16px" background-color="#f4f6f8">
           <mj-column>
             <mj-wrapper css-class="card" padding="32px" background-color="#ffffff">
-              <mj-text align="center" font-size="28px" font-weight="700" color="#667eea" padding-bottom="10px">
+              <mj-text align="center" font-size="28px" font-weight="700" color="#FF8601" padding-bottom="10px">
                 Primeiro Acesso Detectado!
               </mj-text>
               
@@ -166,8 +166,8 @@ export function getFirstLoginTemplate(data: { nome: string }): string {
             <mj-divider border-color="#e6eef5" />
             <mj-text font-size="12px" color="#9aa1a6" align="center" padding-top="16px">
               © 2025 DespaFacil. Gestão de Despachantes Documentalistas.<br/>
-              <a href="${APP_URL}/politica-privacidade" style="color:#667eea; text-decoration:none;">Política de Privacidade</a> — 
-              <a href="${APP_URL}/termos-uso" style="color:#667eea; text-decoration:none;">Termos de Uso</a>
+              <a href="${APP_URL}/politica-privacidade" style="color:#010E9B; text-decoration:none;">Política de Privacidade</a> — 
+              <a href="${APP_URL}/termos-uso" style="color:#010E9B; text-decoration:none;">Termos de Uso</a>
             </mj-text>
           </mj-column>
         </mj-section>
@@ -186,7 +186,7 @@ export function getPartnerRequestTemplate(data: { nome: string }): string {
       <mj-head>
         <mj-attributes>
           <mj-all font-family="Poppins, Arial, sans-serif" color="#222222" />
-          <mj-button background-color="#667eea" color="#ffffff" border-radius="8px" padding="12px 24px" />
+          <mj-button background-color="#FF8601" color="#ffffff" border-radius="8px" padding="12px 24px" />
         </mj-attributes>
         <mj-style>
           .card { border-radius: 12px; box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06); }
@@ -196,7 +196,7 @@ export function getPartnerRequestTemplate(data: { nome: string }): string {
       <mj-body background-color="#f4f6f8">
         <mj-section background-color="#ffffff" padding="20px">
           <mj-column>
-            <mj-text align="center" font-size="24px" font-weight="bold" color="#667eea">
+            <mj-text align="center" font-size="24px" font-weight="bold" color="#010E9B">
               DespaFacil
             </mj-text>
           </mj-column>
@@ -205,7 +205,7 @@ export function getPartnerRequestTemplate(data: { nome: string }): string {
         <mj-section padding="0 16px" background-color="#f4f6f8">
           <mj-column>
             <mj-wrapper css-class="card" padding="32px" background-color="#ffffff">
-              <mj-text align="center" font-size="28px" font-weight="700" color="#03324a" padding-bottom="10px">
+              <mj-text align="center" font-size="28px" font-weight="700" color="#010E9B" padding-bottom="10px">
                 Solicitação Recebida
               </mj-text>
               
@@ -233,8 +233,8 @@ export function getPartnerRequestTemplate(data: { nome: string }): string {
             <mj-divider border-color="#e6eef5" />
             <mj-text font-size="12px" color="#9aa1a6" align="center" padding-top="16px">
               © 2025 DespaFacil. Todos os direitos reservados.<br/>
-              <a href="${APP_URL}/politica-privacidade" style="color:#667eea; text-decoration:none;">Política de Privacidade</a> — 
-              <a href="${APP_URL}/termos-uso" style="color:#667eea; text-decoration:none;">Termos de Uso</a>
+              <a href="${APP_URL}/politica-privacidade" style="color:#010E9B; text-decoration:none;">Política de Privacidade</a> — 
+              <a href="${APP_URL}/termos-uso" style="color:#010E9B; text-decoration:none;">Termos de Uso</a>
             </mj-text>
           </mj-column>
         </mj-section>
@@ -261,18 +261,18 @@ export function getAdminNotificationTemplate(data: {
       <mj-head>
         <mj-attributes>
           <mj-all font-family="Poppins, Arial, sans-serif" color="#222222" />
-          <mj-button background-color="#667eea" color="#ffffff" border-radius="8px" padding="12px 24px" />
+          <mj-button background-color="#FF8601" color="#ffffff" border-radius="8px" padding="12px 24px" />
         </mj-attributes>
         <mj-style>
           .card { border-radius: 12px; box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06); }
-          .info-box { background-color: #f8f9fa; border-left: 4px solid #667eea; padding: 16px; border-radius: 8px; }
+          .info-box { background-color: #f8f9fa; border-left: 4px solid #FF8601; padding: 16px; border-radius: 8px; }
         </mj-style>
       </mj-head>
 
       <mj-body background-color="#f4f6f8">
         <mj-section background-color="#ffffff" padding="20px">
           <mj-column>
-            <mj-text align="center" font-size="24px" font-weight="bold" color="#667eea">
+            <mj-text align="center" font-size="24px" font-weight="bold" color="#010E9B">
               DespaFacil
             </mj-text>
           </mj-column>
@@ -281,7 +281,7 @@ export function getAdminNotificationTemplate(data: {
         <mj-section padding="0 16px" background-color="#f4f6f8">
           <mj-column>
             <mj-wrapper css-class="card" padding="32px" background-color="#ffffff">
-              <mj-text align="center" font-size="28px" font-weight="700" color="#f093fb" padding-bottom="10px">
+              <mj-text align="center" font-size="28px" font-weight="700" color="#FF8601" padding-bottom="10px">
                 Nova Solicitação de Parceria
               </mj-text>
               
@@ -291,22 +291,22 @@ export function getAdminNotificationTemplate(data: {
 
               <mj-wrapper css-class="info-box" padding="16px" padding-top="20px">
                 <mj-text font-size="14px" line-height="20px" padding="4px 0">
-                  <strong style="color: #667eea;">Empresa:</strong> ${data.empresa}
+                  <strong style="color: #010E9B;">Empresa:</strong> ${data.empresa}
                 </mj-text>
                 <mj-text font-size="14px" line-height="20px" padding="4px 0">
-                  <strong style="color: #667eea;">CNPJ:</strong> ${data.cnpj}
+                  <strong style="color: #010E9B;">CNPJ:</strong> ${data.cnpj}
                 </mj-text>
                 <mj-text font-size="14px" line-height="20px" padding="4px 0">
-                  <strong style="color: #667eea;">E-mail:</strong> ${data.email}
+                  <strong style="color: #010E9B;">E-mail:</strong> ${data.email}
                 </mj-text>
                 <mj-text font-size="14px" line-height="20px" padding="4px 0">
-                  <strong style="color: #667eea;">Telefone:</strong> ${data.telefone}
+                  <strong style="color: #010E9B;">Telefone:</strong> ${data.telefone}
                 </mj-text>
                 <mj-text font-size="14px" line-height="20px" padding="4px 0">
-                  <strong style="color: #667eea;">Responsável:</strong> ${data.nomeResponsavel}
+                  <strong style="color: #010E9B;">Responsável:</strong> ${data.nomeResponsavel}
                 </mj-text>
                 <mj-text font-size="14px" line-height="20px" padding="4px 0">
-                  <strong style="color: #667eea;">Mensagem:</strong> ${data.mensagem}
+                  <strong style="color: #010E9B;">Mensagem:</strong> ${data.mensagem}
                 </mj-text>
               </mj-wrapper>
 
@@ -316,7 +316,7 @@ export function getAdminNotificationTemplate(data: {
 
               <mj-button 
                 href="${data.adminPanelUrl}"
-                background-color="#667eea"
+                background-color="#FF8601"
                 padding-top="24px"
                 font-weight="600"
               >
@@ -331,8 +331,8 @@ export function getAdminNotificationTemplate(data: {
             <mj-divider border-color="#e6eef5" />
             <mj-text font-size="12px" color="#9aa1a6" align="center" padding-top="16px">
               © 2025 DespaFacil. Gestão de Despachantes Documentalistas.<br/>
-              <a href="${APP_URL}/politica-privacidade" style="color:#667eea; text-decoration:none;">Política de Privacidade</a> — 
-              <a href="${APP_URL}/termos-uso" style="color:#667eea; text-decoration:none;">Termos de Uso</a>
+              <a href="${APP_URL}/politica-privacidade" style="color:#010E9B; text-decoration:none;">Política de Privacidade</a> — 
+              <a href="${APP_URL}/termos-uso" style="color:#010E9B; text-decoration:none;">Termos de Uso</a>
             </mj-text>
           </mj-column>
         </mj-section>
@@ -361,7 +361,7 @@ export function getApprovalTemplate(data: { nome: string; loginUrl: string }): s
       <mj-body background-color="#f4f6f8">
         <mj-section background-color="#ffffff" padding="20px">
           <mj-column>
-            <mj-text align="center" font-size="24px" font-weight="bold" color="#667eea">
+            <mj-text align="center" font-size="24px" font-weight="bold" color="#010E9B">
               DespaFacil
             </mj-text>
           </mj-column>
@@ -407,8 +407,8 @@ export function getApprovalTemplate(data: { nome: string; loginUrl: string }): s
             <mj-divider border-color="#e6eef5" />
             <mj-text font-size="12px" color="#9aa1a6" align="center" padding-top="16px">
               © 2025 DespaFacil. Gestão de Despachantes Documentalistas.<br/>
-              <a href="${APP_URL}/politica-privacidade" style="color:#667eea; text-decoration:none;">Política de Privacidade</a> — 
-              <a href="${APP_URL}/termos-uso" style="color:#667eea; text-decoration:none;">Termos de Uso</a>
+              <a href="${APP_URL}/politica-privacidade" style="color:#010E9B; text-decoration:none;">Política de Privacidade</a> — 
+              <a href="${APP_URL}/termos-uso" style="color:#010E9B; text-decoration:none;">Termos de Uso</a>
             </mj-text>
           </mj-column>
         </mj-section>
@@ -431,14 +431,14 @@ export function getRejectionTemplate(data: { nome: string; motivo: string }): st
         </mj-attributes>
         <mj-style>
           .card { border-radius: 12px; box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06); }
-          .alert-box { background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 16px; border-radius: 8px; }
+          .alert-box { background-color: #fff3cd; border-left: 4px solid #FF8601; padding: 16px; border-radius: 8px; }
         </mj-style>
       </mj-head>
 
       <mj-body background-color="#f4f6f8">
         <mj-section background-color="#ffffff" padding="20px">
           <mj-column>
-            <mj-text align="center" font-size="24px" font-weight="bold" color="#667eea">
+            <mj-text align="center" font-size="24px" font-weight="bold" color="#010E9B">
               DespaFacil
             </mj-text>
           </mj-column>
@@ -467,7 +467,7 @@ export function getRejectionTemplate(data: { nome: string; motivo: string }): st
               </mj-wrapper>
 
               <mj-text font-size="15px" line-height="22px" padding-top="16px">
-                Caso tenha dúvidas ou queira mais informações, entre em contato conosco através do email <a href="mailto:${process.env.NOTIFICATION_EMAIL}" style="color: #667eea; text-decoration: none; font-weight: 600;">${process.env.NOTIFICATION_EMAIL}</a>.
+                Caso tenha dúvidas ou queira mais informações, entre em contato conosco através do email <a href="mailto:${process.env.NOTIFICATION_EMAIL}" style="color: #FF8601; text-decoration: none; font-weight: 600;">${process.env.NOTIFICATION_EMAIL}</a>.
               </mj-text>
             </mj-wrapper>
           </mj-column>
@@ -478,8 +478,8 @@ export function getRejectionTemplate(data: { nome: string; motivo: string }): st
             <mj-divider border-color="#e6eef5" />
             <mj-text font-size="12px" color="#9aa1a6" align="center" padding-top="16px">
               © 2025 DespaFacil. Gestão de Despachantes Documentalistas.<br/>
-              <a href="${APP_URL}/politica-privacidade" style="color:#667eea; text-decoration:none;">Política de Privacidade</a> — 
-              <a href="${APP_URL}/termos-uso" style="color:#667eea; text-decoration:none;">Termos de Uso</a>
+              <a href="${APP_URL}/politica-privacidade" style="color:#010E9B; text-decoration:none;">Política de Privacidade</a> — 
+              <a href="${APP_URL}/termos-uso" style="color:#010E9B; text-decoration:none;">Termos de Uso</a>
             </mj-text>
           </mj-column>
         </mj-section>
@@ -498,7 +498,7 @@ export function getCertificateTemplate(data: { nome: string; curso: string; cert
       <mj-head>
         <mj-attributes>
           <mj-all font-family="Poppins, Arial, sans-serif" color="#222222" />
-          <mj-button background-color="#ffc107" color="#ffffff" border-radius="8px" padding="12px 24px" />
+          <mj-button background-color="#FF8601" color="#ffffff" border-radius="8px" padding="12px 24px" />
         </mj-attributes>
         <mj-style>
           .card { border-radius: 12px; box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06); }
@@ -508,7 +508,7 @@ export function getCertificateTemplate(data: { nome: string; curso: string; cert
       <mj-body background-color="#f4f6f8">
         <mj-section background-color="#ffffff" padding="20px">
           <mj-column>
-            <mj-text align="center" font-size="24px" font-weight="bold" color="#667eea">
+            <mj-text align="center" font-size="24px" font-weight="bold" color="#010E9B">
               DespaFacil
             </mj-text>
           </mj-column>
@@ -517,7 +517,7 @@ export function getCertificateTemplate(data: { nome: string; curso: string; cert
         <mj-section padding="0 16px" background-color="#f4f6f8">
           <mj-column>
             <mj-wrapper css-class="card" padding="32px" background-color="#ffffff">
-              <mj-text align="center" font-size="28px" font-weight="700" color="#ffc107" padding-bottom="10px">
+              <mj-text align="center" font-size="28px" font-weight="700" color="#FF8601" padding-bottom="10px">
                 Certificado Disponível!
               </mj-text>
               
@@ -535,7 +535,7 @@ export function getCertificateTemplate(data: { nome: string; curso: string; cert
 
               <mj-button 
                 href="${data.certificadoUrl}"
-                background-color="#ffc107"
+                background-color="#FF8601"
                 padding-top="24px"
                 font-weight="600"
               >
@@ -550,8 +550,8 @@ export function getCertificateTemplate(data: { nome: string; curso: string; cert
             <mj-divider border-color="#e6eef5" />
             <mj-text font-size="12px" color="#9aa1a6" align="center" padding-top="16px">
               © 2025 DespaFacil. Gestão de Despachantes Documentalistas.<br/>
-              <a href="${process.env.FRONTEND_URL}/politica-privacidade" style="color:#667eea; text-decoration:none;">Política de Privacidade</a> — 
-              <a href="${process.env.FRONTEND_URL}/termos-uso" style="color:#667eea; text-decoration:none;">Termos de Uso</a>
+              <a href="${APP_URL}/politica-privacidade" style="color:#010E9B; text-decoration:none;">Política de Privacidade</a> — 
+              <a href="${APP_URL}/termos-uso" style="color:#010E9B; text-decoration:none;">Termos de Uso</a>
             </mj-text>
           </mj-column>
         </mj-section>

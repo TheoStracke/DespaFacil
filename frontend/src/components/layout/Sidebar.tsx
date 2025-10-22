@@ -13,6 +13,7 @@ import {
   LogOut,
   Menu,
   X,
+  Phone,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import authService from '@/services/auth.service'
@@ -68,6 +69,12 @@ export function Sidebar({ user, isDespachante }: SidebarProps) {
       label: 'Enviar Certificado',
       href: '/admin/enviar-certificado',
       show: !isDespachante,
+    },
+    {
+      icon: Phone,
+      label: 'Contato',
+      href: '/contato',
+      show: true,
     },
   ]
 
