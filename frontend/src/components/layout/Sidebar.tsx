@@ -8,6 +8,7 @@ import {
   Shield,
   User,
   UserPlus,
+  Send,
   LogOut,
   Menu,
   X,
@@ -52,6 +53,12 @@ export function Sidebar({ user, isDespachante }: SidebarProps) {
       icon: UserPlus,
       label: 'Solicitações',
       href: '/admin/solicitacoes',
+      show: !isDespachante,
+    },
+    {
+      icon: Send,
+      label: 'Enviar Certificado',
+      href: '/admin/enviar-certificado',
       show: !isDespachante,
     },
   ]

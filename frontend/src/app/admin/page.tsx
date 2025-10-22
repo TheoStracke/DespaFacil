@@ -5,13 +5,12 @@ import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import {
   RefreshCw,
-  Download,
-  Send,
   CheckCircle,
   XCircle,
   Search,
   Filter,
   UserPlus,
+  Download,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -30,7 +29,6 @@ import { useToast } from '@/components/ui/toast'
 import authService from '@/services/auth.service'
 import documentoService from '@/services/documento.service'
 import { DocumentoActionDialog } from '@/components/admin/DocumentoActionDialog'
-import { SendCertificadoDialog } from '@/components/admin/SendCertificadoDialog'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import type { Documento, DocumentoStatus } from '@/types'
 
@@ -58,7 +56,6 @@ export default function AdminPage() {
     documento: null,
     action: null,
   })
-  const [sendCertificadoDialog, setSendCertificadoDialog] = useState(false)
   const [actionLoading, setActionLoading] = useState(false)
 
   // Verificar autenticação e carregar dados
@@ -170,60 +167,6 @@ export default function AdminPage() {
     }
   }
 
-  const handleSendCertificado = async (file: File, search: string) => {
-    try {
-      setActionLoading(true)
-      
-      await documentoService.sendCertificado(file, search)
-
-      toast({
-        type: 'success',
-        title: 'Certificado enviado!',
-        description: 'O despachante foi notificado por e-mail',
-      })
-
-      setSendCertificadoDialog(false)
-    } catch (error: any) {
-      console.error('Erro ao enviar certificado:', error)
-      toast({
-        type: 'error',
-        title: 'Erro ao enviar certificado',
-        description: error.response?.data?.message || 'Tente novamente',
-      })
-    } finally {
-      setActionLoading(false)
-    }
-  }
-
-  const handleExport = async () => {
-    try {
-      toast({
-        type: 'info',
-        title: 'Gerando arquivo...',
-        description: 'Aguarde, o download iniciará em breve',
-      })
-
-      const params: any = {}
-      if (statusFilter !== 'TODOS') params.status = statusFilter
-      if (tipoFilter !== 'TODOS') params.tipo = tipoFilter
-
-      await documentoService.exportToExcel(params)
-
-      toast({
-        type: 'success',
-        title: 'Exportação concluída!',
-        description: 'Arquivo baixado com sucesso',
-      })
-    } catch (error: any) {
-      console.error('Erro ao exportar:', error)
-      toast({
-        type: 'error',
-        title: 'Erro ao exportar',
-        description: error.response?.data?.message || 'Tente novamente',
-      })
-    }
-  }
-
   return (
     <DashboardLayout user={user} isDespachante={false}>
       <motion.div
@@ -259,21 +202,6 @@ export default function AdminPage() {
                   >
                     <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                     Atualizar
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleExport}
-                  >
-                    <Download className="h-4 w-4 mr-2" />
-                    Exportar
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={() => setSendCertificadoDialog(true)}
-                  >
-                    <Send className="h-4 w-4 mr-2" />
-                    Enviar Certificado
                   </Button>
                 </div>
               </div>
@@ -452,13 +380,6 @@ export default function AdminPage() {
         documento={actionDialog.documento}
         action={actionDialog.action}
         onConfirm={handleConfirmAction}
-        loading={actionLoading}
-      />
-
-      <SendCertificadoDialog
-        open={sendCertificadoDialog}
-        onOpenChange={setSendCertificadoDialog}
-        onSend={handleSendCertificado}
         loading={actionLoading}
       />
       </motion.div>
