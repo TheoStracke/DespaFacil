@@ -20,6 +20,8 @@ model User {
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   Despachante   Despachante?
+  auditLogs     AuditLog[]
+  notifications Notification[]
 }
 
 model Despachante {
@@ -49,6 +51,7 @@ model Motorista {
   cursoTipo      CursoTipo
   documentos     Documento[]
   certificados   Certificado[]
+  solicitacoesCodigo SolicitacaoCodigo[]
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
@@ -169,4 +172,83 @@ model SolicitacaoCadastro {
   updatedAt    DateTime          @updatedAt
 
   @@index([cnpj, createdAt])
+}
+
+// Solicitações de Código
+enum SolicitacaoCodigoStatus {
+  PENDENTE
+  ENVIADO
+  CANCELADO
+}
+
+model SolicitacaoCodigo {
+  id             String                   @id @default(cuid())
+  motorista      Motorista                @relation(fields: [motoristaId], references: [id])
+  motoristaId    String
+  emailDestino   String                   // Email para onde o código será enviado
+  observacao     String?                  // Observação do admin
+  codigo         String?                  // Código enviado pelo despachante
+  status         SolicitacaoCodigoStatus  @default(PENDENTE)
+  solicitadoPor  String                   // ID do admin que solicitou
+  solicitadoEm   DateTime                 @default(now())
+  enviadoEm      DateTime?                // Quando o despachante enviou
+  createdAt      DateTime                 @default(now())
+  updatedAt      DateTime                 @updatedAt
+
+  @@index([motoristaId])
+  @@index([status])
+}
+
+// Logs de Auditoria
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  action      String   // LOGIN, LOGOUT, APROVAR_DOCUMENTO, NEGAR_DOCUMENTO, ENVIAR_CERTIFICADO, etc
+  entityType  String?  // Motorista, Documento, Certificado, User, etc
+  entityId    String?  // ID da entidade relacionada
+  entityName  String?  // Nome/identificação da entidade para facilitar busca
+  metadata    Json?    // Dados adicionais (ex: motivo de negação, dados anteriores, etc)
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([entityType])
+  @@index([createdAt])
+}
+
+// Notificações
+model Notification {
+  id          String           @id @default(cuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id])
+  type        NotificationType
+  title       String
+  message     String
+  read        Boolean          @default(false)
+  entityType  String?          // Motorista, Documento, Certificado, Parceiro, etc
+  entityId    String?          // ID da entidade relacionada
+  metadata    Json?            // Dados adicionais
+  createdAt   DateTime         @default(now())
+
+  @@index([userId])
+  @@index([read])
+  @@index([createdAt])
+  @@index([type])
+}
+
+enum NotificationType {
+  DOCUMENTO_ENVIADO
+  DOCUMENTO_APROVADO
+  DOCUMENTO_NEGADO
+  MOTORISTA_CRIADO
+  SOLICITACAO_PARCEIRO
+  SOLICITACAO_APROVADA
+  SOLICITACAO_NEGADA
+  CERTIFICADO_ENVIADO
+  CERTIFICADO_BAIXADO
+  USUARIO_CRIADO
+  PASSWORD_RESET
 }

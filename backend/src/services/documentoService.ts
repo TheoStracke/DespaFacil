@@ -74,6 +74,9 @@ export async function uploadDocumento(
         reviewedAt: null,
         motivoNegacao: null,
       },
+      include: {
+        motorista: true,
+      },
     });
 
     // Criar log
@@ -104,6 +107,9 @@ export async function uploadDocumento(
         mimetype: file.mimetype,
         size: file.size,
         uploadedBy: userId,
+      },
+      include: {
+        motorista: true,
       },
     });
 
@@ -158,6 +164,15 @@ export async function updateDocumentoStatus(
       reviewedBy: userId,
       reviewedAt: new Date(),
     },
+      include: {
+        motorista: {
+          include: {
+            despachante: {
+              include: { user: true },
+            },
+          },
+        },
+      },
   });
 
   // Criar log
@@ -340,10 +355,10 @@ export async function sendCertificado(
   // Enviar email de notificação (SEM anexo, apenas aviso)
   sendEmail({
     to: motorista.despachante.user.email,
-    subject: `📜 Novo Certificado Disponível - ${motorista.nome}`,
+    subject: `Novo Certificado Disponível - ${motorista.nome}`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #2563eb;">📜 Novo Certificado Disponível</h2>
+        <h2 style="color: #2563eb;">Novo Certificado Disponível</h2>
         
         <p>Olá <strong>${motorista.despachante.user.name}</strong>,</p>
         
@@ -358,8 +373,8 @@ export async function sendCertificado(
         
         <div style="background-color: #eff6ff; padding: 15px; border-radius: 8px; border-left: 4px solid #2563eb;">
           <p style="margin: 0; color: #1e40af;">
-            <strong>� Para baixar o certificado:</strong><br>
-            Acesse seu painel em <a href="${getAppUrl()}/dashboard" style="color: #2563eb; text-decoration: none;">DespaFacil</a> e vá na seção "Certificados".
+            <strong>Para baixar o certificado:</strong><br>
+            Acesse seu painel em <a href="${getAppUrl()}/despachante/certificados" style="color: #2563eb; text-decoration: none;">DespaFacil</a> e vá na seção "Certificados".
           </p>
         </div>
         
@@ -393,7 +408,33 @@ export async function sendCertificado(
   // Log simplificado sem vincular a um documento específico
   console.log(`✅ Certificado enviado para ${motorista.nome} pelo admin ${userId}`);
 
-  return { message: 'Certificado enviado com sucesso', motorista };
+  return { message: 'Certificado enviado com sucesso', motorista, certificado };
+}
+
+export async function bulkDownloadMotoristaDocumentos(motoristaId: string) {
+  // Buscar documentos do motorista
+  const documentos = await prisma.documento.findMany({
+    where: { motoristaId },
+    orderBy: { tipo: 'asc' },
+  });
+
+  if (!documentos.length) {
+    throw new Error('Nenhum documento encontrado para este motorista');
+  }
+
+  // Verificar se todos os documentos estão aprovados
+  const pendentes = documentos.filter((d: any) => d.status !== 'APROVADO');
+  if (pendentes.length) {
+    throw new Error('Nem todos os documentos estão aprovados');
+  }
+
+  // Gerar lista de caminhos
+  const files = documentos.map((d: any) => ({
+    path: d.path,
+    name: `${d.tipo}-${d.filename}`,
+  }));
+
+  return files; // Controller fará o zip/stream
 }
 
 async function notifyDocumentUploaded(motorista: any, tipo: string, despachanteEmail: string) {
@@ -405,11 +446,11 @@ async function notifyDocumentUploaded(motorista: any, tipo: string, despachanteE
     cc: ccEmail,
     subject: `Novo documento enviado - ${motorista.nome}`,
     html: `
-      <h2>Novo Documento Enviado</h2>
-      <p><strong>Motorista:</strong> ${motorista.nome} (CPF: ${motorista.cpf})</p>
-      <p><strong>Tipo de documento:</strong> ${tipo}</p>
-      <p><strong>Despachante:</strong> ${despachanteEmail}</p>
-      <p>Acesse o painel administrativo para revisar.</p>
+  <h2>Novo Documento Enviado</h2>
+  <p><strong>Motorista:</strong> ${motorista.nome} (CPF: ${motorista.cpf})</p>
+  <p><strong>Tipo de documento:</strong> ${tipo}</p>
+  <p><strong>Despachante:</strong> ${despachanteEmail}</p>
+  <p>Acesse o painel administrativo para revisar.</p>
     `,
   });
 }

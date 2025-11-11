@@ -11,6 +11,9 @@ import {
   Upload,
   Filter,
   Download,
+  Home,
+  BarChart3,
+  TrendingUp,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -26,7 +29,8 @@ import {
 } from '@/components/ui/table'
 import { StatusBadge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { useToast } from '@/components/ui/toast'
+// Substitui antigo sistema de toast pelo Sonner
+import { toast } from 'sonner'
 import authService from '@/services/auth.service'
 import motoristaService from '@/services/motorista.service'
 import { MotoristaForm } from '@/components/dashboard/MotoristaForm'
@@ -34,10 +38,17 @@ import { DocumentoUpload } from '@/components/dashboard/DocumentoUpload'
 import { CertificadosSection } from '@/components/dashboard/CertificadosSection'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import type { Motorista, DocumentoStatus } from '@/types'
+import { SkeletonDashboardStats } from '@/components/skeletons/SkeletonCard'
+import { SkeletonTable } from '@/components/skeletons/SkeletonTable'
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
+import { Breadcrumb } from '@/components/ui/breadcrumb'
+import { DocumentStatusChart } from '@/components/charts/DocumentStatusChart'
+import { CourseTypeChart } from '@/components/charts/CourseTypeChart'
+import { MiniSparkline } from '@/components/charts/MiniSparkline'
 
 export default function DashboardPage() {
   const router = useRouter()
-  const { toast } = useToast()
+  // Sonner já configurado em layout
   
   const [user, setUser] = useState<any>(null)
   const [isDespachante, setIsDespachante] = useState(false)
@@ -61,11 +72,18 @@ export default function DashboardPage() {
       return
     }
 
-  const userData = authService.getUser()
-  setUser(userData)
-  setIsDespachante(userData?.role === 'DESPACHANTE')
-  loadMotoristas()
-  }, [router])
+    const userData = authService.getUser()
+    setUser(userData)
+    setIsDespachante(userData?.role === 'DESPACHANTE')
+    
+    // Carregar apenas uma vez
+    if (motoristas.length === 0) {
+      loadMotoristas()
+    } else {
+      setLoading(false)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Aplicar filtros
   useEffect(() => {
@@ -115,11 +133,12 @@ export default function DashboardPage() {
       console.error('📋 Erro detalhado:', error.response?.data)
       setMotoristas([])
       setFilteredMotoristas([])
-      toast({
-        type: 'error',
-        title: 'Erro ao carregar motoristas',
-        description: error.response?.data?.error || error.response?.data?.message || 'Tente novamente',
-      })
+      toast.error(
+        'Erro ao carregar motoristas',
+        {
+          description: error.response?.data?.error || error.response?.data?.message || 'Tente novamente'
+        }
+      )
     } finally {
       setLoading(false)
     }
@@ -154,6 +173,30 @@ export default function DashboardPage() {
     return labels[tipo] || tipo
   }
 
+  // Calcular dados para os gráficos
+  const pendentes = motoristas?.reduce((acc, m) => 
+    acc + (m.documentos?.filter(d => d.status === 'PENDENTE').length || 0), 0) || 0
+  const aprovados = motoristas?.reduce((acc, m) => 
+    acc + (m.documentos?.filter(d => d.status === 'APROVADO').length || 0), 0) || 0
+  const negados = motoristas?.reduce((acc, m) => 
+    acc + (m.documentos?.filter(d => d.status === 'NEGADO').length || 0), 0) || 0
+  
+  const chartData = {
+    documentStatus: {
+      pendente: pendentes,
+      aprovado: aprovados,
+      negado: negados,
+    },
+    courseType: {
+      tac: motoristas?.filter(m => m.cursoTipo === 'TAC').length || 0,
+      rt: motoristas?.filter(m => m.cursoTipo === 'RT').length || 0,
+    },
+    // Dados simulados para sparkline (últimos 7 períodos)
+    motoristasSparkline: [12, 19, 15, 18, 22, 25, motoristas?.length || 0],
+    pendentesSparkline: [5, 8, 6, 7, 4, 3, pendentes],
+    aprovadosSparkline: [10, 15, 20, 25, 30, 35, aprovados],
+  }
+
   if (loading && !user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -173,35 +216,77 @@ export default function DashboardPage() {
         transition={{ duration: 0.5 }}
         className="space-y-6"
       >
+          {/* Breadcrumb */}
+          <Breadcrumb 
+            items={[
+              { label: 'Dashboard', icon: Home }
+            ]}
+          />
+
           {/* Estatísticas */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 dashboard-status-badges">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardDescription>Total de Motoristas</CardDescription>
-                <CardTitle className="text-3xl">{motoristas?.length || 0}</CardTitle>
+          {loading ? (
+            <SkeletonDashboardStats />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 dashboard-status-badges">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardDescription>Total de Motoristas</CardDescription>
+                  <CardTitle className="text-3xl">{motoristas?.length || 0}</CardTitle>
+                </CardHeader>
+                <CardContent className="pb-2">
+                  <MiniSparkline data={chartData.motoristasSparkline} color="#010E9B" height={30} />
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardDescription>Documentos Pendentes</CardDescription>
+                  <CardTitle className="text-3xl text-yellow-600">
+                    {pendentes}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pb-2">
+                  <MiniSparkline data={chartData.pendentesSparkline} color="#f59e0b" height={30} />
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardDescription>Documentos Aprovados</CardDescription>
+                  <CardTitle className="text-3xl text-green-600">
+                    {aprovados}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pb-2">
+                  <MiniSparkline data={chartData.aprovadosSparkline} color="#22c55e" height={30} />
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Link para Análise Detalhada */}
+          {!loading && (
+            <Card className="bg-gradient-to-r from-primary/5 to-secondary/5 border-primary/20">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-primary" />
+                      Análise Detalhada
+                    </CardTitle>
+                    <CardDescription>
+                      Visualize gráficos completos e exporte relatórios personalizados
+                    </CardDescription>
+                  </div>
+                  <Button
+                    onClick={() => router.push('/analise')}
+                    className="gap-2"
+                  >
+                    Ver Análises
+                    <TrendingUp className="h-4 w-4" />
+                  </Button>
+                </div>
               </CardHeader>
             </Card>
-            <Card>
-              <CardHeader className="pb-2">
-                <CardDescription>Documentos Pendentes</CardDescription>
-                <CardTitle className="text-3xl text-yellow-600">
-                  {motoristas?.reduce((acc, m) => 
-                    acc + (m.documentos?.filter(d => d.status === 'PENDENTE').length || 0), 0
-                  ) || 0}
-                </CardTitle>
-              </CardHeader>
-            </Card>
-            <Card>
-              <CardHeader className="pb-2">
-                <CardDescription>Documentos Aprovados</CardDescription>
-                <CardTitle className="text-3xl text-green-600">
-                  {motoristas?.reduce((acc, m) => 
-                    acc + (m.documentos?.filter(d => d.status === 'APROVADO').length || 0), 0
-                  ) || 0}
-                </CardTitle>
-              </CardHeader>
-            </Card>
-          </div>
+          )}
 
           {/* Modelos de Documentos */}
           <Card className="dashboard-modelos">
@@ -271,19 +356,29 @@ export default function DashboardPage() {
                   </CardDescription>
                 </div>
                 <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={loadMotoristas}
-                    disabled={loading}
-                  >
-                    <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-                    Atualizar
-                  </Button>
-                  <Button size="sm" onClick={() => setShowFormModal(true)} className="dashboard-add-motorista">
-                    <UserPlus className="h-4 w-4 mr-2" />
-                    Novo Motorista
-                  </Button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={loadMotoristas}
+                        disabled={loading}
+                      >
+                        <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                        Atualizar
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Recarregar lista</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button size="sm" onClick={() => setShowFormModal(true)} className="dashboard-add-motorista">
+                        <UserPlus className="h-4 w-4 mr-2" />
+                        Novo Motorista
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Cadastrar motorista</TooltipContent>
+                  </Tooltip>
                 </div>
               </div>
             </CardHeader>
@@ -311,6 +406,9 @@ export default function DashboardPage() {
 
               {/* Tabela */}
               <div className="border rounded-lg">
+                {loading ? (
+                  <SkeletonTable rows={6} />
+                ) : (
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -326,16 +424,7 @@ export default function DashboardPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {loading ? (
-                      <TableRow>
-                        <TableCell colSpan={9} className="text-center py-8">
-                          <div className="flex items-center justify-center gap-2">
-                            <RefreshCw className="h-4 w-4 animate-spin" />
-                            Carregando...
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ) : !filteredMotoristas || filteredMotoristas.length === 0 ? (
+                    {!filteredMotoristas || filteredMotoristas.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
                           {searchTerm || statusFilter !== 'TODOS'
@@ -381,15 +470,20 @@ export default function DashboardPage() {
                           </TableCell>
                           <TableCell>
                             {isDespachante && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleOpenUpload(motorista)}
-                                className="dashboard-upload-doc"
-                              >
-                                <Upload className="h-4 w-4 mr-2" />
-                                Upload
-                              </Button>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleOpenUpload(motorista)}
+                                    className="dashboard-upload-doc"
+                                  >
+                                    <Upload className="h-4 w-4 mr-2" />
+                                    Upload
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>Enviar/atualizar documentos</TooltipContent>
+                              </Tooltip>
                             )}
                           </TableCell>
                         </TableRow>
@@ -397,6 +491,7 @@ export default function DashboardPage() {
                     )}
                   </TableBody>
                 </Table>
+                )}
               </div>
             </CardContent>
           </Card>

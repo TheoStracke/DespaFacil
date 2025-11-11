@@ -11,6 +11,9 @@ import adminRoutes from './routes/admin';
 import parceiroRoutes from './routes/parceiros';
 import certificadoRoutes from './routes/certificados';
 import userRoutes from './routes/users';
+import solicitacoesCodigoRoutes from './routes/solicitacoes-codigo';
+import auditRoutes from './routes/audit';
+import notificationRoutes from './routes/notifications';
 import { errorHandler } from './middlewares/errorHandler';
 
 dotenv.config();
@@ -82,6 +85,9 @@ app.use('/api/certificados', certificadoRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/parceiros', parceiroRoutes);
+app.use('/api/solicitacoes-codigo', solicitacoesCodigoRoutes);
+app.use('/api/audit', auditRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Error handler (deve ser o último middleware)
 app.use(errorHandler);

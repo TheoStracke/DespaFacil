@@ -3,6 +3,30 @@ import { AuthRequest } from '../middlewares/authMiddleware';
 import prisma from '../prisma/client';
 import path from 'path';
 import fs from 'fs';
+import { createAuditLog, AUDIT_ACTIONS } from '../services/auditLogService';
+
+// Listar todos certificados (admin)
+export async function listAll(req: AuthRequest, res: Response) {
+  try {
+    const certificados = await prisma.certificado.findMany({
+      include: {
+        motorista: {
+          select: {
+            id: true,
+            nome: true,
+            cpf: true,
+            cursoTipo: true,
+          },
+        },
+      },
+      orderBy: { enviadoEm: 'desc' },
+    });
+
+    res.json({ success: true, certificados });
+  } catch (err: any) {
+    res.status(400).json({ success: false, error: err.message });
+  }
+}
 
 // Listar certificados do despachante logado
 export async function listCertificados(req: AuthRequest, res: Response) {
@@ -74,10 +98,26 @@ export async function downloadCertificado(req: AuthRequest, res: Response) {
     }
 
     // Atualizar data de download (primeira vez)
-    if (!certificado.baixadoEm) {
+    const isFirstDownload = !certificado.baixadoEm;
+    if (isFirstDownload) {
       await prisma.certificado.update({
         where: { id },
         data: { baixadoEm: new Date() },
+      });
+
+      // Log de auditoria apenas no primeiro download
+      await createAuditLog({
+        userId: req.user!.id,
+        action: AUDIT_ACTIONS.CERTIFICADO_DOWNLOAD,
+        entityType: 'Certificado',
+        entityId: certificado.id,
+        entityName: `${certificado.motorista.nome} - ${certificado.motorista.cursoTipo}`,
+        ipAddress: req.ip,
+        userAgent: req.headers['user-agent'],
+        metadata: {
+          motoristaId: certificado.motoristaId,
+          originalName: certificado.originalName,
+        },
       });
     }
 

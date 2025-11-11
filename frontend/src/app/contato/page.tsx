@@ -127,7 +127,7 @@ export default function ContatoPage() {
                     <Phone className="w-8 h-8 text-white" />
                   </div>
                 </motion.div>
-                <CardTitle className="text-3xl font-bold text-gray-900">
+                <CardTitle className="text-3xl font-bold text-brand-orange">
                   Entre em Contato
                 </CardTitle>
                 <p className="text-gray-600 mt-2">

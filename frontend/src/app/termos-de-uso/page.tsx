@@ -17,17 +17,17 @@ export default function TermosDeUso() {
         <div className="mb-8">
           <Link
             href="/register"
-            className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 transition-colors mb-4"
+            className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 dark:text-gray-400 dark:hover:text-gray-200 transition-colors mb-4"
           >
             <ArrowLeft className="h-4 w-4" />
             Voltar
           </Link>
-          <h1 className="text-4xl font-bold text-slate-900">Termos de Uso</h1>
-          <p className="text-slate-600 mt-2">Última atualização: {new Date().toLocaleDateString('pt-BR')}</p>
+          <h1 className="text-4xl font-bold text-brand-orange">Termos de Uso</h1>
+          <p className="text-slate-600 dark:text-gray-400 mt-2">Última atualização: {new Date().toLocaleDateString('pt-BR')}</p>
         </div>
 
         {/* Content */}
-        <div className="bg-white rounded-lg shadow-sm p-8">
+        <div className="bg-card rounded-lg shadow-sm p-8">
           <div className="prose prose-slate max-w-none">
             <h2>1. Objetivo</h2>
             <p>Estes Termos de Uso regulam o acesso e a utilização da plataforma DespaFacil, estabelecendo direitos e obrigações entre os usuários e a empresa responsável pelo serviço.</p>

@@ -17,17 +17,17 @@ export default function PoliticaDePrivacidade() {
         <div className="mb-8">
           <Link
             href="/register"
-            className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 transition-colors mb-4"
+            className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 dark:text-gray-400 dark:hover:text-gray-200 transition-colors mb-4"
           >
             <ArrowLeft className="h-4 w-4" />
             Voltar
           </Link>
-          <h1 className="text-4xl font-bold text-slate-900">Política de Privacidade</h1>
-          <p className="text-slate-600 mt-2">Última atualização: {new Date().toLocaleDateString('pt-BR')}</p>
+          <h1 className="text-4xl font-bold text-brand-orange">Política de Privacidade</h1>
+          <p className="text-slate-600 dark:text-gray-400 mt-2">Última atualização: {new Date().toLocaleDateString('pt-BR')}</p>
         </div>
 
         {/* Content */}
-        <div className="bg-white rounded-lg shadow-sm p-8">
+        <div className="bg-card rounded-lg shadow-sm p-8">
           <div className="prose prose-slate max-w-none">
             <h2>1. Objetivo</h2>
             <p>Esta Política de Privacidade tem como finalidade informar aos usuários da plataforma DespaFacil sobre a coleta, uso, armazenamento, proteção e compartilhamento de dados pessoais, em conformidade com a Lei Geral de Proteção de Dados (LGPD – Lei nº 13.709/2018).</p>

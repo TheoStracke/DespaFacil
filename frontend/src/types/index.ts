@@ -60,6 +60,26 @@ export interface Motorista {
   documentos?: Documento[];
 }
 
+// Certificados
+export interface Certificado {
+  id: string;
+  motoristaId: string;
+  filename: string;
+  originalName: string;
+  path: string;
+  mimetype: string;
+  size: number;
+  enviadoPor: string;
+  enviadoEm: string;
+  baixadoEm?: string;
+  motorista?: {
+    id: string;
+    nome: string;
+    cpf: string;
+    cursoTipo: CursoTipo;
+  };
+}
+
 export interface MotoristaFormData {
   nome: string;
   cpf: string;

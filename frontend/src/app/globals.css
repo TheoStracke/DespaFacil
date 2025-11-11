@@ -2,6 +2,37 @@
 @tailwind components;
 @tailwind utilities;
 
+/* NProgress custom styling */
+#nprogress {
+  pointer-events: none;
+}
+
+#nprogress .bar {
+  background: hsl(var(--primary));
+  position: fixed;
+  z-index: 2147483647;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  box-shadow: 0 0 10px hsl(var(--primary)), 0 0 5px hsl(var(--primary));
+}
+
+#nprogress .peg {
+  display: block;
+  position: absolute;
+  right: 0px;
+  width: 100px;
+  height: 100%;
+  box-shadow: 0 0 10px hsl(var(--primary)), 0 0 5px hsl(var(--primary));
+  opacity: 1.0;
+  transform: rotate(3deg) translate(0px, -4px);
+}
+
+#nprogress .spinner {
+  display: none; /* disabled */
+}
+
 @layer base {
   :root {
     /* Paleta DespaFacil: Laranja #FF8601, Azul #010E9B, Creme #F4F0E5 */
@@ -30,24 +61,24 @@
   }
 
   .dark {
-    --background: 236 99% 10%;
+    --background: 222.2 84% 4.9%; /* Fundo escuro profundo */
     --foreground: 210 40% 98%;
-    --card: 236 99% 15%;
+    --card: 222.2 84% 8%; /* Cards levemente mais claros que o fundo */
     --card-foreground: 210 40% 98%;
-    --popover: 236 99% 15%;
+    --popover: 222.2 84% 8%;
     --popover-foreground: 210 40% 98%;
-    --primary: 31 100% 51%;
+    --primary: 31 100% 51%; /* Laranja #FF8601 */
     --primary-foreground: 0 0% 100%;
-    --secondary: 236 99% 31%;
+    --secondary: 217.2 91.2% 59.8%; /* Azul mais claro para dark mode */
     --secondary-foreground: 0 0% 100%;
-    --muted: 236 50% 20%;
+    --muted: 217.2 32.6% 17.9%; /* Cinza escuro azulado */
     --muted-foreground: 215 20.2% 65.1%;
     --accent: 31 100% 51%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 62.8% 50%; /* Vermelho mais vibrante */
     --destructive-foreground: 210 40% 98%;
-    --border: 236 50% 25%;
-    --input: 236 50% 25%;
+    --border: 217.2 32.6% 17.9%;
+    --input: 217.2 32.6% 17.9%;
     --ring: 31 100% 51%;
   }
 }
@@ -58,5 +89,10 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  
+  /* Dark mode sem transição para evitar lag */
+  .dark {
+    color-scheme: dark;
   }
 }

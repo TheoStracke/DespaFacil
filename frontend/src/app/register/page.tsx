@@ -246,7 +246,7 @@ export default function RegisterPage() {
           >
             <img src="/ui/logo.png" alt="Logo" width="120" height="120" className="object-contain" />
           </motion.div>
-          <h1 className="text-3xl font-bold">Criar Conta</h1>
+          <h1 className="text-3xl font-bold text-brand-orange">Criar Conta</h1>
           <p className="text-muted-foreground mt-2">
             Cadastre-se para gerenciar motoristas e documentos
           </p>

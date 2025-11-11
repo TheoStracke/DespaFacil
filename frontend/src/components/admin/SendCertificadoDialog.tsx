@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, ChangeEvent, useEffect, useRef } from 'react'
-import { Send, Upload, Search, User } from 'lucide-react'
+import { useState, ChangeEvent, useEffect, useRef, Fragment } from 'react'
+import { Send, Upload, Search, User, AlertTriangle } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -12,7 +12,9 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { FileDropzone } from '@/components/ui/file-dropzone'
 import motoristaService from '@/services/motorista.service'
+import documentoService from '@/services/documento.service'
 import { Motorista } from '@/types'
 
 interface SendCertificadoDialogProps {
@@ -34,6 +36,9 @@ export function SendCertificadoDialog({
   const [motoristas, setMotoristas] = useState<Motorista[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [loadingMotoristas, setLoadingMotoristas] = useState(false)
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const [selectedMotorista, setSelectedMotorista] = useState<Motorista | null>(null)
+  const [existingCertCount, setExistingCertCount] = useState(0)
   const searchRef = useRef<HTMLDivElement>(null)
 
   // Buscar motoristas quando o usuário digita
@@ -76,27 +81,28 @@ export function SendCertificadoDialog({
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0]
-    
-    if (selectedFile) {
-      // Validar tipo de arquivo
-      if (selectedFile.type !== 'application/pdf') {
-        setErrors(prev => ({ ...prev, file: 'Apenas arquivos PDF são permitidos' }))
-        setFile(null)
-        return
-      }
-
-      // Validar tamanho (max 10MB)
-      if (selectedFile.size > 10 * 1024 * 1024) {
-        setErrors(prev => ({ ...prev, file: 'Arquivo muito grande. Máximo 10MB' }))
-        setFile(null)
-        return
-      }
-
-      setFile(selectedFile)
-      setErrors(prev => ({ ...prev, file: '' }))
+  const handleFileChange = (selectedFile: File) => {
+    // Validar tipo de arquivo
+    if (selectedFile.type !== 'application/pdf') {
+      setErrors(prev => ({ ...prev, file: 'Apenas arquivos PDF são permitidos' }))
+      setFile(null)
+      return
     }
+
+    // Validar tamanho (max 10MB)
+    if (selectedFile.size > 10 * 1024 * 1024) {
+      setErrors(prev => ({ ...prev, file: 'Arquivo muito grande. Máximo 10MB' }))
+      setFile(null)
+      return
+    }
+
+    setFile(selectedFile)
+    setErrors(prev => ({ ...prev, file: '' }))
+  }
+
+  const handleClearFile = () => {
+    setFile(null)
+    setErrors(prev => ({ ...prev, file: '' }))
   }
 
   const validate = (): boolean => {
@@ -117,6 +123,41 @@ export function SendCertificadoDialog({
     return isValid
   }
 
+  const checkExistingCertificado = async () => {
+    if (!validate() || !file) return
+
+    try {
+      // Buscar certificados para verificar se já existe
+      const certificados = await documentoService.listCertificadosAdmin()
+      const searchTerm = search.trim().toLowerCase()
+      
+      // Contar certificados para este motorista
+      const count = certificados.filter((cert: any) => {
+        const nome = cert.motorista?.nome?.toLowerCase() || ''
+        const cpf = cert.motorista?.cpf?.replace(/\D/g, '') || ''
+        const searchCPF = searchTerm.replace(/\D/g, '')
+        
+        return nome.includes(searchTerm) || cpf === searchCPF
+      }).length
+
+      if (count > 0) {
+        setExistingCertCount(count)
+        setShowConfirmDialog(true)
+      } else {
+        await handleSend()
+      }
+    } catch (error) {
+      console.error('Erro ao verificar certificados:', error)
+      // Se der erro na verificação, prossegue com o envio
+      await handleSend()
+    }
+  }
+
+  const handleConfirmSend = async () => {
+    setShowConfirmDialog(false)
+    await handleSend()
+  }
+
   const handleSend = async () => {
     if (!validate() || !file) return
 
@@ -126,6 +167,8 @@ export function SendCertificadoDialog({
     setFile(null)
     setSearch('')
     setErrors({ file: '', search: '' })
+    setShowConfirmDialog(false)
+    setExistingCertCount(0)
   }
 
   const handleClose = () => {
@@ -134,6 +177,8 @@ export function SendCertificadoDialog({
     setErrors({ file: '', search: '' })
     setMotoristas([])
     setShowSuggestions(false)
+    setShowConfirmDialog(false)
+    setExistingCertCount(0)
     onOpenChange(false)
   }
 
@@ -148,6 +193,7 @@ export function SendCertificadoDialog({
   }
 
   return (
+    <Fragment>
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
@@ -161,28 +207,20 @@ export function SendCertificadoDialog({
         </DialogHeader>
 
         <div className="space-y-4">
-          {/* Upload de arquivo */}
+          {/* Upload de arquivo com Drag-and-Drop */}
           <div className="space-y-2">
             <label className="text-sm font-medium leading-none">
               Arquivo PDF <span className="text-destructive">*</span>
             </label>
             
-            <div className="flex items-center gap-2">
-              <Input
-                type="file"
-                accept="application/pdf"
-                onChange={handleFileChange}
-                disabled={loading}
-                className="cursor-pointer"
-              />
-              <Upload className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-            </div>
-
-            {file && (
-              <p className="text-sm text-green-600 dark:text-green-400">
-                ✓ {file.name} ({(file.size / 1024).toFixed(2)} KB)
-              </p>
-            )}
+            <FileDropzone
+              onFileSelect={handleFileChange}
+              accept={{ 'application/pdf': ['.pdf'] }}
+              maxSize={10 * 1024 * 1024}
+              selectedFile={file}
+              onClear={handleClearFile}
+              disabled={loading}
+            />
 
             {errors.file && (
               <p className="text-sm text-destructive animate-in fade-in-50 duration-200">
@@ -278,12 +316,57 @@ export function SendCertificadoDialog({
           <Button variant="outline" onClick={handleClose} disabled={loading}>
             Cancelar
           </Button>
-          <Button onClick={handleSend} disabled={loading} loading={loading}>
+          <Button onClick={checkExistingCertificado} disabled={loading} loading={loading}>
             <Send className="h-4 w-4 mr-2" />
             Enviar
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
+
+    {/* Dialog de Confirmação */}
+    {showConfirmDialog && (
+      <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-orange-600">
+              <AlertTriangle className="h-5 w-5" />
+              Certificado já enviado
+            </DialogTitle>
+            <DialogDescription>
+              Este motorista já recebeu {existingCertCount} certificado{existingCertCount > 1 ? 's' : ''}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="p-4 rounded-lg bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800">
+              <p className="text-sm text-orange-700 dark:text-orange-300">
+                ⚠️ Um certificado já foi enviado anteriormente para este motorista.
+                Tem certeza que deseja enviar outro certificado?
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setShowConfirmDialog(false)}
+              disabled={loading}
+            >
+              Cancelar
+            </Button>
+            <Button 
+              onClick={handleConfirmSend}
+              disabled={loading}
+              loading={loading}
+              className="bg-orange-600 hover:bg-orange-700"
+            >
+              Sim, estou ciente. Quero reenviar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    )}
+    </Fragment>
   )
 }

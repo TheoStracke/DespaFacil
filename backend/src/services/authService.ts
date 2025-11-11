@@ -228,6 +228,8 @@ export async function resetPassword(token: string, newPassword: string) {
       where: { id: userId },
       data: { password: hashedPassword },
     });
+    
+    return { userId };
   } catch (err) {
     throw new Error('Token inválido ou expirado');
   }

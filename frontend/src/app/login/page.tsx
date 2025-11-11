@@ -3,19 +3,18 @@
 import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
+import { toast } from 'sonner'
 import Image from 'next/image'
 import { LogIn, Loader2, Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { useToast } from '@/components/ui/toast'
 import authService from '@/services/auth.service'
 import { maskCNPJ, validateCNPJ, unmaskCNPJ } from '@/lib/masks'
  
 
 export default function LoginPage() {
   const router = useRouter()
-  const { toast } = useToast()
   
   const [cnpj, setCnpj] = useState('')
   const [password, setPassword] = useState('')
@@ -81,11 +80,7 @@ export default function LoginPage() {
     e.preventDefault()
 
     if (!validate()) {
-      toast({
-        type: 'error',
-        title: 'Erro de validação',
-        description: 'Por favor, corrija os erros no formulário',
-      })
+      toast.error('Por favor, corrija os erros no formulário')
       return
     }
 
@@ -100,22 +95,14 @@ export default function LoginPage() {
         password,
       })
 
-      toast({
-        type: 'success',
-        title: 'Login realizado!',
-        description: 'Bem-vindo de volta 👋',
-      })
+      toast.success('Login realizado! Bem-vindo de volta.')
       // Redirecionar diretamente para o dashboard
       router.push('/dashboard')
     } catch (error: any) {
       console.error('Erro no login:', error)
       // Mostra mensagem detalhada do backend, seja 'error' ou 'message'
       const backendMsg = error.response?.data?.error || error.response?.data?.message;
-      toast({
-        type: 'error',
-        title: 'Erro ao fazer login',
-        description: backendMsg || 'Credenciais inválidas. Verifique seus dados e tente novamente.',
-      })
+      toast.error(backendMsg || 'Credenciais inválidas. Verifique seus dados e tente novamente.')
     } finally {
       setLoading(false)
     }

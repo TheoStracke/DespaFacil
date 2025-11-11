@@ -103,6 +103,29 @@ class DocumentoService {
       },
     });
   }
+
+  // Listar histórico de certificados (admin)
+  async listCertificadosAdmin(): Promise<any[]> {
+    const response = await api.get<{ success: boolean; certificados: any[] }>('/admin/certificados');
+    return response.data.certificados;
+  }
+
+  // Baixar ZIP com todos documentos do motorista
+  async downloadZipMotorista(motoristaId: string, motoristaNome: string): Promise<void> {
+    const response = await api.get(`/admin/motoristas/${motoristaId}/documentos/zip`, {
+      responseType: 'blob',
+    });
+
+    // Criar download do blob
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `${motoristaNome}_documentos.zip`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  }
 }
 
 export default new DocumentoService();

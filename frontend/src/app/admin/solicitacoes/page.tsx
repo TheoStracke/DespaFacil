@@ -14,6 +14,8 @@ import {
   Phone,
   Calendar,
   ArrowLeft,
+  Home,
+  Shield,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -29,6 +31,7 @@ import {
 } from '@/components/ui/table'
 import { StatusBadge } from '@/components/ui/badge'
 import { useToast } from '@/components/ui/toast'
+import { Breadcrumb } from '@/components/ui/breadcrumb'
 import authService from '@/services/auth.service'
 import api from '@/lib/api'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
@@ -207,7 +210,7 @@ export default function SolicitacoesPage() {
         className="space-y-6"
       >
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="space-y-4">
           <div className="flex items-center gap-4">
             <Button
               variant="outline"
@@ -218,10 +221,19 @@ export default function SolicitacoesPage() {
               Voltar
             </Button>
             <div>
-              <h1 className="text-3xl font-bold text-slate-900">Solicitações de Cadastro</h1>
-              <p className="text-sm text-slate-600">Gerencie as solicitações de novos parceiros</p>
+              <h1 className="text-3xl font-bold text-brand-orange dark:text-brand-orange">Solicitações de Cadastro</h1>
+              <p className="text-sm text-slate-600 dark:text-gray-400">Gerencie as solicitações de novos parceiros</p>
             </div>
           </div>
+          
+          {/* Breadcrumb */}
+          <Breadcrumb 
+            items={[
+              { label: 'Dashboard', href: '/dashboard', icon: Home },
+              { label: 'Painel Admin', href: '/admin', icon: Shield },
+              { label: 'Solicitações', icon: UserPlus }
+            ]}
+          />
         </div>
 
         {loading ? (

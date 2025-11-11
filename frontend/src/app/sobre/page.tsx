@@ -7,7 +7,7 @@ export default function Sobre() {
       <div className="mb-4">
         <BackButton />
       </div>
-      <h1 className="text-2xl font-bold mb-4">Sobre o DespaFacil</h1>
+      <h1 className="text-2xl font-bold mb-4 text-brand-orange">Sobre o DespaFacil</h1>
       <p className="mb-4">
         O <b>DespaFacil</b> é uma plataforma para despachantes gerenciarem motoristas, documentos e certificados de forma simples, segura e digital. Nosso objetivo é facilitar o dia a dia do despachante, reduzindo burocracia e centralizando tudo em um só lugar.
       </p>

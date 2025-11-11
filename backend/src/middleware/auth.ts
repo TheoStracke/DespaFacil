@@ -18,3 +18,13 @@ export function authenticate(req: Request, res: Response, next: NextFunction) {
     return res.status(401).json({ success: false, error: 'Token inválido ou expirado' });
   }
 }
+
+export function requireAdmin(req: Request, res: Response, next: NextFunction) {
+  const user = (req as any).user;
+  
+  if (!user || user.role !== 'ADMIN') {
+    return res.status(403).json({ success: false, error: 'Acesso negado. Apenas administradores.' });
+  }
+  
+  next();
+}
