@@ -210,12 +210,18 @@ export function SendCertificadoDialog({
           {/* Upload de arquivo com Drag-and-Drop */}
           <div className="space-y-2">
             <label className="text-sm font-medium leading-none">
-              Arquivo PDF <span className="text-destructive">*</span>
+              Arquivo do Certificado <span className="text-destructive">*</span>
             </label>
             
             <FileDropzone
               onFileSelect={handleFileChange}
-              accept={{ 'application/pdf': ['.pdf'] }}
+              accept={{ 
+                'application/pdf': ['.pdf'],
+                'application/vnd.ms-excel': ['.xls'],
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+                'text/csv': ['.csv'],
+                'image/*': ['.png', '.jpg', '.jpeg']
+              }}
               maxSize={10 * 1024 * 1024}
               selectedFile={file}
               onClear={handleClearFile}

@@ -21,6 +21,9 @@ export function FileDropzone({
   accept = {
     'image/*': ['.png', '.jpg', '.jpeg'],
     'application/pdf': ['.pdf'],
+    'application/vnd.ms-excel': ['.xls'],
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+    'text/csv': ['.csv'],
   },
   maxSize = 5 * 1024 * 1024, // 5MB default
   selectedFile,
@@ -103,7 +106,7 @@ export function FileDropzone({
                 : 'Arraste um arquivo ou clique para selecionar'}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              PDF ou imagem até {formatFileSize(maxSize)}
+              PDF, imagem ou planilha (XLS, XLSX, CSV) até {formatFileSize(maxSize)}
             </p>
           </div>
         </div>

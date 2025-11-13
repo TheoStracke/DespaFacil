@@ -186,7 +186,7 @@ export function DocumentoUpload({ motorista, onSuccess }: DocumentoUploadProps) 
             <input
               id={`file-${tipo}`}
               type="file"
-              accept=".pdf,.jpg,.jpeg,.png"
+              accept=".pdf,.jpg,.jpeg,.png,.xls,.xlsx,.csv"
               onChange={(e) => handleFileChange(tipo, e)}
               disabled={isLoading}
               className="block w-full text-sm text-muted-foreground
@@ -218,7 +218,7 @@ export function DocumentoUpload({ motorista, onSuccess }: DocumentoUploadProps) 
           </Button>
 
           <p className="text-xs text-muted-foreground text-center">
-            Formatos aceitos: PDF, JPG, PNG (máx. 10MB)
+            Formatos aceitos: PDF, JPG, PNG, XLS, XLSX, CSV (máx. 10MB)
           </p>
         </CardContent>
       </Card>

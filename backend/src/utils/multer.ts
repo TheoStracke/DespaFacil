@@ -78,14 +78,17 @@ if (provider === 's3') {
 }
 
 const maxSize = parseInt(process.env.MAX_UPLOAD_SIZE || '10485760', 10);
-const allowedTypes = (process.env.ALLOWED_FILE_TYPES || 'application/pdf,image/png,image/jpeg').split(',');
+const allowedTypes = (
+  process.env.ALLOWED_FILE_TYPES || 
+  'application/pdf,image/png,image/jpeg,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv,application/vnd.google-apps.spreadsheet'
+).split(',');
 
 export const upload = multer({
   storage,
   limits: { fileSize: maxSize },
   fileFilter: (req: Express.Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
     if (!allowedTypes.includes(file.mimetype)) {
-      return cb(new Error('Tipo de arquivo não permitido. Use PDF, PNG ou JPG.'));
+      return cb(new Error('Tipo de arquivo não permitido. Use PDF, PNG, JPG, XLS, XLSX, CSV ou Google Sheets.'));
     }
     cb(null, true);
   },
