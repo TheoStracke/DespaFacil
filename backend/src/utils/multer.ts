@@ -78,18 +78,60 @@ if (provider === 's3') {
 }
 
 const maxSize = parseInt(process.env.MAX_UPLOAD_SIZE || '10485760', 10);
+
+// Lista completa de tipos permitidos com todas as variações de MIME types
 const allowedTypes = (
   process.env.ALLOWED_FILE_TYPES || 
-  'application/pdf,image/png,image/jpeg,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv,application/vnd.google-apps.spreadsheet'
+  [
+    // PDFs
+    'application/pdf',
+    // Imagens
+    'image/png',
+    'image/jpeg',
+    'image/jpg',
+    'image/gif',
+    'image/webp',
+    // Planilhas Excel (.xls)
+    'application/vnd.ms-excel',
+    'application/msexcel',
+    'application/x-msexcel',
+    'application/x-ms-excel',
+    'application/x-excel',
+    'application/x-dos_ms_excel',
+    'application/xls',
+    // Planilhas Excel (.xlsx)
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/xlsx',
+    // CSV
+    'text/csv',
+    'text/x-csv',
+    'application/csv',
+    'application/x-csv',
+    'text/comma-separated-values',
+    'text/x-comma-separated-values',
+    // Google Sheets
+    'application/vnd.google-apps.spreadsheet',
+    // ODS (OpenOffice/LibreOffice)
+    'application/vnd.oasis.opendocument.spreadsheet',
+  ].join(',')
 ).split(',');
+
+// Normaliza os tipos (remove espaços)
+const normalizedTypes = allowedTypes.map(type => type.trim().toLowerCase());
 
 export const upload = multer({
   storage,
   limits: { fileSize: maxSize },
   fileFilter: (req: Express.Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
-    if (!allowedTypes.includes(file.mimetype)) {
-      return cb(new Error('Tipo de arquivo não permitido. Use PDF, PNG, JPG, XLS, XLSX, CSV ou Google Sheets.'));
+    const fileMimeType = file.mimetype.toLowerCase();
+    
+    if (!normalizedTypes.includes(fileMimeType)) {
+      console.log(`Arquivo rejeitado - MIME type: ${fileMimeType}`);
+      console.log(`Tipos permitidos: ${normalizedTypes.join(', ')}`);
+      return cb(new Error('Tipo de arquivo não permitido. Use PDF, imagens (PNG, JPG) ou planilhas (XLS, XLSX, CSV).'));
     }
+    
+    console.log(`Arquivo aceito - MIME type: ${fileMimeType}`);
     cb(null, true);
   },
 });

@@ -82,9 +82,38 @@ export function SendCertificadoDialog({
   }, [])
 
   const handleFileChange = (selectedFile: File) => {
-    // Validar tipo de arquivo
-    if (selectedFile.type !== 'application/pdf') {
-      setErrors(prev => ({ ...prev, file: 'Apenas arquivos PDF são permitidos' }))
+    // Validar tipo de arquivo - permitir PDFs, imagens e planilhas
+    const allowedTypes = [
+      // PDFs
+      'application/pdf',
+      // Imagens
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/gif',
+      'image/webp',
+      // Planilhas Excel
+      'application/vnd.ms-excel',
+      'application/msexcel',
+      'application/x-msexcel',
+      'application/x-ms-excel',
+      'application/x-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/xlsx',
+      // CSV
+      'text/csv',
+      'text/x-csv',
+      'application/csv',
+      'application/x-csv',
+      'text/comma-separated-values',
+      // Google Sheets
+      'application/vnd.google-apps.spreadsheet',
+      // ODS
+      'application/vnd.oasis.opendocument.spreadsheet',
+    ];
+    
+    if (!allowedTypes.includes(selectedFile.type)) {
+      setErrors(prev => ({ ...prev, file: 'Apenas PDFs, imagens e planilhas (XLS, XLSX, CSV) são permitidos' }))
       setFile(null)
       return
     }

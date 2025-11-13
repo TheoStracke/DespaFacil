@@ -45,14 +45,42 @@ export function DocumentoUpload({ motorista, onSuccess }: DocumentoUploadProps) 
     
     if (!file) return
 
-    // Validar tipo de arquivo
-    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png']
+    // Validar tipo de arquivo - inclui planilhas
+    const allowedTypes = [
+      // PDFs
+      'application/pdf',
+      // Imagens
+      'image/jpeg', 
+      'image/jpg', 
+      'image/png',
+      'image/gif',
+      'image/webp',
+      // Planilhas Excel
+      'application/vnd.ms-excel',
+      'application/msexcel',
+      'application/x-msexcel',
+      'application/x-ms-excel',
+      'application/x-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/xlsx',
+      // CSV
+      'text/csv',
+      'text/x-csv',
+      'application/csv',
+      'application/x-csv',
+      'text/comma-separated-values',
+      // Google Sheets
+      'application/vnd.google-apps.spreadsheet',
+      // ODS
+      'application/vnd.oasis.opendocument.spreadsheet',
+    ];
+    
     if (!allowedTypes.includes(file.type)) {
       console.log('❌ Tipo de arquivo inválido:', file.type);
       toast({
         type: 'error',
         title: 'Tipo de arquivo inválido',
-        description: 'Apenas PDF, JPG e PNG são permitidos',
+        description: 'Apenas PDF, imagens e planilhas (XLS, XLSX, CSV) são permitidos',
       })
       return
     }
