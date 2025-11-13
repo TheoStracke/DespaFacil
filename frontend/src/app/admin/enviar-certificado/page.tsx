@@ -285,7 +285,7 @@ export default function EnviarCertificadoPage() {
                       📄 Formato Aceito
                     </h4>
                     <p className="text-xs text-blue-700 dark:text-blue-300">
-                      Apenas arquivos PDF com tamanho máximo de 10MB
+                      PDF, imagens e planilhas (XLS, XLSX, CSV) com tamanho máximo de 10MB
                     </p>
                   </div>
                   <div className="p-4 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800">
