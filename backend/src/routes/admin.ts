@@ -5,22 +5,24 @@ import upload from '../utils/multer';
 
 const router = Router();
 
-// Todas as rotas requerem autenticação de admin
+// Todas as rotas requerem autenticação
 router.use(authMiddleware);
-router.use(roleMiddleware(['ADMIN']));
 
-// Listar documentos com filtros
-router.get('/documentos', documentoController.listAdmin);
+// Listar documentos com filtros - permite tanto ADMIN quanto DESPACHANTE
+router.get('/documentos', roleMiddleware(['ADMIN', 'DESPACHANTE']), documentoController.listAdmin);
+
+// Histórico de certificados - permite tanto ADMIN quanto DESPACHANTE
+import * as certificadoController from '../controllers/certificadoController';
+router.get('/certificados', roleMiddleware(['ADMIN', 'DESPACHANTE']), certificadoController.listAll);
+
+// Rotas exclusivas de admin
+router.use(roleMiddleware(['ADMIN']));
 
 // Exportar documentos (CSV/XLSX)
 router.get('/export', documentoController.exportCSV);
 
 // Enviar certificado
 router.post('/certificados/send', upload.single('file'), documentoController.sendCertificate);
-
-// Histórico de certificados (admin)
-import * as certificadoController from '../controllers/certificadoController';
-router.get('/certificados', certificadoController.listAll);
 
 // Baixar todos documentos do motorista (ZIP)
 router.get('/motoristas/:id/documentos/zip', documentoController.downloadZipMotorista);

@@ -66,10 +66,10 @@ export default function AnalisePage() {
     const userData = authService.getUser()
     setUser(userData)
     setIsDespachante(userData?.role === 'DESPACHANTE')
-    loadAllData()
+    loadAllData(userData)
   }, [router])
 
-  const loadAllData = async () => {
+  const loadAllData = async (userData?: any) => {
     try {
       setLoading(true)
       
@@ -77,14 +77,13 @@ export default function AnalisePage() {
       const motoristasResponse = await motoristaService.getAll({ limit: 1000 })
       setMotoristas(motoristasResponse.motoristas || [])
       
-      // Carregar documentos (apenas admin)
-      if (!isDespachante) {
-        try {
-          const documentosData = await documentoService.getAllAdmin({ limit: 1000 })
-          setDocumentos(documentosData.data || [])
-        } catch (error) {
-          console.error('Erro ao carregar documentos:', error)
-        }
+      // Carregar documentos - usa o mesmo endpoint para ADMIN e DESPACHANTE
+      // O backend filtra automaticamente por despachante se necessário
+      try {
+        const documentosData = await documentoService.getAllAdmin({ limit: 1000 })
+        setDocumentos(documentosData.data || [])
+      } catch (error) {
+        console.error('Erro ao carregar documentos:', error)
       }
       
       // Carregar certificados

@@ -150,7 +150,20 @@ export async function updateStatus(req: AuthRequest, res: Response) {
 
 export async function listAdmin(req: AuthRequest, res: Response) {
   try {
-    const result = await documentoService.listDocumentosAdmin(req.query);
+    const filters = { ...req.query };
+    
+    // Se for despachante, filtrar apenas seus documentos
+    if (req.user?.role === 'DESPACHANTE') {
+      const despachante = await prisma.despachante.findUnique({
+        where: { userId: req.user.id },
+      });
+      
+      if (despachante) {
+        filters.despachanteId = despachante.id;
+      }
+    }
+    
+    const result = await documentoService.listDocumentosAdmin(filters);
     res.json({ success: true, ...result });
   } catch (err: any) {
     res.status(400).json({ success: false, error: err.message });

@@ -5,10 +5,26 @@ import path from 'path';
 import fs from 'fs';
 import { createAuditLog, AUDIT_ACTIONS } from '../services/auditLogService';
 
-// Listar todos certificados (admin)
+// Listar todos certificados (admin e despachante)
 export async function listAll(req: AuthRequest, res: Response) {
   try {
+    const where: any = {};
+    
+    // Se for despachante, filtrar apenas seus motoristas
+    if (req.user?.role === 'DESPACHANTE') {
+      const despachante = await prisma.despachante.findUnique({
+        where: { userId: req.user.id },
+      });
+      
+      if (despachante) {
+        where.motorista = {
+          despachanteId: despachante.id,
+        };
+      }
+    }
+    
     const certificados = await prisma.certificado.findMany({
+      where,
       include: {
         motorista: {
           select: {
