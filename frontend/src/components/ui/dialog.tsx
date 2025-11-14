@@ -131,7 +131,6 @@ export const DialogContent = React.forwardRef<
     <DialogPortal>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <motion.div
-          ref={ref}
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -141,9 +140,10 @@ export const DialogContent = React.forwardRef<
             className
           )}
           onClick={(e) => e.stopPropagation()} // Não fecha ao clicar dentro
-          {...props}
         >
-          {children}
+          <div ref={ref} {...props}>
+            {children}
+          </div>
         </motion.div>
       </div>
     </DialogPortal>
