@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import * as authService from '../services/authService';
 import { createAuditLog, AUDIT_ACTIONS } from '../services/auditLogService';
+import { getClientIp } from '../utils/getClientIp';
 
 export async function register(req: Request, res: Response) {
   try {
@@ -13,7 +14,7 @@ export async function register(req: Request, res: Response) {
       entityType: 'User',
       entityId: user.id,
       entityName: user.email,
-      ipAddress: req.ip,
+      ipAddress: getClientIp(req),
       userAgent: req.headers['user-agent'],
       metadata: { role: user.role },
     });
@@ -32,7 +33,7 @@ export async function login(req: Request, res: Response) {
     await createAuditLog({
       userId: result.user.id,
       action: AUDIT_ACTIONS.LOGIN,
-      ipAddress: req.ip,
+      ipAddress: getClientIp(req),
       userAgent: req.headers['user-agent'],
       metadata: { email: result.user.email, role: result.user.role },
     });
@@ -44,7 +45,7 @@ export async function login(req: Request, res: Response) {
       await createAuditLog({
         userId: 'system',
         action: AUDIT_ACTIONS.LOGIN_FAILED,
-        ipAddress: req.ip,
+        ipAddress: getClientIp(req),
         userAgent: req.headers['user-agent'],
         metadata: { email: req.body.email, error: err.message },
       });
@@ -68,7 +69,7 @@ export async function forgotPassword(req: Request, res: Response) {
     await createAuditLog({
       userId: 'system',
       action: AUDIT_ACTIONS.PASSWORD_RESET_REQUEST,
-      ipAddress: req.ip,
+      ipAddress: getClientIp(req),
       userAgent: req.headers['user-agent'],
       metadata: { email },
     });
@@ -89,7 +90,7 @@ export async function resetPassword(req: Request, res: Response) {
       await createAuditLog({
         userId: result.userId,
         action: AUDIT_ACTIONS.PASSWORD_RESET_COMPLETE,
-        ipAddress: req.ip,
+        ipAddress: getClientIp(req),
         userAgent: req.headers['user-agent'],
       });
     }

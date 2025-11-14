@@ -20,10 +20,9 @@ dotenv.config();
 
 const app = express();
 
-// Confie no proxy se estiver atrás de Cloudflare/NGINX
-if (process.env.TRUST_PROXY === '1') {
-  app.set('trust proxy', 1);
-}
+// Confiar em proxies (Railway, Vercel, Cloudflare, etc)
+// Isso permite que req.ip pegue o IP real do X-Forwarded-For
+app.set('trust proxy', true);
 
 // Middlewares globais
 app.use(helmet());
