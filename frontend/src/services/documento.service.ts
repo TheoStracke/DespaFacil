@@ -56,6 +56,28 @@ class DocumentoService {
     return response.data;
   }
 
+  async getViewUrl(documentoId: string): Promise<string> {
+    try {
+      // Para visualização inline, precisamos criar um blob URL com o conteúdo do documento
+      const response = await api.get(`/documentos/${documentoId}/view`, {
+        responseType: 'blob',
+      });
+      
+      // Criar URL do blob para visualização
+      const blob = response.data;
+      
+      // Verificar se recebemos um blob válido
+      if (!(blob instanceof Blob)) {
+        throw new Error('Resposta inválida do servidor');
+      }
+      
+      return window.URL.createObjectURL(blob);
+    } catch (error: any) {
+      console.error('Erro ao obter URL de visualização:', error);
+      throw new Error(error.response?.data?.error || 'Não foi possível carregar o documento');
+    }
+  }
+
   // Admin endpoints
   async getAllAdmin(params?: {
     page?: number;

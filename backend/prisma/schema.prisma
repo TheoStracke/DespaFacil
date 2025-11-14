@@ -65,6 +65,7 @@ model Documento {
   motoristaId   String
   tipo          DocumentoTipo
   filename      String
+  originalName  String?          // Nome original do arquivo enviado pelo usuário
   path          String
   mimetype      String
   size          Int

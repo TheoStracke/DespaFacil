@@ -131,28 +131,19 @@ export const DialogContent = React.forwardRef<
     <DialogPortal>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <motion.div
+          ref={ref}
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ duration: 0.2 }}
           className={cn(
-            "relative z-50 grid w-full max-w-lg gap-4 border bg-background p-6 shadow-lg sm:rounded-lg",
+            "relative z-50 w-full max-w-lg border bg-background p-6 shadow-lg sm:rounded-lg",
             className
           )}
           onClick={(e) => e.stopPropagation()} // Não fecha ao clicar dentro
+          {...props}
         >
-          <div ref={ref} {...props}>
-            {children}
-          </div>
-        
-        {/* Botão de fechar */}
-        <button
-          onClick={() => onOpenChange(false)}
-          className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
-        >
-          <X className="h-4 w-4" />
-          <span className="sr-only">Fechar</span>
-        </button>
+          {children}
         </motion.div>
       </div>
     </DialogPortal>

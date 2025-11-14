@@ -15,6 +15,7 @@ import {
   Home,
   Shield,
   Activity,
+  Eye,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -29,6 +30,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { StatusBadge } from '@/components/ui/badge'
+import { DocumentViewer } from '@/components/ui/document-viewer'
 import { SkeletonDashboardStats } from '@/components/skeletons/SkeletonCard'
 import { SkeletonTable } from '@/components/skeletons/SkeletonTable'
 import authService from '@/services/auth.service'
@@ -62,6 +64,23 @@ export default function AdminPage() {
     action: null,
   })
   const [actionLoading, setActionLoading] = useState(false)
+
+  // Estado para visualizador de documentos
+  const [viewerOpen, setViewerOpen] = useState(false)
+  const [viewingDocument, setViewingDocument] = useState<{
+    url: string
+    name: string
+    type: string
+    id: string
+  } | null>(null)
+
+  // Limpar blob URL quando o visualizador fecha
+  useEffect(() => {
+    if (!viewerOpen && viewingDocument?.url) {
+      window.URL.revokeObjectURL(viewingDocument.url)
+      setViewingDocument(null)
+    }
+  }, [viewerOpen])
 
   // Função para formatar o tipo do documento
   const formatTipoDocumento = (tipo: string): string => {
@@ -126,7 +145,7 @@ export default function AdminPage() {
       const docs = Array.isArray(response.documentos) ? response.documentos : []
       console.log('🟦 Documentos recebidos do backend:', docs)
       docs.forEach((doc: Documento, idx: number) => {
-        console.log(`  [${idx}] id=${doc.id} tipo=${doc.tipo} status=${doc.status}`)
+        console.log(`  [${idx}] id=${doc.id} tipo=${doc.tipo} status=${doc.status} originalName=${doc.originalName || 'AUSENTE'}`)
       })
       setDocumentos(docs)
       setFilteredDocumentos(docs)
@@ -144,6 +163,81 @@ export default function AdminPage() {
       documento,
       action,
     })
+  }
+
+  const handleViewDocument = async (documento: Documento) => {
+    try {
+      console.log('🔍 Documento completo recebido:', JSON.stringify(documento, null, 2))
+      console.log('🔍 Iniciando visualização de documento:', documento.id, documento.originalName)
+      
+      // Validar dados do documento - usar filename como fallback
+      const nomeDocumento = documento.originalName || documento.filename
+      if (!nomeDocumento) {
+        console.error('❌ Nem originalName nem filename disponíveis. Documento:', documento)
+        throw new Error('Nome do documento não encontrado')
+      }
+      
+      // Limpar URL anterior se existir
+      if (viewingDocument?.url) {
+        console.log('🧹 Limpando blob URL anterior')
+        window.URL.revokeObjectURL(viewingDocument.url)
+      }
+
+      console.log('📥 Buscando documento do servidor...')
+      const url = await documentoService.getViewUrl(documento.id)
+      console.log('✅ Blob URL criado:', url.substring(0, 50) + '...')
+      
+      // Determinar o tipo MIME do documento
+      const ext = nomeDocumento.substring(nomeDocumento.lastIndexOf('.')).toLowerCase()
+      const mimeTypes: Record<string, string> = {
+        '.pdf': 'application/pdf',
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.png': 'image/png',
+        '.gif': 'image/gif',
+        '.webp': 'image/webp',
+        '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        '.xls': 'application/vnd.ms-excel',
+        '.csv': 'text/csv',
+        '.ods': 'application/vnd.oasis.opendocument.spreadsheet',
+        '.doc': 'application/msword',
+        '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      }
+      
+      const mimeType = mimeTypes[ext] || 'application/octet-stream'
+      console.log('📄 Tipo de documento:', ext, '->', mimeType)
+      
+      setViewingDocument({
+        url,
+        name: nomeDocumento,
+        type: mimeType,
+        id: documento.id,
+      })
+      setViewerOpen(true)
+      console.log('👁️ Visualizador aberto')
+    } catch (error: any) {
+      console.error('❌ Erro ao visualizar documento:', error)
+      const errorMessage = error.message || error.response?.data?.error || 'Erro ao carregar documento para visualização'
+      toast.error(errorMessage)
+    }
+  }
+
+  const handleDownloadFromViewer = async () => {
+    if (!viewingDocument) return
+    
+    try {
+      const blob = await documentoService.download(viewingDocument.id)
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = viewingDocument.name
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      window.URL.revokeObjectURL(url)
+    } catch (err) {
+      toast.error('Erro ao baixar documento')
+    }
   }
 
   const handleConfirmAction = async (documentoId: string, status: string, motivo?: string) => {
@@ -325,31 +419,42 @@ export default function AdminPage() {
                           <TableCell>{doc.motorista?.cpf || 'N/A'}</TableCell>
                           <TableCell>{formatTipoDocumento(doc.tipo)}</TableCell>
                           <TableCell className="text-sm text-muted-foreground">
-                            {doc.originalName}
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="ml-2"
-                              title="Baixar documento"
-                              onClick={async () => {
-                                try {
-                                  const blob = await documentoService.download(doc.id)
-                                  const url = window.URL.createObjectURL(blob)
-                                  const a = document.createElement('a')
-                                  a.href = url
-                                  a.download = doc.originalName || 'documento'
-                                  document.body.appendChild(a)
-                                  a.click()
-                                  a.remove()
-                                  window.URL.revokeObjectURL(url)
-                                  toast.success('Documento baixado com sucesso!')
-                                } catch (err) {
-                                  toast.error('Erro ao baixar documento. Tente novamente.')
-                                }
-                              }}
-                            >
-                              <Download className="h-4 w-4" />
-                            </Button>
+                            <div className="flex items-center gap-2">
+                              {doc.originalName}
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-8 w-8 p-0"
+                                title="Visualizar documento"
+                                onClick={() => handleViewDocument(doc)}
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-8 w-8 p-0"
+                                title="Baixar documento"
+                                onClick={async () => {
+                                  try {
+                                    const blob = await documentoService.download(doc.id)
+                                    const url = window.URL.createObjectURL(blob)
+                                    const a = document.createElement('a')
+                                    a.href = url
+                                    a.download = doc.originalName || 'documento'
+                                    document.body.appendChild(a)
+                                    a.click()
+                                    a.remove()
+                                    window.URL.revokeObjectURL(url)
+                                    toast.success('Documento baixado com sucesso!')
+                                  } catch (err) {
+                                    toast.error('Erro ao baixar documento. Tente novamente.')
+                                  }
+                                }}
+                              >
+                                <Download className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </TableCell>
                           <TableCell>
                             <StatusBadge status={doc.status} />
@@ -405,6 +510,18 @@ export default function AdminPage() {
         onConfirm={handleConfirmAction}
         loading={actionLoading}
       />
+
+      {/* Visualizador de Documentos */}
+      {viewingDocument && (
+        <DocumentViewer
+          open={viewerOpen}
+          onOpenChange={setViewerOpen}
+          documentUrl={viewingDocument.url}
+          documentName={viewingDocument.name}
+          documentType={viewingDocument.type}
+          onDownload={handleDownloadFromViewer}
+        />
+      )}
       </motion.div>
     </DashboardLayout>
   )

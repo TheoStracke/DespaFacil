@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, ChangeEvent } from 'react'
-import { Upload, File, CheckCircle, AlertCircle, Info } from 'lucide-react'
+import { useState, ChangeEvent, useEffect } from 'react'
+import { Upload, File, CheckCircle, AlertCircle, Info, Eye, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { StatusBadge } from '@/components/ui/badge'
+import { DocumentViewer } from '@/components/ui/document-viewer'
 import { useToast } from '@/components/ui/toast'
 import documentoService from '@/services/documento.service'
 import type { Motorista, DocumentoTipo } from '@/types'
@@ -38,6 +39,23 @@ export function DocumentoUpload({ motorista, onSuccess }: DocumentoUploadProps) 
     DOCUMENTO2: false,
   });
 
+  // Estado para visualizador de documentos
+  const [viewerOpen, setViewerOpen] = useState(false)
+  const [viewingDocument, setViewingDocument] = useState<{
+    url: string
+    name: string
+    type: string
+    id: string
+  } | null>(null)
+
+  // Limpar blob URL quando o visualizador fecha
+  useEffect(() => {
+    if (!viewerOpen && viewingDocument?.url) {
+      window.URL.revokeObjectURL(viewingDocument.url)
+      setViewingDocument(null)
+    }
+  }, [viewerOpen])
+
   const handleFileChange = (tipo: DocumentoTipo, e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     
@@ -69,18 +87,28 @@ export function DocumentoUpload({ motorista, onSuccess }: DocumentoUploadProps) 
       'application/csv',
       'application/x-csv',
       'text/comma-separated-values',
+      'text/plain', // Alguns navegadores retornam text/plain para CSV
       // Google Sheets
       'application/vnd.google-apps.spreadsheet',
-      // ODS
+      // ODS (OpenOffice/LibreOffice)
       'application/vnd.oasis.opendocument.spreadsheet',
+      // Word
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     ];
+
+    // Extensões permitidas (fallback se MIME type não for reconhecido)
+    const allowedExtensions = ['.pdf', '.jpg', '.jpeg', '.png', '.gif', '.webp', '.xls', '.xlsx', '.csv', '.ods', '.doc', '.docx'];
+    const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
     
-    if (!allowedTypes.includes(file.type)) {
-      console.log('❌ Tipo de arquivo inválido:', file.type);
+    const isValidType = allowedTypes.includes(file.type) || allowedExtensions.includes(fileExtension);
+    
+    if (!isValidType) {
+      console.log('❌ Tipo de arquivo inválido:', file.type, 'Extensão:', fileExtension);
       toast({
         type: 'error',
         title: 'Tipo de arquivo inválido',
-        description: 'Apenas PDF, imagens e planilhas (XLS, XLSX, CSV) são permitidos',
+        description: 'Apenas PDF, imagens, planilhas (XLS, XLSX, CSV, ODS) e documentos Word são permitidos',
       })
       return
     }
@@ -158,6 +186,114 @@ export function DocumentoUpload({ motorista, onSuccess }: DocumentoUploadProps) 
     return motorista.documentos?.find(d => d.tipo === tipo)
   }
 
+  const handleViewDocument = async (documento: any) => {
+    try {
+      console.log('🔍 Documento completo recebido:', JSON.stringify(documento, null, 2))
+      console.log('🔍 Iniciando visualização de documento:', documento.id, documento.originalName)
+      
+      // Validar dados do documento - usar filename como fallback
+      const nomeDocumento = documento.originalName || documento.filename
+      if (!nomeDocumento) {
+        console.error('❌ Nem originalName nem filename disponíveis. Documento:', documento)
+        throw new Error('Nome do documento não encontrado')
+      }
+      
+      // Limpar URL anterior se existir
+      if (viewingDocument?.url) {
+        console.log('🧹 Limpando blob URL anterior')
+        window.URL.revokeObjectURL(viewingDocument.url)
+      }
+
+      console.log('📥 Buscando documento do servidor...')
+      const url = await documentoService.getViewUrl(documento.id)
+      console.log('✅ Blob URL criado:', url.substring(0, 50) + '...')
+      
+      // Determinar o tipo MIME do documento
+      const ext = nomeDocumento.substring(nomeDocumento.lastIndexOf('.')).toLowerCase()
+      const mimeTypes: Record<string, string> = {
+        '.pdf': 'application/pdf',
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.png': 'image/png',
+        '.gif': 'image/gif',
+        '.webp': 'image/webp',
+        '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        '.xls': 'application/vnd.ms-excel',
+        '.csv': 'text/csv',
+        '.ods': 'application/vnd.oasis.opendocument.spreadsheet',
+        '.doc': 'application/msword',
+        '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      }
+      
+      const mimeType = mimeTypes[ext] || 'application/octet-stream'
+      console.log('📄 Tipo de documento:', ext, '->', mimeType)
+      
+      setViewingDocument({
+        url,
+        name: nomeDocumento,
+        type: mimeType,
+        id: documento.id,
+      })
+      setViewerOpen(true)
+      console.log('👁️ Visualizador aberto')
+    } catch (error: any) {
+      console.error('❌ Erro ao visualizar documento:', error)
+      const errorMessage = error.message || error.response?.data?.error || 'Não foi possível visualizar o documento'
+      toast({
+        type: 'error',
+        title: 'Erro ao carregar documento',
+        description: errorMessage
+      })
+    }
+  }
+
+  const handleDownloadDocument = async (documento: any) => {
+    try {
+      const blob = await documentoService.download(documento.id)
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = documento.originalName
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      window.URL.revokeObjectURL(url)
+      toast({
+        type: 'success',
+        title: 'Download concluído',
+        description: 'Documento baixado com sucesso'
+      })
+    } catch (error) {
+      toast({
+        type: 'error',
+        title: 'Erro ao baixar',
+        description: 'Não foi possível baixar o documento'
+      })
+    }
+  }
+
+  const handleDownloadFromViewer = async () => {
+    if (!viewingDocument) return
+    
+    try {
+      const blob = await documentoService.download(viewingDocument.id)
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = viewingDocument.name
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      window.URL.revokeObjectURL(url)
+    } catch (err) {
+      toast({
+        type: 'error',
+        title: 'Erro ao baixar',
+        description: 'Não foi possível baixar o documento'
+      })
+    }
+  }
+
   const renderUploadCard = (tipo: DocumentoTipo, label: string) => {
     const file = selectedFiles[tipo]
     const isLoading = loading[tipo]
@@ -189,7 +325,7 @@ export function DocumentoUpload({ motorista, onSuccess }: DocumentoUploadProps) 
                     status === 'NEGADO' ? 'text-red-600' : 'text-yellow-600'
                   }`} />
                 )}
-                <div>
+                <div className="flex-1">
                   <p className={`text-sm font-medium ${
                     status === 'APROVADO' 
                       ? 'text-green-700 dark:text-green-300' 
@@ -206,6 +342,28 @@ export function DocumentoUpload({ motorista, onSuccess }: DocumentoUploadProps) 
                       O documento está em análise pelo administrador
                     </p>
                   )}
+                  {documento && (
+                    <div className="flex gap-2 mt-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleViewDocument(documento)}
+                        className="h-8"
+                      >
+                        <Eye className="h-3 w-3 mr-1" />
+                        Visualizar
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleDownloadDocument(documento)}
+                        className="h-8"
+                      >
+                        <Download className="h-3 w-3 mr-1" />
+                        Baixar
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -219,7 +377,7 @@ export function DocumentoUpload({ motorista, onSuccess }: DocumentoUploadProps) 
             <input
               id={`file-${tipo}`}
               type="file"
-              accept=".pdf,.jpg,.jpeg,.png,.xls,.xlsx,.csv"
+              accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.xls,.xlsx,.csv,.ods,.doc,.docx"
               onChange={(e) => handleFileChange(tipo, e)}
               disabled={isLoading}
               className="block w-full text-sm text-muted-foreground
@@ -251,7 +409,7 @@ export function DocumentoUpload({ motorista, onSuccess }: DocumentoUploadProps) 
           </Button>
 
           <p className="text-xs text-muted-foreground text-center">
-            Formatos aceitos: PDF, JPG, PNG, XLS, XLSX, CSV (máx. 10MB)
+            Formatos aceitos: PDF, Imagens (JPG, PNG), Planilhas (XLS, XLSX, CSV, ODS), Word (DOC, DOCX) - máx. 10MB
           </p>
         </CardContent>
       </Card>
@@ -292,6 +450,18 @@ export function DocumentoUpload({ motorista, onSuccess }: DocumentoUploadProps) 
           {renderUploadCard('DOCUMENTO2', 'Tabela de Dados')}
         </TabsContent>
       </Tabs>
+
+      {/* Visualizador de Documentos */}
+      {viewingDocument && (
+        <DocumentViewer
+          open={viewerOpen}
+          onOpenChange={setViewerOpen}
+          documentUrl={viewingDocument.url}
+          documentName={viewingDocument.name}
+          documentType={viewingDocument.type}
+          onDownload={handleDownloadFromViewer}
+        />
+      )}
     </div>
   )
 }

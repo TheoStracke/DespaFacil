@@ -64,6 +64,7 @@ export async function uploadDocumento(
       where: { id: existingDoc.id },
       data: {
         filename: file.filename,
+        originalName: file.originalname,
         path: file.path,
         mimetype: file.mimetype,
         size: file.size,
@@ -103,6 +104,7 @@ export async function uploadDocumento(
         motoristaId,
         tipo: tipo as any,
         filename: file.filename,
+        originalName: file.originalname,
         path: file.path,
         mimetype: file.mimetype,
         size: file.size,

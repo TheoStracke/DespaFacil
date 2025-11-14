@@ -3,6 +3,8 @@ import { AuthRequest } from '../middlewares/authMiddleware';
 import * as documentoService from '../services/documentoService';
 import * as XLSX from 'xlsx';
 import prisma from '../prisma/client';
+import fs from 'fs';
+import path from 'path';
 // @ts-ignore - tipos opcionais para archiver
 import archiver from 'archiver';
 import { createAuditLog, AUDIT_ACTIONS } from '../services/auditLogService';
@@ -145,6 +147,78 @@ export async function updateStatus(req: AuthRequest, res: Response) {
     res.json({ success: true, documento });
   } catch (err: any) {
     res.status(400).json({ success: false, error: err.message });
+  }
+}
+
+export async function viewDocumento(req: AuthRequest, res: Response) {
+  try {
+    const { id } = req.params;
+    
+    const documento = await prisma.documento.findUnique({
+      where: { id },
+      include: {
+        motorista: {
+          include: { despachante: true },
+        },
+      },
+    });
+
+    if (!documento) {
+      return res.status(404).json({ success: false, error: 'Documento não encontrado' });
+    }
+
+    // Verificar permissão
+    if (req.user!.role === 'DESPACHANTE') {
+      const despachante = await prisma.despachante.findUnique({ where: { userId: req.user!.id } });
+      if (!despachante || documento.motorista.despachanteId !== despachante.id) {
+        return res.status(403).json({ success: false, error: 'Acesso negado' });
+      }
+    }
+
+    // Verificar se o arquivo existe
+    if (!fs.existsSync(documento.path)) {
+      return res.status(404).json({ success: false, error: 'Arquivo não encontrado no servidor' });
+    }
+
+    // Definir headers para visualização inline
+    const mimeTypes: Record<string, string> = {
+      '.pdf': 'application/pdf',
+      '.jpg': 'image/jpeg',
+      '.jpeg': 'image/jpeg',
+      '.png': 'image/png',
+      '.gif': 'image/gif',
+      '.webp': 'image/webp',
+      '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      '.xls': 'application/vnd.ms-excel',
+      '.csv': 'text/csv',
+      '.ods': 'application/vnd.oasis.opendocument.spreadsheet',
+      '.doc': 'application/msword',
+      '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    };
+
+    const ext = documento.filename.substring(documento.filename.lastIndexOf('.')).toLowerCase();
+    const mimeType = mimeTypes[ext] || 'application/octet-stream';
+
+    // Configurar headers para inline display
+    res.setHeader('Content-Type', mimeType);
+    res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(documento.originalName)}"`);
+    res.setHeader('Cache-Control', 'no-cache');
+    
+    // Ler e enviar arquivo
+    const fileStream = fs.createReadStream(documento.path);
+    fileStream.pipe(res);
+    
+    fileStream.on('error', (error) => {
+      console.error('Erro ao ler arquivo:', error);
+      if (!res.headersSent) {
+        res.status(500).json({ success: false, error: 'Erro ao ler arquivo' });
+      }
+    });
+  } catch (err: any) {
+    console.error('Erro em viewDocumento:', err);
+    if (!res.headersSent) {
+      res.status(400).json({ success: false, error: err.message });
+    }
   }
 }
 

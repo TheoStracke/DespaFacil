@@ -109,29 +109,42 @@ const allowedTypes = (
     'application/x-csv',
     'text/comma-separated-values',
     'text/x-comma-separated-values',
+    'text/plain', // Alguns navegadores retornam text/plain para CSV
     // Google Sheets
     'application/vnd.google-apps.spreadsheet',
     // ODS (OpenOffice/LibreOffice)
     'application/vnd.oasis.opendocument.spreadsheet',
+    // Word (.doc)
+    'application/msword',
+    // Word (.docx)
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   ].join(',')
 ).split(',');
 
 // Normaliza os tipos (remove espaços)
 const normalizedTypes = allowedTypes.map(type => type.trim().toLowerCase());
 
+// Extensões permitidas para validação adicional
+const allowedExtensions = ['.pdf', '.jpg', '.jpeg', '.png', '.gif', '.webp', '.xls', '.xlsx', '.csv', '.ods', '.doc', '.docx'];
+
 export const upload = multer({
   storage,
   limits: { fileSize: maxSize },
   fileFilter: (req: Express.Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
     const fileMimeType = file.mimetype.toLowerCase();
+    const fileExtension = path.extname(file.originalname).toLowerCase();
     
-    if (!normalizedTypes.includes(fileMimeType)) {
-      console.log(`Arquivo rejeitado - MIME type: ${fileMimeType}`);
+    // Aceitar se o MIME type está correto OU se a extensão está correta
+    const isValidType = normalizedTypes.includes(fileMimeType);
+    const isValidExtension = allowedExtensions.includes(fileExtension);
+    
+    if (!isValidType && !isValidExtension) {
+      console.log(`Arquivo rejeitado - MIME type: ${fileMimeType}, Extensão: ${fileExtension}`);
       console.log(`Tipos permitidos: ${normalizedTypes.join(', ')}`);
-      return cb(new Error('Tipo de arquivo não permitido. Use PDF, imagens (PNG, JPG) ou planilhas (XLS, XLSX, CSV).'));
+      return cb(new Error('Tipo de arquivo não permitido. Use PDF, imagens, planilhas (XLS, XLSX, CSV, ODS) ou documentos Word (DOC, DOCX).'));
     }
     
-    console.log(`Arquivo aceito - MIME type: ${fileMimeType}`);
+    console.log(`Arquivo aceito - MIME type: ${fileMimeType}, Extensão: ${fileExtension}`);
     cb(null, true);
   },
 });

@@ -19,6 +19,9 @@ router.post(
 // Download de documento
 router.get('/:id/download', documentoController.downloadDocumento);
 
+// Visualizar documento inline
+router.get('/:id/view', documentoController.viewDocumento);
+
 // Atualizar status (apenas admin)
 router.put('/:id/status', roleMiddleware(['ADMIN']), documentoController.updateStatus);
 

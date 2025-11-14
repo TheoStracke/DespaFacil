@@ -24,7 +24,7 @@ export interface Documento {
   motoristaId: string;
   tipo: DocumentoTipo;
   filename: string;
-  originalName: string;
+  originalName?: string;
   mimetype: string;
   size: number;
   status: DocumentoStatus;
