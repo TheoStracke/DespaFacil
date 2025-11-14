@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import DespachanteTour from '@/components/dashboard/DespachanteTour';
 import solicitacaoCodigoService, {
   SolicitacaoCodigo,
   EnviarCodigoData,
@@ -14,6 +15,41 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useToast } from '@/components/ui/toast';
 import { Send, RefreshCw, CheckCircle, RotateCcw, KeyRound } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Step } from 'react-joyride';
+
+const codigosSteps: Step[] = [
+  {
+    target: 'body',
+    title: '🔑 Gestão de Códigos',
+    content: 'Aqui você gerencia os códigos ANTT dos seus motoristas. Vamos te mostrar como funciona!',
+    placement: 'center',
+    disableBeacon: true,
+  },
+  {
+    target: '.codigos-pendentes',
+    title: '📋 Solicitações Pendentes',
+    content: 'Visualize as solicitações de código que ainda precisam ser preenchidas. Digite o código ANTT e envie para o motorista.',
+    disableBeacon: true,
+  },
+  {
+    target: '.input-codigo',
+    title: '⌨️ Digitar Código',
+    content: 'Digite aqui o código ANTT recebido. Verifique se está correto antes de enviar.',
+    disableBeacon: true,
+  },
+  {
+    target: '.btn-enviar-codigo',
+    title: '📤 Enviar Código',
+    content: 'Após digitar, clique em "Enviar" para disponibilizar o código ao motorista.',
+    disableBeacon: true,
+  },
+  {
+    target: '.codigos-enviados',
+    title: '✅ Códigos Enviados',
+    content: 'Aqui você vê o histórico de todos os códigos já enviados para seus motoristas.',
+    disableBeacon: true,
+  },
+];
 
 export default function DespachanteCodigosPage() {
   const router = useRouter();
@@ -153,6 +189,7 @@ export default function DespachanteCodigosPage() {
 
   return (
     <DashboardLayout user={user} isDespachante={true}>
+      <DespachanteTour steps={codigosSteps} tourKey="codigos" />
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
@@ -209,7 +246,7 @@ export default function DespachanteCodigosPage() {
 
         {/* Solicitações Pendentes */}
         {solicitacoes.length > 0 && (
-          <Card>
+          <Card className="codigos-pendentes">
             <CardHeader>
               <CardTitle>Solicitações Pendentes</CardTitle>
               <CardDescription>
@@ -270,12 +307,12 @@ export default function DespachanteCodigosPage() {
                             setCodigos((prev) => ({ ...prev, [sol.id]: e.target.value }))
                           }
                           disabled={enviandoCodigo === sol.id}
-                          className="flex-1"
+                          className="flex-1 input-codigo"
                         />
                         <Button
                           onClick={() => handleEnviarCodigo(sol.id)}
                           disabled={enviandoCodigo === sol.id}
-                          className="min-w-[120px]"
+                          className="min-w-[120px] btn-enviar-codigo"
                         >
                           <Send className="mr-2 h-4 w-4" />
                           {enviandoCodigo === sol.id ? 'Registrando...' : 'Registrar'}
@@ -317,7 +354,7 @@ export default function DespachanteCodigosPage() {
 
         {/* Solicitações Registradas Recentemente */}
         {solicitacoesEnviadas.length > 0 && (
-          <Card>
+          <Card className="codigos-enviados">
             <CardHeader>
               <CardTitle>Registrados Recentemente</CardTitle>
               <CardDescription>

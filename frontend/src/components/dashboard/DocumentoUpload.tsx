@@ -189,7 +189,7 @@ export function DocumentoUpload({ motorista, onSuccess }: DocumentoUploadProps) 
                     status === 'NEGADO' ? 'text-red-600' : 'text-yellow-600'
                   }`} />
                 )}
-                <div className="flex-1">
+                <div>
                   <p className={`text-sm font-medium ${
                     status === 'APROVADO' 
                       ? 'text-green-700 dark:text-green-300' 
@@ -205,21 +205,6 @@ export function DocumentoUpload({ motorista, onSuccess }: DocumentoUploadProps) 
                     <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
                       O documento está em análise pelo administrador
                     </p>
-                  )}
-                  {status === 'NEGADO' && documento?.motivoNegacao && (
-                    <div className="mt-2 p-2 bg-white dark:bg-gray-800 rounded border border-red-200 dark:border-red-800">
-                      <div className="flex items-start gap-2">
-                        <Info className="h-4 w-4 text-red-600 flex-shrink-0 mt-0.5" />
-                        <div>
-                          <p className="text-xs font-medium text-red-700 dark:text-red-300">
-                            Motivo da negação:
-                          </p>
-                          <p className="text-xs text-red-600 dark:text-red-400 mt-1">
-                            {documento.motivoNegacao}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
                   )}
                 </div>
               </div>

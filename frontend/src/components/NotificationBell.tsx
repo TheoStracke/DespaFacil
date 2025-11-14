@@ -61,7 +61,7 @@ export default function NotificationBell() {
   };
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative" ref={dropdownRef} data-notification-bell="true">
       {/* Botão do Sino */}
       <button
         onClick={() => setIsOpen(!isOpen)}

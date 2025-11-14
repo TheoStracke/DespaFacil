@@ -12,7 +12,37 @@ import certificadoService, { Certificado } from "@/services/certificado.service"
 import { motion } from "framer-motion";
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import DespachanteTour from '@/components/dashboard/DespachanteTour';
 import authService from '@/services/auth.service';
+import { Step } from 'react-joyride';
+
+const certificadosSteps: Step[] = [
+  {
+    target: 'body',
+    title: '🎓 Certificados Recebidos',
+    content: 'Nesta página você encontra todos os certificados liberados para seus motoristas. Vamos mostrar como usar!',
+    placement: 'center',
+    disableBeacon: true,
+  },
+  {
+    target: '.filtros-certificados',
+    title: '🔍 Filtros de Busca',
+    content: 'Use os filtros para encontrar certificados específicos por CPF do motorista ou data de envio.',
+    disableBeacon: true,
+  },
+  {
+    target: '.lista-certificados',
+    title: '📋 Lista de Certificados',
+    content: 'Aqui estão todos os certificados disponíveis. Você pode ver o nome do motorista, CPF, tipo de curso e data de envio.',
+    disableBeacon: true,
+  },
+  {
+    target: '.btn-download-certificado',
+    title: '💾 Download',
+    content: 'Clique no botão de download para baixar o certificado em PDF.',
+    disableBeacon: true,
+  },
+];
 export default function CertificadosRecebidosPage() {
   const [certificados, setCertificados] = useState<Certificado[]>([]);
   const [loading, setLoading] = useState(true);
@@ -88,6 +118,7 @@ export default function CertificadosRecebidosPage() {
 
   return (
     <DashboardLayout user={user} isDespachante={isDespachante}>
+      <DespachanteTour steps={certificadosSteps} tourKey="certificados" />
       <div className="w-full max-w-full overflow-hidden">
       
       {/* Breadcrumb */}
@@ -113,7 +144,7 @@ export default function CertificadosRecebidosPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="mb-4">
+          <div className="mb-4 filtros-certificados">
             <label className="block text-xs text-muted-foreground mb-2 font-medium">Filtros de pesquisa</label>
             <div className="flex flex-col md:flex-row md:items-end gap-2 md:gap-4">
               <div className="flex flex-col gap-1">
@@ -154,7 +185,7 @@ export default function CertificadosRecebidosPage() {
               <p className="text-sm mt-1">Ajuste os filtros ou aguarde o envio de certificados</p>
             </div>
           ) : (
-            <div className="divide-y divide-border rounded-md bg-muted/40 border">
+            <div className="divide-y divide-border rounded-md bg-muted/40 border lista-certificados">
               {filtered.map((cert, idx) => (
                 <motion.div
                   key={cert.id}
@@ -174,7 +205,7 @@ export default function CertificadosRecebidosPage() {
                           onClick={() => handleDownload(cert)}
                           disabled={downloading === cert.id}
                           size="sm"
-                          className="ml-4"
+                          className="ml-4 btn-download-certificado"
                         >
                           {downloading === cert.id ? (
                             <>

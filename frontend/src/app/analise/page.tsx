@@ -21,6 +21,7 @@ import { Badge } from '@/components/ui/badge'
 import { Select } from '@/components/ui/select'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
+import DespachanteTour from '@/components/dashboard/DespachanteTour'
 import { DocumentStatusChart } from '@/components/charts/DocumentStatusChart'
 import { CourseTypeChart } from '@/components/charts/CourseTypeChart'
 import { CertificateTimelineChart } from '@/components/charts/CertificateTimelineChart'
@@ -37,6 +38,41 @@ import motoristaService from '@/services/motorista.service'
 import documentoService from '@/services/documento.service'
 import type { Motorista, Documento } from '@/types'
 import Skeleton from 'react-loading-skeleton'
+import { Step } from 'react-joyride'
+
+const analiseSteps: Step[] = [
+  {
+    target: 'body',
+    title: '📊 Análise e Relatórios',
+    content: 'Aqui você tem acesso a relatórios completos e gráficos detalhados sobre seus motoristas e documentos!',
+    placement: 'center',
+    disableBeacon: true,
+  },
+  {
+    target: '.tabs-analise',
+    title: '📑 Abas de Navegação',
+    content: 'Navegue entre as abas: Visão Geral, Documentos, Motoristas e Certificados para ver diferentes análises.',
+    disableBeacon: true,
+  },
+  {
+    target: '.graficos-status',
+    title: '📈 Gráficos Interativos',
+    content: 'Visualize gráficos de status de documentos, tipos de curso e linha do tempo de certificados.',
+    disableBeacon: true,
+  },
+  {
+    target: '.filtros-analise',
+    title: '🎯 Filtros Avançados',
+    content: 'Use filtros por status, tipo, curso e data para refinar suas análises.',
+    disableBeacon: true,
+  },
+  {
+    target: '.btn-exportar',
+    title: '💾 Exportar Relatórios',
+    content: 'Exporte seus relatórios em Excel ou PDF para análise offline ou compartilhamento.',
+    disableBeacon: true,
+  },
+];
 
 export default function AnalisePage() {
   // Force Vercel rebuild - 2025-11-14 09:30
@@ -263,6 +299,7 @@ export default function AnalisePage() {
 
   return (
     <DashboardLayout user={user} isDespachante={isDespachante}>
+      <DespachanteTour steps={analiseSteps} tourKey="analise" />
       <div className="space-y-6">
         {/* Breadcrumb */}
         <Breadcrumb items={[
@@ -293,7 +330,7 @@ export default function AnalisePage() {
             <Skeleton height={100} count={4} />
           </div>
         ) : (
-          <Tabs defaultValue="overview" className="space-y-6">
+          <Tabs defaultValue="overview" className="space-y-6 tabs-analise">
             <TabsList className="grid w-full grid-cols-4 lg:w-auto">
               <TabsTrigger value="overview">
                 <BarChart3 className="h-4 w-4 mr-2" />
@@ -316,7 +353,7 @@ export default function AnalisePage() {
             {/* Tab: Visão Geral */}
             <TabsContent value="overview" className="space-y-6">
               {/* Stats Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 graficos-status">
                 <Card>
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-medium text-gray-600">Total Motoristas</CardTitle>
@@ -385,7 +422,7 @@ export default function AnalisePage() {
             {/* Tab: Documentos */}
             <TabsContent value="documentos" className="space-y-4">
               {/* Filtros */}
-              <Card>
+              <Card className="filtros-analise">
                 <CardHeader>
                   <CardTitle className="text-lg">Filtros de Documentos</CardTitle>
                 </CardHeader>
@@ -448,7 +485,7 @@ export default function AnalisePage() {
                         <X className="h-4 w-4 mr-2" />
                         Limpar
                       </Button>
-                      <Button onClick={exportDocumentos} className="flex-1">
+                      <Button onClick={exportDocumentos} className="flex-1 btn-exportar">
                         <Download className="h-4 w-4 mr-2" />
                         Exportar
                       </Button>

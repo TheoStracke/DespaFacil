@@ -240,6 +240,7 @@ export function Sidebar({ user, isDespachante }: SidebarProps) {
 
       {/* Sidebar */}
       <motion.aside
+        data-sidebar="true"
         initial={false}
         animate={{
           width: isExpanded ? 280 : 72,
@@ -363,6 +364,7 @@ export function Sidebar({ user, isDespachante }: SidebarProps) {
 
           {/* Logout Button */}
           <motion.button
+            data-logout-button="true"
             onClick={handleLogout}
             disabled={navigating}
             className="

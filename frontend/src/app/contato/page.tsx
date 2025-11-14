@@ -6,8 +6,38 @@ import { motion } from 'framer-motion'
 import { Building2, Mail, Phone, MapPin, Clock } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
+import DespachanteTour from '@/components/dashboard/DespachanteTour'
 import authService from '@/services/auth.service'
 import { useToast } from '@/components/ui/toast'
+import { Step } from 'react-joyride'
+
+const contatoSteps: Step[] = [
+  {
+    target: 'body',
+    title: '📞 Canais de Contato',
+    content: 'Precisa de ajuda? Aqui estão todas as formas de entrar em contato conosco!',
+    placement: 'center',
+    disableBeacon: true,
+  },
+  {
+    target: '.info-empresa',
+    title: '🏢 Informações da Empresa',
+    content: 'Dados completos da Rede Vellum: CNPJ, e-mail, telefones e endereço.',
+    disableBeacon: true,
+  },
+  {
+    target: '.horario-funcionamento',
+    title: '🕐 Horário de Atendimento',
+    content: 'Veja se estamos abertos agora! Horário: Segunda a Sexta, 08:15-12:00 e 13:00-18:00.',
+    disableBeacon: true,
+  },
+  {
+    target: '.contatos-whatsapp',
+    title: '💬 WhatsApp',
+    content: 'Clique nos números para iniciar uma conversa direta via WhatsApp.',
+    disableBeacon: true,
+  },
+];
 
 export default function ContatoPage() {
   const router = useRouter()
@@ -108,6 +138,7 @@ export default function ContatoPage() {
 
   return (
     <DashboardLayout user={user} isDespachante={isDespachante}>
+      <DespachanteTour steps={contatoSteps} tourKey="contato" />
       <div className="p-6">
         <div className="max-w-4xl mx-auto">
           <motion.div
@@ -135,7 +166,7 @@ export default function ContatoPage() {
                 </p>
               </CardHeader>
 
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 info-empresa">
                 {contactInfo.map((info, index) => {
                   const Icon = info.icon
                   const content = (
@@ -174,7 +205,7 @@ export default function ContatoPage() {
                         href={info.link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="block"
+                        className={`block ${info.label.includes('WhatsApp') || info.label.includes('Suporte') ? 'contatos-whatsapp' : ''}`}
                       >
                         {content}
                       </a>
@@ -189,7 +220,7 @@ export default function ContatoPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.6 }}
-                  className={`mt-8 p-6 rounded-lg border ${
+                  className={`mt-8 p-6 rounded-lg border horario-funcionamento ${
                     isOpen
                       ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200'
                       : 'bg-gradient-to-r from-gray-50 to-slate-50 border-gray-200'
