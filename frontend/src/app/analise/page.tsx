@@ -73,29 +73,38 @@ export default function AnalisePage() {
     try {
       setLoading(true)
       
+      console.log('🔄 Carregando dados para análise...');
+      console.log('👤 User:', userData);
+      
       // Carregar motoristas
       const motoristasResponse = await motoristaService.getAll({ limit: 1000 })
+      console.log('👥 Motoristas carregados:', motoristasResponse.motoristas?.length);
       setMotoristas(motoristasResponse.motoristas || [])
       
       // Carregar documentos - usa o mesmo endpoint para ADMIN e DESPACHANTE
       // O backend filtra automaticamente por despachante se necessário
       try {
+        console.log('📄 Buscando documentos...');
         const documentosData = await documentoService.getAllAdmin({ limit: 1000 })
+        console.log('📄 Documentos recebidos:', documentosData);
+        console.log('📄 Total de documentos:', documentosData.data?.length);
         setDocumentos(documentosData.data || [])
       } catch (error) {
-        console.error('Erro ao carregar documentos:', error)
+        console.error('❌ Erro ao carregar documentos:', error)
       }
       
       // Carregar certificados
       try {
+        console.log('🎓 Buscando certificados...');
         const certificadosData = await documentoService.listCertificadosAdmin()
+        console.log('🎓 Certificados recebidos:', certificadosData?.length);
         setCertificados(certificadosData || [])
       } catch (error) {
-        console.error('Erro ao carregar certificados:', error)
+        console.error('❌ Erro ao carregar certificados:', error)
       }
       
     } catch (error: any) {
-      console.error('Erro ao carregar dados:', error)
+      console.error('❌ Erro geral ao carregar dados:', error)
       toast.error('Erro ao carregar dados para análise')
     } finally {
       setLoading(false)
@@ -128,6 +137,8 @@ export default function AnalisePage() {
     
     return matchesSearch && matchesStatus && matchesTipo && matchesDate
   })
+  
+  console.log('📊 Estado atual - Documentos:', documentos.length, 'Filtrados:', filteredDocumentos.length);
 
   // Filtros para Certificados
   const filteredCertificados = certificados.filter(c => {
