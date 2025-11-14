@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, ChangeEvent } from 'react'
-import { Upload, File, CheckCircle, AlertCircle } from 'lucide-react'
+import { Upload, File, CheckCircle, AlertCircle, Info } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -154,10 +154,15 @@ export function DocumentoUpload({ motorista, onSuccess }: DocumentoUploadProps) 
     return doc?.status || null
   }
 
+  const getDocumento = (tipo: DocumentoTipo) => {
+    return motorista.documentos?.find(d => d.tipo === tipo)
+  }
+
   const renderUploadCard = (tipo: DocumentoTipo, label: string) => {
     const file = selectedFiles[tipo]
     const isLoading = loading[tipo]
     const status = getDocumentoStatus(tipo)
+    const documento = getDocumento(tipo)
 
     return (
       <Card>
@@ -184,7 +189,7 @@ export function DocumentoUpload({ motorista, onSuccess }: DocumentoUploadProps) 
                     status === 'NEGADO' ? 'text-red-600' : 'text-yellow-600'
                   }`} />
                 )}
-                <div>
+                <div className="flex-1">
                   <p className={`text-sm font-medium ${
                     status === 'APROVADO' 
                       ? 'text-green-700 dark:text-green-300' 
@@ -200,6 +205,21 @@ export function DocumentoUpload({ motorista, onSuccess }: DocumentoUploadProps) 
                     <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
                       O documento está em análise pelo administrador
                     </p>
+                  )}
+                  {status === 'NEGADO' && documento?.motivoNegacao && (
+                    <div className="mt-2 p-2 bg-white dark:bg-gray-800 rounded border border-red-200 dark:border-red-800">
+                      <div className="flex items-start gap-2">
+                        <Info className="h-4 w-4 text-red-600 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-xs font-medium text-red-700 dark:text-red-300">
+                            Motivo da negação:
+                          </p>
+                          <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                            {documento.motivoNegacao}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   )}
                 </div>
               </div>

@@ -29,6 +29,7 @@ export interface Documento {
   size: number;
   status: DocumentoStatus;
   motivo?: string;
+  motivoNegacao?: string;
   uploadedAt: string;
   updatedAt: string;
   motorista?: {
