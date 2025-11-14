@@ -236,10 +236,6 @@ export default function DespachanteTour({ steps = defaultSteps, tourKey = 'dashb
         spotlight: {
           borderRadius: 8,
         },
-        beacon: {
-          inner: '#010E9B',
-          outer: '#010E9B',
-        },
       }}
       floaterProps={{
         disableAnimation: false,
