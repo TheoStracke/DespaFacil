@@ -141,7 +141,7 @@ export const DialogContent = React.forwardRef<
           )}
           onClick={(e) => e.stopPropagation()} // Não fecha ao clicar dentro
         >
-          <div ref={ref} {...props}>
+          <div ref={ref} {...props} className="h-full">
             {children}
           </div>
         </motion.div>
