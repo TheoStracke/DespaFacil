@@ -223,9 +223,18 @@ export function DocumentViewer({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl h-[90vh] flex flex-col p-0">
+      <DialogContent 
+        className="max-w-6xl h-[90vh] flex flex-col p-0"
+        style={{ 
+          height: '90vh', 
+          maxHeight: '90vh',
+          padding: 0,
+          display: 'flex',
+          flexDirection: 'column'
+        }}
+      >
         {/* Header com controles */}
-        <DialogHeader className="px-6 py-4 border-b flex-shrink-0">
+        <DialogHeader className="px-6 py-4 border-b flex-shrink-0" style={{ flexShrink: 0 }}>
           <div className="flex items-center justify-between">
             <DialogTitle className="text-lg font-semibold truncate max-w-md">
               {documentName}
