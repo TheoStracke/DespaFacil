@@ -14,6 +14,7 @@ import {
   Home,
   BarChart3,
   TrendingUp,
+  Info,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -161,6 +162,10 @@ export default function DashboardPage() {
   const getDocumentoStatus = (motorista: Motorista, tipo: string) => {
     const doc = motorista.documentos?.find(d => d.tipo === tipo)
     return doc?.status || null
+  }
+
+  const getDocumento = (motorista: Motorista, tipo: string) => {
+    return motorista.documentos?.find(d => d.tipo === tipo) || null
   }
 
   const getDocumentoLabel = (tipo: string) => {
@@ -442,28 +447,76 @@ export default function DashboardPage() {
                           <TableCell>{motorista.cursoTipo}</TableCell>
                           <TableCell>
                             {getDocumentoStatus(motorista, 'CNH') ? (
-                              <StatusBadge status={getDocumentoStatus(motorista, 'CNH')!} />
+                              <div className="flex items-center gap-1">
+                                <StatusBadge status={getDocumentoStatus(motorista, 'CNH')!} />
+                                {getDocumentoStatus(motorista, 'CNH') === 'NEGADO' && getDocumento(motorista, 'CNH')?.motivoNegacao && (
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top" className="max-w-xs">
+                                      <p className="text-xs">{getDocumento(motorista, 'CNH')?.motivoNegacao}</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                )}
+                              </div>
                             ) : (
                               <span className="text-xs text-muted-foreground">-</span>
                             )}
                           </TableCell>
                           <TableCell>
                             {getDocumentoStatus(motorista, 'COMPROVANTE_PAGAMENTO') ? (
-                              <StatusBadge status={getDocumentoStatus(motorista, 'COMPROVANTE_PAGAMENTO')!} />
+                              <div className="flex items-center gap-1">
+                                <StatusBadge status={getDocumentoStatus(motorista, 'COMPROVANTE_PAGAMENTO')!} />
+                                {getDocumentoStatus(motorista, 'COMPROVANTE_PAGAMENTO') === 'NEGADO' && getDocumento(motorista, 'COMPROVANTE_PAGAMENTO')?.motivoNegacao && (
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top" className="max-w-xs">
+                                      <p className="text-xs">{getDocumento(motorista, 'COMPROVANTE_PAGAMENTO')?.motivoNegacao}</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                )}
+                              </div>
                             ) : (
                               <span className="text-xs text-muted-foreground">-</span>
                             )}
                           </TableCell>
                           <TableCell>
                             {getDocumentoStatus(motorista, 'DOCUMENTO1') ? (
-                              <StatusBadge status={getDocumentoStatus(motorista, 'DOCUMENTO1')!} />
+                              <div className="flex items-center gap-1">
+                                <StatusBadge status={getDocumentoStatus(motorista, 'DOCUMENTO1')!} />
+                                {getDocumentoStatus(motorista, 'DOCUMENTO1') === 'NEGADO' && getDocumento(motorista, 'DOCUMENTO1')?.motivoNegacao && (
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top" className="max-w-xs">
+                                      <p className="text-xs">{getDocumento(motorista, 'DOCUMENTO1')?.motivoNegacao}</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                )}
+                              </div>
                             ) : (
                               <span className="text-xs text-muted-foreground">-</span>
                             )}
                           </TableCell>
                           <TableCell>
                             {getDocumentoStatus(motorista, 'DOCUMENTO2') ? (
-                              <StatusBadge status={getDocumentoStatus(motorista, 'DOCUMENTO2')!} />
+                              <div className="flex items-center gap-1">
+                                <StatusBadge status={getDocumentoStatus(motorista, 'DOCUMENTO2')!} />
+                                {getDocumentoStatus(motorista, 'DOCUMENTO2') === 'NEGADO' && getDocumento(motorista, 'DOCUMENTO2')?.motivoNegacao && (
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top" className="max-w-xs">
+                                      <p className="text-xs">{getDocumento(motorista, 'DOCUMENTO2')?.motivoNegacao}</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                )}
+                              </div>
                             ) : (
                               <span className="text-xs text-muted-foreground">-</span>
                             )}
