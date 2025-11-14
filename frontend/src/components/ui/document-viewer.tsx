@@ -81,11 +81,12 @@ export function DocumentViewer({
   const renderContent = () => {
     if (isPDF) {
       return (
-        <div className="w-full h-full bg-gray-100 dark:bg-gray-900">
+        <div className="w-full h-full bg-gray-100 dark:bg-gray-900" style={{ height: '100%' }}>
           <embed
             src={documentUrl}
             type="application/pdf"
             className="w-full h-full"
+            style={{ width: '100%', height: '100%' }}
           />
         </div>
       )
@@ -296,7 +297,7 @@ export function DocumentViewer({
         </DialogHeader>
 
         {/* Área de visualização */}
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-hidden" style={{ flex: 1, minHeight: 0 }}>
           {renderContent()}
         </div>
       </DialogContent>
