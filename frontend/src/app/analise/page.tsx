@@ -39,6 +39,7 @@ import type { Motorista, Documento } from '@/types'
 import Skeleton from 'react-loading-skeleton'
 
 export default function AnalisePage() {
+  // Force Vercel rebuild - 2025-11-14 09:30
   const router = useRouter()
   const [user, setUser] = useState<any>(null)
   const [isDespachante, setIsDespachante] = useState(false)
@@ -87,8 +88,8 @@ export default function AnalisePage() {
         console.log('📄 Buscando documentos...');
         const documentosData = await documentoService.getAllAdmin({ limit: 1000 })
         console.log('📄 Documentos recebidos:', documentosData);
-        console.log('📄 Total de documentos:', documentosData.data?.length);
-        setDocumentos(documentosData.data || [])
+        console.log('📄 Total de documentos:', documentosData.documentos?.length);
+        setDocumentos(documentosData.documentos || [])
       } catch (error) {
         console.error('❌ Erro ao carregar documentos:', error)
       }
