@@ -494,7 +494,12 @@ export default function AnalisePage() {
                                 </Badge>
                               </TableCell>
                               <TableCell>{new Date(doc.uploadedAt).toLocaleDateString('pt-BR')}</TableCell>
-                              <TableCell>{new Date(doc.updatedAt).toLocaleDateString('pt-BR')}</TableCell>
+                              <TableCell>
+                                {doc.updatedAt 
+                                  ? new Date(doc.updatedAt).toLocaleDateString('pt-BR')
+                                  : new Date(doc.uploadedAt).toLocaleDateString('pt-BR')
+                                }
+                              </TableCell>
                             </TableRow>
                           ))
                         )}
