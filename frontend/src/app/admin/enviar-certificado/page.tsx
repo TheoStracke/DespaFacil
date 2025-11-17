@@ -228,8 +228,12 @@ export default function EnviarCertificadoPage() {
         </div>
 
         {/* Tabs */}
-        <Tabs defaultValue="enviar" className="w-full">
+        <Tabs defaultValue="documentos" className="w-full">
           <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="documentos">
+              <FileArchive className="mr-2 h-4 w-4" />
+              Documentos
+            </TabsTrigger>
             <TabsTrigger value="enviar">
               <Send className="mr-2 h-4 w-4" />
               Enviar Certificado
@@ -237,10 +241,6 @@ export default function EnviarCertificadoPage() {
             <TabsTrigger value="historico">
               <History className="mr-2 h-4 w-4" />
               Histórico
-            </TabsTrigger>
-            <TabsTrigger value="documentos">
-              <FileArchive className="mr-2 h-4 w-4" />
-              Documentos
             </TabsTrigger>
           </TabsList>
 
