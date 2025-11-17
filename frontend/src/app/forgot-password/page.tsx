@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/toast';
 import authService from '@/services/auth.service';
-import RecaptchaWidget from '@/components/ui/HcaptchaWidget';
+import { RecaptchaWidget } from '@/components/ui/RecaptchaWidget';
 
 const SITEKEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITEKEY || '6LfZrw8sAAAAAC28c1Fxe-tetNO2oM6SVcUa1SN4';
 
@@ -27,7 +27,7 @@ export default function ForgotPasswordPage() {
       return;
     }
     if (!captcha) {
-      toast({ type: 'error', title: 'Confirme o captcha antes de enviar' });
+      toast({ type: 'error', title: 'Aguarde a validação do captcha...' });
       return;
     }
     setLoading(true);
@@ -45,7 +45,6 @@ export default function ForgotPasswordPage() {
       }, 2500);
     } catch (err: any) {
       const msg = err.response?.data?.error || err.message || 'Erro ao solicitar redefinição';
-      // Mostra erro real para depuração do captcha
       toast({ type: 'error', title: msg });
       setLoading(false);
       return;
@@ -86,13 +85,11 @@ export default function ForgotPasswordPage() {
                 required
                 disabled={loading}
               />
-              <div className="flex justify-center">
-                <RecaptchaWidget
-                  sitekey={SITEKEY}
-                  onVerify={setCaptcha}
-                  onExpire={() => setCaptcha(null)}
-                />
-              </div>
+              <RecaptchaWidget
+                sitekey={SITEKEY}
+                onVerify={setCaptcha}
+                action="forgot_password"
+              />
             </CardContent>
             <CardFooter>
               <Button type="submit" className="w-full" disabled={loading || !captcha}>
