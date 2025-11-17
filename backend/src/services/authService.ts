@@ -160,12 +160,12 @@ export async function login(data: LoginData) {
 }
 
 export async function forgotPassword(email: string, captcha: string) {
-  // Validação do hCaptcha server-side
-  const secret = process.env.HCAPTCHA_SECRET;
+  // Validação do reCAPTCHA server-side
+  const secret = process.env.RECAPTCHA_SECRET;
   if (!captcha) throw new Error('Captcha obrigatório');
-  if (!secret) throw new Error('hCaptcha secret não configurado');
+  if (!secret) throw new Error('reCAPTCHA secret não configurado');
   
-  const verifyUrl = 'https://hcaptcha.com/siteverify';
+  const verifyUrl = 'https://www.google.com/recaptcha/api/siteverify';
   try {
     const verifyRes = await axios.post(
       verifyUrl,
@@ -173,19 +173,20 @@ export async function forgotPassword(email: string, captcha: string) {
       { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
     );
     
-    console.log('[HCAPTCHA] Resposta:', verifyRes.data);
+    console.log('[RECAPTCHA] Resposta:', verifyRes.data);
     
     if (!verifyRes.data.success) {
-      console.error('[HCAPTCHA] Falha na validação:', verifyRes.data['error-codes']);
-      throw new Error('Falha ao validar captcha. Tente novamente.');
+      const errs = verifyRes.data['error-codes'];
+      console.error('[RECAPTCHA] Falha na validação:', errs);
+      throw new Error('Falha ao validar captcha: ' + (Array.isArray(errs) ? errs.join(',') : 'Verifique e tente novamente'));
     }
   } catch (error: any) {
-    console.error('[HCAPTCHA] Erro na chamada:', error.message);
+    console.error('[RECAPTCHA] Erro na chamada:', error.message);
     if (error.response) {
-      console.error('[HCAPTCHA] Status:', error.response.status);
-      console.error('[HCAPTCHA] Data:', error.response.data);
+      console.error('[RECAPTCHA] Status:', error.response.status);
+      console.error('[RECAPTCHA] Data:', error.response.data);
     }
-    throw new Error('Erro ao validar captcha. Tente novamente.');
+    throw new Error('Erro ao validar captcha: ' + (error.response?.data?.['error-codes'] || 'tente novamente'));
   }
 
   const user = await prisma.user.findUnique({ where: { email } });

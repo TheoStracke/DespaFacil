@@ -15,6 +15,7 @@ export interface SolicitacaoCodigo {
     nome: string;
     cpf: string;
     cursoTipo: string;
+    email?: string;
   };
 }
 

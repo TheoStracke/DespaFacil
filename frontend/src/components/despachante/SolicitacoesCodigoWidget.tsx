@@ -26,29 +26,7 @@ export function SolicitacoesCodigoWidget() {
     try {
       setLoading(true);
       const data = await solicitacaoCodigoService.listPendentes();
-
-      const instructionMessage = "É necessário reenviar com o e-mail correto";
-
-      const updatedData = await Promise.all(
-        data.map(async (s: SolicitacaoCodigo) => {
-          if (s.status === 'PENDENTE') {
-            const motoristaEmail = s.motorista?.email || '';
-            const destino = s.emailDestino || '';
-            const emailMismatch = !motoristaEmail || motoristaEmail.trim().toLowerCase() !== destino.trim().toLowerCase();
-            if (emailMismatch) {
-              try {
-                const updated = await solicitacaoCodigoService.negarSolicitacao(s.id, instructionMessage);
-                return updated;
-              } catch (err) {
-                return s;
-              }
-            }
-          }
-          return s;
-        })
-      );
-
-      setSolicitacoes(updatedData);
+      setSolicitacoes(data);
     } catch (error: any) {
       toast({
         type: 'error',
@@ -146,7 +124,11 @@ export function SolicitacoesCodigoWidget() {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        {solicitacoes.map((sol) => (
+        {solicitacoes.map((sol) => {
+          const motoristaEmail = sol.motorista?.email || '';
+          const destino = sol.emailDestino || '';
+          const emailMismatch = !motoristaEmail || motoristaEmail.trim().toLowerCase() !== destino.trim().toLowerCase();
+          return (
           <div key={sol.id} className="p-4 border rounded-lg space-y-3 bg-blue-50">
             <div>
               <h4 className="font-semibold text-lg">{sol.motorista?.nome}</h4>
@@ -156,11 +138,11 @@ export function SolicitacoesCodigoWidget() {
                   <strong>Observação:</strong> {sol.observacao}
                 </p>
               )}
-
-              {sol.status === 'NEGADO' && (
+              {emailMismatch && (
                 <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded">
                   <p className="text-sm text-red-800 font-semibold">
-                    Atenção: é necessário verificar o código no e-mail informado e atualizar a tabela de dados antes de reenviar. O sistema marcará o status como 'Negado' com o aviso: 'É necessário reenviar com o e-mail correto'.
+                    Atenção: o e-mail destino desta solicitação não corresponde ao e-mail atual do motorista.
+                    Atualize a Tabela de Dados com o e-mail correto e reenvie após registrar o código.
                   </p>
                 </div>
               )}
@@ -195,7 +177,7 @@ export function SolicitacoesCodigoWidget() {
               })}
             </div>
           </div>
-        ))}
+        );})}
       </CardContent>
     </Card>
   );

@@ -9,7 +9,9 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/toast';
 import authService from '@/services/auth.service';
-import HcaptchaWidget from '@/components/ui/HcaptchaWidget';
+import RecaptchaWidget from '@/components/ui/HcaptchaWidget';
+
+const SITEKEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITEKEY || '6LfZrw8sAAAAAC28c1Fxe-tetNO2oM6SVcUa1SN4';
 
 export default function ForgotPasswordPage() {
   const { toast } = useToast();
@@ -30,18 +32,23 @@ export default function ForgotPasswordPage() {
     }
     setLoading(true);
     try {
-      await authService.forgotPassword(email.trim(), captcha);
-      toast({ type: 'success', title: 'Se existir uma conta, enviaremos um email com instruções.' });
+      const res = await authService.forgotPassword(email.trim(), captcha);
+      if (res.success) {
+        toast({ type: 'success', title: 'Se existir uma conta, enviaremos um email com instruções.' });
+      } else {
+        toast({ type: 'error', title: res.error || 'Erro ao solicitar redefinição' });
+        setLoading(false);
+        return;
+      }
       setTimeout(() => {
         router.push('/login');
       }, 2500);
     } catch (err: any) {
-      toast({ type: 'success', title: 'Se existir uma conta, enviaremos um email com instruções.' });
-      setTimeout(() => {
-        router.push('/login');
-      }, 2500);
-    } finally {
+      const msg = err.response?.data?.error || err.message || 'Erro ao solicitar redefinição';
+      // Mostra erro real para depuração do captcha
+      toast({ type: 'error', title: msg });
       setLoading(false);
+      return;
     }
   };
 
@@ -80,8 +87,8 @@ export default function ForgotPasswordPage() {
                 disabled={loading}
               />
               <div className="flex justify-center">
-                <HcaptchaWidget
-                  sitekey="2a34c8f0-3768-4e80-93da-68cc6592b8e6"
+                <RecaptchaWidget
+                  sitekey={SITEKEY}
                   onVerify={setCaptcha}
                   onExpire={() => setCaptcha(null)}
                 />
