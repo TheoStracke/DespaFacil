@@ -13,32 +13,32 @@ export function RecaptchaWidget({ sitekey, onVerify, action = 'submit' }: Recapt
   useEffect(() => {
     const loadRecaptcha = () => {
       if (window.grecaptcha && window.grecaptcha.ready && !executedRef.current) {
-        console.log('[reCAPTCHA] Iniciando validação...');
+        console.log('[reCAPTCHA Enterprise] Iniciando validação...');
         window.grecaptcha.ready(() => {
-          console.log('[reCAPTCHA] API pronta, executando...');
+          console.log('[reCAPTCHA Enterprise] API pronta, executando...');
           window.grecaptcha.execute(sitekey, { action }).then((token: string) => {
-            console.log('[reCAPTCHA] Token gerado, length:', token?.length);
+            console.log('[reCAPTCHA Enterprise] Token gerado, length:', token?.length);
             executedRef.current = true;
             onVerify(token);
           }).catch((err: any) => {
-            console.error('[reCAPTCHA] Erro ao executar:', err);
+            console.error('[reCAPTCHA Enterprise] Erro ao executar:', err);
           });
         });
       }
     };
 
     if (!window.grecaptcha) {
-      console.log('[reCAPTCHA] Carregando script...');
+      console.log('[reCAPTCHA Enterprise] Carregando script...');
       const script = document.createElement("script");
-      script.src = `https://www.google.com/recaptcha/api.js?render=${sitekey}`;
+      script.src = `https://www.google.com/recaptcha/enterprise.js?render=${sitekey}`;
       script.async = true;
       script.defer = true;
       script.onload = () => {
-        console.log('[reCAPTCHA] Script carregado');
+        console.log('[reCAPTCHA Enterprise] Script carregado');
         loadRecaptcha();
       };
       script.onerror = () => {
-        console.error('[reCAPTCHA] Erro ao carregar script');
+        console.error('[reCAPTCHA Enterprise] Erro ao carregar script');
       };
       document.head.appendChild(script);
     } else {

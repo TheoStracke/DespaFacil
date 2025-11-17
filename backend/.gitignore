@@ -6,3 +6,7 @@ uploads/
 .DS_Store
 .vscode/
 .idea/
+
+# Credenciais Google Cloud - reCAPTCHA Enterprise
+recaptcha-key.json
+*-service-account.json

@@ -7,6 +7,7 @@ import axios from 'axios';
 import { getParceiroStatus } from './parceiroService';
 import { notifyCadastroCriado, notifyPrimeiroLogin } from './emailService';
 import { getAppUrl } from '../utils/appUrl';
+import { validateRecaptchaEnterprise, isScoreAcceptable } from '../utils/recaptchaEnterprise';
 
 const BCRYPT_ROUNDS = parseInt(process.env.BCRYPT_SALT_ROUNDS || '12', 10);
 const JWT_SECRET: Secret = (process.env.JWT_SECRET || 'secret') as Secret;
@@ -160,41 +161,35 @@ export async function login(data: LoginData) {
 }
 
 export async function forgotPassword(email: string, captcha: string) {
-  // Validação do reCAPTCHA server-side
-  const secret = process.env.RECAPTCHA_SECRET;
+  // Validação do reCAPTCHA Enterprise
+  const bypassCaptcha = process.env.BYPASS_CAPTCHA === 'true';
+  
   console.log('[FORGOT-PASSWORD] Iniciando validação');
   console.log('[FORGOT-PASSWORD] Email:', email ? 'presente' : 'ausente');
   console.log('[FORGOT-PASSWORD] Captcha token length:', captcha?.length || 0);
-  console.log('[FORGOT-PASSWORD] Secret configurado:', secret ? 'sim' : 'NÃO');
+  console.log('[FORGOT-PASSWORD] Bypass ativo:', bypassCaptcha);
   
-  if (!captcha) throw new Error('Captcha obrigatório');
-  if (!secret) throw new Error('reCAPTCHA secret não configurado');
-  
-  const verifyUrl = 'https://www.google.com/recaptcha/api/siteverify';
-  try {
-    const verifyRes = await axios.post(
-      verifyUrl,
-      new URLSearchParams({ secret, response: captcha }),
-      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
-    );
+  if (!bypassCaptcha) {
+    if (!captcha) throw new Error('Captcha obrigatório');
     
-    console.log('[RECAPTCHA] Resposta completa:', JSON.stringify(verifyRes.data, null, 2));
-    
-    if (!verifyRes.data.success) {
-      const errs = verifyRes.data['error-codes'];
-      console.error('[RECAPTCHA] Falha na validação:', errs);
-      console.error('[RECAPTCHA] Score (se v3):', verifyRes.data.score);
-      throw new Error('Falha ao validar captcha: ' + (Array.isArray(errs) ? errs.join(',') : 'Verifique e tente novamente'));
+    try {
+      // Validar com reCAPTCHA Enterprise
+      const score = await validateRecaptchaEnterprise(captcha, 'forgot_password');
+      
+      // Verificar se o score é aceitável (threshold padrão: 0.5)
+      // Scores: 1.0 = muito provavelmente humano, 0.0 = muito provavelmente bot
+      if (!isScoreAcceptable(score, 0.3)) {
+        console.error('[RECAPTCHA Enterprise] Score muito baixo:', score);
+        throw new Error('Validação de segurança falhou. Tente novamente.');
+      }
+      
+      console.log('[RECAPTCHA Enterprise] ✅ Validação aprovada, score:', score);
+    } catch (error: any) {
+      console.error('[RECAPTCHA Enterprise] Erro:', error.message);
+      throw new Error('Erro ao validar captcha: ' + (error.message || 'tente novamente'));
     }
-    
-    console.log('[RECAPTCHA] ✅ Validação OK, score:', verifyRes.data.score);
-  } catch (error: any) {
-    console.error('[RECAPTCHA] Erro na chamada:', error.message);
-    if (error.response) {
-      console.error('[RECAPTCHA] Status:', error.response.status);
-      console.error('[RECAPTCHA] Data:', error.response.data);
-    }
-    throw new Error('Erro ao validar captcha: ' + (error.response?.data?.['error-codes'] || error.message || 'tente novamente'));
+  } else {
+    console.log('[RECAPTCHA Enterprise] ⚠️ BYPASS ATIVO - Captcha não validado (apenas dev)');
   }
 
   const user = await prisma.user.findUnique({ where: { email } });

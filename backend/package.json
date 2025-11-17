@@ -26,6 +26,7 @@
     "cleanup:negados": "node scripts/cleanup-negados.js"
   },
   "dependencies": {
+    "@google-cloud/recaptcha-enterprise": "^6.3.1",
     "@prisma/client": "^5.22.0",
     "archiver": "^5.3.2",
     "axios": "^1.12.2",
