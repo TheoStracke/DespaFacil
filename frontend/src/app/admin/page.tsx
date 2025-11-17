@@ -16,6 +16,7 @@ import {
   Shield,
   Activity,
   Eye,
+  KeyRound,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -39,6 +40,7 @@ import { DocumentoActionDialog } from '@/components/admin/DocumentoActionDialog'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
 import type { Documento, DocumentoStatus } from '@/types'
+import solicitacaoCodigoService from '@/services/solicitacaoCodigo.service'
 
 export default function AdminPage() {
   const router = useRouter()
@@ -263,6 +265,28 @@ export default function AdminPage() {
     }
   }
 
+  const handleSolicitarCodigo = async (documento: Documento) => {
+    try {
+      // Apenas para DOCUMENTO2 (Tabela de Dados)
+      if (documento.tipo !== 'DOCUMENTO2') {
+        toast.error('A solicitação de código é apenas para Tabela de Dados')
+        return
+      }
+
+      // Criar solicitação sem emailDestino (usa email do motorista)
+      await solicitacaoCodigoService.create({
+        motoristaId: documento.motoristaId,
+        observacao: 'Email na tabela divergente. Va em "Códigos" e confirme o código enviado ao "Email destino" do motorista.',
+      })
+
+      toast.success('Solicitação de código registrada e Tabela de Dados negada com instruções.')
+      await loadDocumentos()
+    } catch (error: any) {
+      console.error('Erro ao solicitar código:', error)
+      toast.error(error.response?.data?.error || 'Erro ao solicitar código')
+    }
+  }
+
   return (
     <DashboardLayout user={user} isDespachante={false}>
       <motion.div
@@ -482,6 +506,17 @@ export default function AdminPage() {
                                   >
                                     <XCircle className="h-4 w-4" />
                                   </Button>
+                                  {doc.tipo === 'DOCUMENTO2' && (
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                      title="Solicitar código e negar Tabela de Dados automaticamente"
+                                      onClick={() => handleSolicitarCodigo(doc)}
+                                    >
+                                      <KeyRound className="h-4 w-4" />
+                                    </Button>
+                                  )}
                                 </>
                               )}
                               {doc.status !== 'PENDENTE' && (

@@ -26,7 +26,29 @@ export function SolicitacoesCodigoWidget() {
     try {
       setLoading(true);
       const data = await solicitacaoCodigoService.listPendentes();
-      setSolicitacoes(data);
+
+      const instructionMessage = "É necessário reenviar com o e-mail correto";
+
+      const updatedData = await Promise.all(
+        data.map(async (s: SolicitacaoCodigo) => {
+          if (s.status === 'PENDENTE') {
+            const motoristaEmail = s.motorista?.email || '';
+            const destino = s.emailDestino || '';
+            const emailMismatch = !motoristaEmail || motoristaEmail.trim().toLowerCase() !== destino.trim().toLowerCase();
+            if (emailMismatch) {
+              try {
+                const updated = await solicitacaoCodigoService.negarSolicitacao(s.id, instructionMessage);
+                return updated;
+              } catch (err) {
+                return s;
+              }
+            }
+          }
+          return s;
+        })
+      );
+
+      setSolicitacoes(updatedData);
     } catch (error: any) {
       toast({
         type: 'error',
@@ -133,6 +155,14 @@ export function SolicitacoesCodigoWidget() {
                 <p className="text-sm mt-2 text-gray-700">
                   <strong>Observação:</strong> {sol.observacao}
                 </p>
+              )}
+
+              {sol.status === 'NEGADO' && (
+                <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded">
+                  <p className="text-sm text-red-800 font-semibold">
+                    Atenção: é necessário verificar o código no e-mail informado e atualizar a tabela de dados antes de reenviar. O sistema marcará o status como 'Negado' com o aviso: 'É necessário reenviar com o e-mail correto'.
+                  </p>
+                </div>
               )}
             </div>
 

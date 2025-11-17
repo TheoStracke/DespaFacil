@@ -20,7 +20,7 @@ export interface SolicitacaoCodigo {
 
 export interface CreateSolicitacaoData {
   motoristaId: string;
-  emailDestino: string;
+  emailDestino?: string;
   observacao?: string;
 }
 

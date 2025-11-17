@@ -16,6 +16,7 @@ import { useToast } from '@/components/ui/toast';
 import { Send, RefreshCw, CheckCircle, RotateCcw, KeyRound } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Step } from 'react-joyride';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const codigosSteps: Step[] = [
   {
@@ -61,6 +62,7 @@ export default function DespachanteCodigosPage() {
   const [enviandoCodigo, setEnviandoCodigo] = useState<string | null>(null);
   const [codigos, setCodigos] = useState<{ [key: string]: string }>({});
   const [confirmadas, setConfirmadas] = useState<Set<string>>(new Set());
+  const [showRedirectDialog, setShowRedirectDialog] = useState(false);
 
   useEffect(() => {
     // Verificar autenticação
@@ -124,9 +126,12 @@ export default function DespachanteCodigosPage() {
 
       toast({
         type: 'success',
-        title: 'Código registrado!',
-        description: 'O código foi salvo no sistema. Você pode enviá-lo manualmente ao destinatário.',
+        title: 'Código enviado com sucesso',
+        description: 'Deseja ir ao dashboard para reenviar a tabela?',
       });
+
+      // Abrir popup de redirecionamento
+      setShowRedirectDialog(true);
 
       // Marcar como confirmada
       setConfirmadas((prev) => new Set(prev).add(solicitacaoId));
@@ -189,6 +194,16 @@ export default function DespachanteCodigosPage() {
 
   return (
     <DashboardLayout user={user} isDespachante={true}>
+      {/* Aviso fixo no topo */}
+      <div className="mb-4 p-4 rounded-md border border-yellow-300 bg-yellow-50 text-yellow-900">
+        <div className="flex items-start gap-3">
+          <KeyRound className="h-5 w-5 mt-0.5" />
+          <p className="text-sm font-medium">
+            Após enviar o código, atualize a tabela de dados com o e-mail correto e reenviar.
+          </p>
+        </div>
+      </div>
+
       <DespachanteTour steps={codigosSteps} tourKey="codigos" />
       <div className="space-y-6">
         <div className="flex items-center justify-between">
@@ -218,6 +233,22 @@ export default function DespachanteCodigosPage() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Popup de sucesso com opção de redirecionar */}
+          <Dialog open={showRedirectDialog} onOpenChange={setShowRedirectDialog}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Código enviado com sucesso</DialogTitle>
+              </DialogHeader>
+              <p>Deseja ir ao dashboard para reenviar a tabela?</p>
+              <DialogFooter>
+                <div className="flex gap-2 justify-end">
+                  <Button variant="outline" onClick={() => setShowRedirectDialog(false)}>Não</Button>
+                  <Button onClick={() => { setShowRedirectDialog(false); router.push('/dashboard'); }}>Sim</Button>
+                </div>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
           <Card>
             <CardContent className="pt-6">
               <div className="text-center">

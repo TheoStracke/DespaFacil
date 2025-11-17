@@ -1,17 +1,16 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middlewares/authMiddleware';
 import prisma from '../prisma/client';
+import { createNotification, NOTIFICATION_TYPES } from '../services/notificationService';
+import { createAuditLog, AUDIT_ACTIONS } from '../services/auditLogService';
 
 // Admin: Criar solicitação de código
 export async function createSolicitacao(req: AuthRequest, res: Response) {
   try {
     const { motoristaId, emailDestino, observacao } = req.body;
 
-    if (!motoristaId || !emailDestino) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'motoristaId e emailDestino são obrigatórios' 
-      });
+    if (!motoristaId) {
+      return res.status(400).json({ success: false, error: 'motoristaId é obrigatório' });
     }
 
     // Buscar motorista
@@ -28,11 +27,17 @@ export async function createSolicitacao(req: AuthRequest, res: Response) {
       return res.status(404).json({ success: false, error: 'Motorista não encontrado' });
     }
 
-    // Criar solicitação
+    // Determinar email de destino: usa o informado ou o email do motorista
+    const emailDestinoFinal = emailDestino || motorista.email;
+    if (!emailDestinoFinal) {
+      return res.status(400).json({ success: false, error: 'Email do motorista não disponível' });
+    }
+
+    // Criar solicitação (sem envio de email externo)
     const solicitacao = await prisma.solicitacaoCodigo.create({
       data: {
         motoristaId,
-        emailDestino,
+        emailDestino: emailDestinoFinal,
         observacao,
         solicitadoPor: req.user!.id,
       },
@@ -46,6 +51,81 @@ export async function createSolicitacao(req: AuthRequest, res: Response) {
         },
       },
     });
+
+    // Atualizar automaticamente a "Tabela de Dados" (DOCUMENTO2) para NEGADO com mensagem padrão
+    const MOTIVO_NEGACAO = 'Solicitação de código ao email do motorista. Por favor, envie o código e então reenvie a tabela.';
+    try {
+      const docTabela = await prisma.documento.findUnique({
+        where: {
+          motoristaId_tipo: { motoristaId, tipo: 'DOCUMENTO2' as any },
+        },
+        include: { motorista: { include: { despachante: { include: { user: true } } } } },
+      });
+
+      if (docTabela) {
+        const documentoAtualizado = await prisma.documento.update({
+          where: { id: docTabela.id },
+          data: {
+            status: 'NEGADO' as any,
+            motivoNegacao: MOTIVO_NEGACAO,
+            reviewedBy: req.user!.id,
+            reviewedAt: new Date(),
+          },
+          include: { motorista: { include: { despachante: { include: { user: true } } } } },
+        });
+
+        // Log do documento
+        await prisma.logDocumento.create({
+          data: {
+            documentoId: documentoAtualizado.id,
+            acao: 'NEGADO',
+            adminId: req.user!.id,
+            observacao: MOTIVO_NEGACAO,
+          },
+        });
+
+        // Notificação ao despachante sobre a negação com instrução para enviar código
+        try {
+          await createNotification({
+            userId: documentoAtualizado.motorista.despachante.userId,
+            type: 'DOCUMENTO_NEGADO',
+            title: 'Tabela de Dados Negada',
+            message: MOTIVO_NEGACAO,
+            entityType: 'Documento',
+            entityId: documentoAtualizado.id,
+            metadata: {
+              motoristaId: documentoAtualizado.motoristaId,
+              motoristaNome: documentoAtualizado.motorista.nome,
+              tipo: 'DOCUMENTO2',
+              solicitacaoCodigoId: solicitacao.id,
+            },
+          });
+        } catch (notifErr) {
+          console.error('Erro ao notificar despachante (não crítico):', notifErr);
+        }
+      }
+    } catch (docErr) {
+      console.error('Erro ao atualizar/registrar negação automática da Tabela de Dados:', docErr);
+      // Prossegue mesmo se falhar, já que a solicitação foi criada
+    }
+
+    // Log de auditoria da solicitação
+    try {
+      await createAuditLog({
+        userId: req.user!.id,
+        action: AUDIT_ACTIONS.CODIGO_SOLICITAR,
+        entityType: 'SolicitacaoCodigo',
+        entityId: solicitacao.id,
+        entityName: solicitacao.motorista.nome,
+        metadata: {
+          motoristaId,
+          emailDestino: emailDestinoFinal,
+          observacao,
+        },
+      });
+    } catch (auditErr) {
+      console.error('Erro ao registrar audit log (não crítico):', auditErr);
+    }
 
     res.status(201).json({ success: true, solicitacao });
   } catch (err: any) {

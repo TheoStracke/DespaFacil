@@ -180,6 +180,7 @@ enum SolicitacaoCodigoStatus {
   PENDENTE
   ENVIADO
   CANCELADO
+  NEGADO
 }
 
 model SolicitacaoCodigo {
