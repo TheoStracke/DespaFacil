@@ -21,8 +21,10 @@ export async function validateRecaptchaEnterprise(
 
   try {
     // Criar cliente reCAPTCHA Enterprise
+    console.log('[reCAPTCHA Enterprise] Configuração:', { projectID, siteKey: recaptchaKey?.substring(0, 20) + '...' });
     const client = new RecaptchaEnterpriseServiceClient();
     const projectPath = client.projectPath(projectID);
+    console.log('[reCAPTCHA Enterprise] Project path:', projectPath);
 
     // Criar solicitação de avaliação
     const request = {
@@ -37,6 +39,12 @@ export async function validateRecaptchaEnterprise(
 
     console.log('[reCAPTCHA Enterprise] Criando avaliação...');
     const [response] = await client.createAssessment(request);
+    console.log('[reCAPTCHA Enterprise] Resposta recebida:', {
+      valid: response.tokenProperties?.valid,
+      action: response.tokenProperties?.action,
+      score: response.riskAnalysis?.score,
+      invalidReason: response.tokenProperties?.invalidReason,
+    });
 
     // Verificar se o token é válido
     if (!response.tokenProperties?.valid) {

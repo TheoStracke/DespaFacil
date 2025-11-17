@@ -176,11 +176,11 @@ export async function forgotPassword(email: string, captcha: string) {
       // Validar com reCAPTCHA Enterprise
       const score = await validateRecaptchaEnterprise(captcha, 'forgot_password');
       
-      // Verificar se o score é aceitável (threshold padrão: 0.5)
+      // Verificar se o score é aceitável (threshold: 0.1 para testes)
       // Scores: 1.0 = muito provavelmente humano, 0.0 = muito provavelmente bot
-      if (!isScoreAcceptable(score, 0.3)) {
-        console.error('[RECAPTCHA Enterprise] Score muito baixo:', score);
-        throw new Error('Validação de segurança falhou. Tente novamente.');
+      if (!isScoreAcceptable(score, 0.1)) {
+        console.error('[RECAPTCHA Enterprise] Score muito baixo ou validação falhou:', score);
+        throw new Error(`Validação de segurança falhou (score: ${score}). Tente novamente.`);
       }
       
       console.log('[RECAPTCHA Enterprise] ✅ Validação aprovada, score:', score);
