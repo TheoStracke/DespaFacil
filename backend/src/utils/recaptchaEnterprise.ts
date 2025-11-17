@@ -12,7 +12,7 @@ export async function validateRecaptchaEnterprise(
   expectedAction: string
 ): Promise<number | null> {
   const projectID = process.env.RECAPTCHA_PROJECT_ID || 'despafacil';
-  const recaptchaKey = process.env.RECAPTCHA_SITE_KEY || '6LcOeQ8sAAAAAP-zmNIuH0r-J3T24be2bm625etr';
+  const recaptchaKey = process.env.RECAPTCHA_SITE_KEY || '6Leorw8sAAAAADDBLlVQzG0s1vsPwxORDAFtLrLv';
 
   if (!token) {
     console.error('[reCAPTCHA Enterprise] Token ausente');

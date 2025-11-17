@@ -11,7 +11,7 @@ import { useToast } from '@/components/ui/toast';
 import authService from '@/services/auth.service';
 import { RecaptchaWidget } from '@/components/ui/RecaptchaWidget';
 
-const SITEKEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITEKEY || '6LcOeQ8sAAAAAP-zmNIuH0r-J3T24be2bm625etr';
+const SITEKEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITEKEY || '6Leorw8sAAAAADDBLlVQzG0s1vsPwxORDAFtLrLv';
 
 export default function ForgotPasswordPage() {
   const { toast } = useToast();
