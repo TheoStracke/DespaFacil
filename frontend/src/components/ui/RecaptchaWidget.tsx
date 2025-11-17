@@ -12,11 +12,11 @@ export function RecaptchaWidget({ sitekey, onVerify, action = 'submit' }: Recapt
 
   useEffect(() => {
     const loadRecaptcha = () => {
-      if (window.grecaptcha && window.grecaptcha.ready && !executedRef.current) {
+      if (window.grecaptcha && window.grecaptcha.enterprise && window.grecaptcha.enterprise.ready && !executedRef.current) {
         console.log('[reCAPTCHA Enterprise] Iniciando validação...');
-        window.grecaptcha.ready(() => {
+        window.grecaptcha.enterprise.ready(() => {
           console.log('[reCAPTCHA Enterprise] API pronta, executando...');
-          window.grecaptcha.execute(sitekey, { action }).then((token: string) => {
+          window.grecaptcha.enterprise.execute(sitekey, { action }).then((token: string) => {
             console.log('[reCAPTCHA Enterprise] Token gerado, length:', token?.length);
             executedRef.current = true;
             onVerify(token);
