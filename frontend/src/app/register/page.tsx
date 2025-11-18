@@ -17,6 +17,10 @@ import { SolicitarParceiraModal } from '@/components/SolicitarParceiraModal'
 export default function RegisterPage() {
   const router = useRouter()
   const { toast } = useToast()
+  
+  // Modo Manutenção controlado por variável de ambiente
+  const maintenanceMode = process.env.NEXT_PUBLIC_MAINTENANCE_MODE === 'true'
+  
   const [loading, setLoading] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
@@ -134,12 +138,14 @@ export default function RegisterPage() {
     e.preventDefault()
     
     // Bloquear cadastro durante manutenção
-    toast({
-      type: 'error',
-      title: 'Sistema em Manutenção',
-      description: 'Cadastro temporariamente indisponível.',
-    })
-    return
+    if (maintenanceMode) {
+      toast({
+        type: 'error',
+        title: 'Sistema em Manutenção',
+        description: 'Cadastro temporariamente indisponível.',
+      })
+      return
+    }
 
     if (!validate()) {
       toast({
@@ -238,23 +244,25 @@ export default function RegisterPage() {
       }}
     >
       {/* Banner de Manutenção */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md mb-4 relative z-10"
-      >
-        <div className="bg-yellow-500 text-yellow-900 px-6 py-4 rounded-lg shadow-lg border-2 border-yellow-600">
-          <div className="flex items-center gap-3">
-            <svg className="w-6 h-6 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-            </svg>
-            <div>
-              <p className="font-bold text-lg">Sistema em Manutenção</p>
-              <p className="text-sm">Cadastro temporariamente indisponível. Tente novamente em breve.</p>
+      {maintenanceMode && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full max-w-md mb-4 relative z-10"
+        >
+          <div className="bg-yellow-500 text-yellow-900 px-6 py-4 rounded-lg shadow-lg border-2 border-yellow-600">
+            <div className="flex items-center gap-3">
+              <svg className="w-6 h-6 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+              <div>
+                <p className="font-bold text-lg">Sistema em Manutenção</p>
+                <p className="text-sm">Cadastro temporariamente indisponível. Tente novamente em breve.</p>
+              </div>
             </div>
           </div>
-        </div>
-      </motion.div>
+        </motion.div>
+      )}
       
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -296,7 +304,7 @@ export default function RegisterPage() {
                 placeholder="João da Silva"
                 error={errors.name}
                 required
-                disabled={true}
+                disabled={maintenanceMode || loading}
               />
 
               {/* Email */}
@@ -308,7 +316,7 @@ export default function RegisterPage() {
                 placeholder="seuemail@exemplo.com"
                 error={errors.email}
                 required
-                disabled={true}
+                disabled={maintenanceMode || loading}
               />
 
               {/* CNPJ (apenas CNPJ, não aceita email) */}
@@ -326,7 +334,7 @@ export default function RegisterPage() {
                 placeholder="00.000.000/0000-00"
                 error={errors.cnpj}
                 required
-                disabled={true}
+                disabled={maintenanceMode || loading}
                 inputMode="numeric"
                 pattern="\d{2}\.\d{3}\.\d{3}/\d{4}-\d{2}"
                 maxLength={18}
@@ -341,7 +349,7 @@ export default function RegisterPage() {
                 placeholder="(11) 99999-9999"
                 error={errors.telefone}
                 required
-                disabled={true}
+                disabled={maintenanceMode || loading}
               />
 
               {/* Senha */}
@@ -355,7 +363,7 @@ export default function RegisterPage() {
                     placeholder="••••••••"
                     error={errors.password}
                     required
-                    disabled={true}
+                    disabled={maintenanceMode || loading}
                   />
                   <button
                     type="button"
@@ -432,7 +440,7 @@ export default function RegisterPage() {
                   placeholder="••••••••"
                   error={errors.confirmPassword}
                   required
-                  disabled={true}
+                  disabled={maintenanceMode || loading}
                 />
                 <button
                   type="button"
@@ -450,7 +458,7 @@ export default function RegisterPage() {
               </div>
 
               {/* Botão de Cadastro */}
-              <Button type="submit" className="w-full" disabled={true} loading={loading}>
+              <Button type="submit" className="w-full" disabled={maintenanceMode || loading} loading={loading}>
                 <UserPlus className="h-4 w-4 mr-2" />
                 Criar Conta
               </Button>
