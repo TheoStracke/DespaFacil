@@ -19,6 +19,9 @@ export default function LoginPage() {
   // Modo Manutenção controlado por variável de ambiente
   const maintenanceMode = process.env.NEXT_PUBLIC_MAINTENANCE_MODE === 'true'
   
+  // Debug: ver valor da variável
+  console.log('🔧 MAINTENANCE_MODE:', process.env.NEXT_PUBLIC_MAINTENANCE_MODE, '| maintenanceMode:', maintenanceMode)
+  
   const [cnpj, setCnpj] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
