@@ -8,6 +8,8 @@ import { getParceiroStatus } from './parceiroService';
 import { notifyCadastroCriado, notifyPrimeiroLogin } from './emailService';
 import { getAppUrl } from '../utils/appUrl';
 import { validateRecaptchaEnterprise, isScoreAcceptable } from '../utils/recaptchaEnterprise';
+import { render } from '@react-email/render';
+import PasswordResetEmail from '../templates/emails/PasswordResetEmail';
 
 const BCRYPT_ROUNDS = parseInt(process.env.BCRYPT_SALT_ROUNDS || '12', 10);
 const JWT_SECRET: Secret = (process.env.JWT_SECRET || 'secret') as Secret;
@@ -200,20 +202,13 @@ export async function forgotPassword(email: string, captcha: string) {
 
   const resetToken = jwt.sign({ sub: user.id }, JWT_SECRET, { expiresIn: '1h' } as SignOptions);
 
+  const resetUrl = `${getAppUrl()}/reset-password?token=${resetToken}`;
+  const emailHtml = await render(PasswordResetEmail({ name: user.name, resetUrl }));
+
   await sendEmail({
     to: email,
     subject: 'Redefinição de senha - DespaFacil',
-    html: `
-      <h2>Redefinição de senha</h2>
-      <p>Você solicitou a redefinição de senha.</p>
-      <p>Clique no link abaixo para redefinir sua senha. Se você não solicitou, ignore este email.</p>
-      <p>
-        <a href="${getAppUrl()}/reset-password?token=${resetToken}" target="_blank" rel="noopener noreferrer">
-          Redefinir minha senha
-        </a>
-      </p>
-      <p>Este link expira em 1 hora.</p>
-    `,
+    html: emailHtml,
   });
 }
 

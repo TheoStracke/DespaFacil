@@ -1,4 +1,9 @@
 import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
+
+// Tentar Resend primeiro (API HTTP), fallback para SMTP
+const useResend = process.env.RESEND_API_KEY && process.env.RESEND_API_KEY.length > 0;
+const resend = useResend ? new Resend(process.env.RESEND_API_KEY) : null;
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'smtp.gmail.com',
@@ -33,6 +38,7 @@ export async function sendEmail(options: EmailOptions) {
   const from = process.env.SMTP_USER;
   
   console.log('📧 Tentando enviar email...');
+  console.log('   Método:', useResend ? 'Resend API' : 'SMTP');
   console.log('   De:', from);
   console.log('   Para:', options.to);
   console.log('   CC:', options.cc);
@@ -45,6 +51,23 @@ export async function sendEmail(options: EmailOptions) {
   }
   
   try {
+    // Tentar Resend primeiro (funciona melhor no Railway)
+    if (resend && !options.attachments) {
+      console.log('🚀 Usando Resend API...');
+      const result = await resend.emails.send({
+        from: `DespaFacil <onboarding@resend.dev>`, // Resend requer domínio verificado ou usa sandbox
+        to: options.to,
+        subject: options.subject,
+        html: options.html || options.text || '',
+      });
+      
+      console.log('✅ Email enviado via Resend!');
+      console.log('   ID:', result.data?.id);
+      return result;
+    }
+    
+    // Fallback para SMTP (Gmail)
+    console.log('📮 Usando SMTP tradicional...');
     const info = await transporter.sendMail({
       from,
       to: options.to,
