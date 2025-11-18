@@ -78,6 +78,10 @@ export default function LoginPage() {
   // Submit do formulário
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
+    
+    // Bloquear login durante manutenção
+    toast.error('Sistema em manutenção. Login temporariamente indisponível.')
+    return
 
     if (!validate()) {
       toast.error('Por favor, corrija os erros no formulário')
@@ -110,7 +114,7 @@ export default function LoginPage() {
 
   return (
     <div 
-      className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
+      className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden"
       style={{
         backgroundImage: 'url(/ui/background.png)',
         backgroundSize: 'cover',
@@ -118,6 +122,24 @@ export default function LoginPage() {
         backgroundRepeat: 'no-repeat'
       }}
     >
+      {/* Banner de Manutenção */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-md mb-4 relative z-10"
+      >
+        <div className="bg-yellow-500 text-yellow-900 px-6 py-4 rounded-lg shadow-lg border-2 border-yellow-600">
+          <div className="flex items-center gap-3">
+            <svg className="w-6 h-6 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            <div>
+              <p className="font-bold text-lg">Sistema em Manutenção</p>
+              <p className="text-sm">Login temporariamente indisponível. Tente novamente em breve.</p>
+            </div>
+          </div>
+        </div>
+      </motion.div>
       
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -151,7 +173,7 @@ export default function LoginPage() {
                 placeholder="email@exemplo.com ou 00.000.000/0000-00"
                 error={errors.cnpj}
                 required
-                disabled={loading}
+                disabled={true}
                 autoFocus
                 autoComplete="username"
               />
@@ -171,7 +193,7 @@ export default function LoginPage() {
                   placeholder="••••••••"
                   error={errors.password}
                   required
-                  disabled={loading}
+                  disabled={true}
                 />
                 <button
                   type="button"
@@ -206,7 +228,7 @@ export default function LoginPage() {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={loading}
+                disabled={true}
                 loading={loading}
               >
                 {loading ? (
@@ -227,9 +249,9 @@ export default function LoginPage() {
                 Não tem uma conta?{' '}
                 <button
                   type="button"
-                  onClick={() => router.push('/register')}
-                  className="text-primary font-medium hover:underline focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
-                  disabled={loading}
+                  onClick={() => toast.error('Cadastro temporariamente indisponível durante manutenção.')}
+                  className="text-gray-400 font-medium cursor-not-allowed"
+                  disabled={true}
                 >
                   Cadastre-se
                 </button>
