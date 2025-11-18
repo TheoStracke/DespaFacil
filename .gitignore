@@ -6,6 +6,9 @@ node_modules/
 **/.env
 backend/.env
 frontend/.env
+recaptcha-key.json
+**/recaptcha-key.json
+format-credentials.js
 
 # Logs & reports
 *.log

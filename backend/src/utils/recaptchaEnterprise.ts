@@ -42,6 +42,7 @@ async function validateViaRestAPI(
 ): Promise<number | null> {
   try {
     console.log('[reCAPTCHA Enterprise REST] Iniciando validação...');
+    console.log('[reCAPTCHA Enterprise REST] GOOGLE_APPLICATION_CREDENTIALS:', process.env.GOOGLE_APPLICATION_CREDENTIALS);
     
     // Obter access token do Google Cloud
     const { GoogleAuth } = require('google-auth-library');
@@ -49,7 +50,9 @@ async function validateViaRestAPI(
       scopes: ['https://www.googleapis.com/auth/cloud-platform'],
     });
     
+    console.log('[reCAPTCHA Enterprise REST] GoogleAuth criado, obtendo client...');
     const client = await auth.getClient();
+    console.log('[reCAPTCHA Enterprise REST] Client obtido, obtendo access token...');
     const accessToken = await client.getAccessToken();
     
     if (!accessToken.token) {
@@ -84,7 +87,14 @@ async function validateViaRestAPI(
 
     // Validar resposta
     if (!response.data.tokenProperties?.valid) {
-      console.error('[reCAPTCHA Enterprise REST] Token inválido:', response.data.tokenProperties?.invalidReason);
+      const reason = response.data.tokenProperties?.invalidReason;
+      console.error('[reCAPTCHA Enterprise REST] Token inválido:', reason);
+      
+      // Retornar mensagem mais específica para token expirado
+      if (reason === 'EXPIRED') {
+        throw new Error('Token de segurança expirado. Recarregue a página e tente novamente.');
+      }
+      
       return null;
     }
 

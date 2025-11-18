@@ -54,18 +54,28 @@ export async function sendEmail(options: EmailOptions) {
     // Tentar Postmark primeiro (funciona melhor no Railway)
     if (postmark && !options.attachments) {
       console.log('🚀 Usando Postmark API...');
-      const result = await postmark.sendEmail({
-        From: from || 'noreply@despafacil.com',
-        To: options.to,
-        Subject: options.subject,
-        HtmlBody: options.html || '',
-        TextBody: options.text || '',
-        MessageStream: 'outbound',
-      });
-      
-      console.log('✅ Email enviado via Postmark!');
-      console.log('   MessageID:', result.MessageID);
-      return result;
+      try {
+        const result = await postmark.sendEmail({
+          From: from || 'noreply@despafacil.com',
+          To: options.to,
+          Subject: options.subject,
+          HtmlBody: options.html || '',
+          TextBody: options.text || '',
+          MessageStream: 'outbound',
+        });
+        
+        console.log('✅ Email enviado via Postmark!');
+        console.log('   MessageID:', result.MessageID);
+        return result;
+      } catch (postmarkError: any) {
+        // Se falhar por conta pendente (code 412), tentar SMTP
+        if (postmarkError.code === 412) {
+          console.warn('⚠️  Postmark em modo sandbox, tentando SMTP fallback...');
+        } else {
+          console.error('❌ Postmark falhou:', postmarkError.message);
+          throw postmarkError;
+        }
+      }
     }
     
     // Fallback para SMTP (Gmail)
