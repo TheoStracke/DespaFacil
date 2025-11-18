@@ -1,9 +1,9 @@
 import nodemailer from 'nodemailer';
-import { Resend } from 'resend';
+import { ServerClient } from 'postmark';
 
-// Tentar Resend primeiro (API HTTP), fallback para SMTP
-const useResend = process.env.RESEND_API_KEY && process.env.RESEND_API_KEY.length > 0;
-const resend = useResend ? new Resend(process.env.RESEND_API_KEY) : null;
+// Tentar Postmark primeiro (API HTTP), fallback para SMTP
+const usePostmark = process.env.POSTMARK_API_TOKEN && process.env.POSTMARK_API_TOKEN.length > 0;
+const postmark = usePostmark ? new ServerClient(process.env.POSTMARK_API_TOKEN!) : null;
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'smtp.gmail.com',
@@ -38,7 +38,7 @@ export async function sendEmail(options: EmailOptions) {
   const from = process.env.SMTP_USER;
   
   console.log('📧 Tentando enviar email...');
-  console.log('   Método:', useResend ? 'Resend API' : 'SMTP');
+  console.log('   Método:', usePostmark ? 'Postmark API' : 'SMTP');
   console.log('   De:', from);
   console.log('   Para:', options.to);
   console.log('   CC:', options.cc);
@@ -51,18 +51,20 @@ export async function sendEmail(options: EmailOptions) {
   }
   
   try {
-    // Tentar Resend primeiro (funciona melhor no Railway)
-    if (resend && !options.attachments) {
-      console.log('🚀 Usando Resend API...');
-      const result = await resend.emails.send({
-        from: `DespaFacil <onboarding@resend.dev>`, // Resend requer domínio verificado ou usa sandbox
-        to: options.to,
-        subject: options.subject,
-        html: options.html || options.text || '',
+    // Tentar Postmark primeiro (funciona melhor no Railway)
+    if (postmark && !options.attachments) {
+      console.log('🚀 Usando Postmark API...');
+      const result = await postmark.sendEmail({
+        From: from || 'noreply@despafacil.com',
+        To: options.to,
+        Subject: options.subject,
+        HtmlBody: options.html || '',
+        TextBody: options.text || '',
+        MessageStream: 'outbound',
       });
       
-      console.log('✅ Email enviado via Resend!');
-      console.log('   ID:', result.data?.id);
+      console.log('✅ Email enviado via Postmark!');
+      console.log('   MessageID:', result.MessageID);
       return result;
     }
     
