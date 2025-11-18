@@ -12,26 +12,52 @@ import path from 'path';
       const targetPath = process.env.GOOGLE_APPLICATION_CREDENTIALS_PATH || path.join('/tmp', 'recaptcha-key.json');
       const jsonEnv = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON as string;
       let content = jsonEnv;
+      
+      console.log('[Google Credentials] Processing credentials JSON...');
+      
       // Try parse as JSON; if fails, try base64 decode; else write raw
       try {
         const parsed = JSON.parse(jsonEnv);
-        content = JSON.stringify(parsed);
-      } catch {
+        // Ensure private_key has proper line breaks (\n should become actual newlines)
+        if (parsed.private_key && typeof parsed.private_key === 'string') {
+          // Replace literal \n with actual newlines
+          parsed.private_key = parsed.private_key.replace(/\\n/g, '\n');
+          console.log('[Google Credentials] Private key format normalized');
+        }
+        content = JSON.stringify(parsed, null, 2); // Pretty print for readability
+      } catch (parseErr: any) {
+        console.warn('[Google Credentials] JSON parse failed, trying base64:', parseErr.message);
         try {
           const decoded = Buffer.from(jsonEnv, 'base64').toString('utf8');
-          // Validate decoded is JSON
-          JSON.parse(decoded);
-          content = decoded;
-        } catch {
+          const parsed = JSON.parse(decoded);
+          if (parsed.private_key && typeof parsed.private_key === 'string') {
+            parsed.private_key = parsed.private_key.replace(/\\n/g, '\n');
+          }
+          content = JSON.stringify(parsed, null, 2);
+        } catch (base64Err: any) {
+          console.warn('[Google Credentials] Base64 decode failed, using raw:', base64Err.message);
           // keep original content
         }
       }
+      
       fs.writeFileSync(targetPath, content, { encoding: 'utf8' });
       process.env.GOOGLE_APPLICATION_CREDENTIALS = targetPath;
       console.log('🔐 GOOGLE_APPLICATION_CREDENTIALS configured from JSON env at', targetPath);
+      
+      // Validate the file was written correctly
+      try {
+        const verification = JSON.parse(fs.readFileSync(targetPath, 'utf8'));
+        console.log('[Google Credentials] Verification: project_id =', verification.project_id);
+        console.log('[Google Credentials] Verification: client_email =', verification.client_email);
+        const keyPreview = verification.private_key ? verification.private_key.substring(0, 50) : 'MISSING';
+        console.log('[Google Credentials] Verification: private_key preview =', keyPreview + '...');
+      } catch (verifyErr: any) {
+        console.error('[Google Credentials] Verification failed:', verifyErr.message);
+      }
     }
   } catch (e: any) {
-    console.error('Failed to configure GOOGLE_APPLICATION_CREDENTIALS:', e?.message || e);
+    console.error('❌ Failed to configure GOOGLE_APPLICATION_CREDENTIALS:', e?.message || e);
+    console.error('Stack:', e?.stack);
   }
 })();
 

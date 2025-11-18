@@ -22,7 +22,8 @@ const app = express();
 
 // Confiar em proxies (Railway, Vercel, Cloudflare, etc)
 // Isso permite que req.ip pegue o IP real do X-Forwarded-For
-app.set('trust proxy', true);
+// Trust only the first proxy to prevent IP spoofing
+app.set('trust proxy', 1);
 
 // Middlewares globais
 app.use(helmet());
@@ -64,9 +65,6 @@ const apiLimiter = rateLimit({
   max: 1000,
   standardHeaders: true,
   legacyHeaders: false,
-  // Trust X-Forwarded-For header from proxies (Railway, Cloudflare, etc)
-  // Only trusts first proxy in chain to prevent IP spoofing
-  skip: (req) => !req.ip, // Skip if no IP detected
 });
 app.use('/api', apiLimiter);
 
@@ -77,8 +75,6 @@ const loginLimiter = rateLimit({
   message: { success: false, message: 'Muitas tentativas de login. Tente novamente mais tarde.' },
   standardHeaders: true,
   legacyHeaders: false,
-  // Trust X-Forwarded-For header from proxies
-  skip: (req) => !req.ip,
 });
 app.use('/api/auth/login', loginLimiter);
 
