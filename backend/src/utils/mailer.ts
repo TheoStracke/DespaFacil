@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer';
 import { ServerClient } from 'postmark';
 import { Resend } from 'resend';
+import type { CreateEmailOptions } from 'resend';
 
 // Providers (prioridade: Resend -> Postmark -> SMTP)
 const useResend = process.env.RESEND_API_KEY && process.env.RESEND_API_KEY.length > 0;
@@ -60,13 +61,21 @@ export async function sendEmail(options: EmailOptions) {
     if (resend) {
       console.log('🚀 Usando Resend API...');
       try {
-        const resendResult = await resend.emails.send({
-          from,
-          to: options.to,
-          subject: options.subject,
-          html: options.html,
-          text: options.text,
-        });
+        const payload: CreateEmailOptions = options.html
+          ? {
+              from,
+              to: options.to,
+              subject: options.subject,
+              html: options.html,
+            }
+          : {
+              from,
+              to: options.to,
+              subject: options.subject,
+              text: options.text || ' ',
+            };
+
+        const resendResult = await resend.emails.send(payload);
         if ((resendResult as any)?.id) {
           console.log('✅ Email enviado via Resend!');
           console.log('   ID:', (resendResult as any).id);
