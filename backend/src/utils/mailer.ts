@@ -76,14 +76,23 @@ export async function sendEmail(options: EmailOptions) {
             };
 
         const resendResult = await resend.emails.send(payload);
-        if ((resendResult as any)?.id) {
+        console.log('📦 Resend result:', JSON.stringify(resendResult, null, 2));
+        
+        if ((resendResult as any)?.data?.id) {
           console.log('✅ Email enviado via Resend!');
-          console.log('   ID:', (resendResult as any).id);
+          console.log('   ID:', (resendResult as any).data.id);
           return resendResult;
         }
-        console.warn('⚠️ Resend não retornou ID, seguindo para fallback...');
+        
+        if ((resendResult as any)?.error) {
+          console.error('❌ Resend retornou erro:', (resendResult as any).error);
+          throw new Error(`Resend error: ${JSON.stringify((resendResult as any).error)}`);
+        }
+        
+        console.warn('⚠️ Resend resposta inesperada, seguindo para fallback...');
       } catch (resendErr: any) {
         console.error('❌ Resend falhou:', resendErr.message);
+        console.error('   Stack:', resendErr.stack);
       }
     }
 
