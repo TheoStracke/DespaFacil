@@ -26,13 +26,23 @@ export default function ForgotPasswordPage() {
       toast({ type: 'error', title: 'Informe seu email' });
       return;
     }
-    if (!captcha) {
+    // Gera um token FRESCO no submit para evitar expiração após deploy/tempo ocioso
+    let tokenToUse: string | null = null;
+    try {
+      if (typeof window !== 'undefined' && (window as any).grecaptcha?.enterprise?.execute) {
+        tokenToUse = await (window as any).grecaptcha.enterprise.execute(SITEKEY, { action: 'forgot_password' });
+        setCaptcha(tokenToUse);
+      }
+    } catch (_) {
+      // Ignora, usaremos o token já existente se houver
+    }
+    if (!tokenToUse && !captcha) {
       toast({ type: 'error', title: 'Aguarde a validação do captcha...' });
       return;
     }
     setLoading(true);
     try {
-      const res = await authService.forgotPassword(email.trim(), captcha);
+      const res = await authService.forgotPassword(email.trim(), tokenToUse || (captcha as string));
       if (res.success) {
         toast({ type: 'success', title: 'Se existir uma conta, enviaremos um email com instruções.' });
       } else {
