@@ -1,0 +1,12 @@
+[phases.setup]
+nixPkgs = ['nodejs-20_x', 'npm', 'openssl']
+
+[phases.build]
+cmds = [
+  'npm install',
+  'npm run build',
+  'PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1 npx prisma generate'
+]
+
+[start]
+cmd = 'npx prisma migrate deploy && npm start'
