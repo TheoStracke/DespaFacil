@@ -37,6 +37,8 @@ export interface EmailOptions {
     content?: Buffer;
     contentType?: string;
   }>;
+  template?: string; // Resend template name or id
+  variables?: Record<string, any>; // Variables for the template
 }
 
 export async function sendEmail(options: EmailOptions) {
@@ -61,19 +63,31 @@ export async function sendEmail(options: EmailOptions) {
     if (resend) {
       console.log('🚀 Usando Resend API...');
       try {
-        const payload: CreateEmailOptions = options.html
-          ? {
-              from,
-              to: options.to,
-              subject: options.subject,
-              html: options.html,
-            }
-          : {
-              from,
-              to: options.to,
-              subject: options.subject,
-              text: options.text || ' ',
-            };
+        let payload: CreateEmailOptions;
+        if (options.template) {
+          payload = {
+            from,
+            to: options.to,
+            subject: options.subject,
+            template: options.template,
+            // Resend expects variables as 'variables' or 'params' depending on SDK version
+            ...(options.variables ? { variables: options.variables } : {}),
+          } as any;
+        } else if (options.html) {
+          payload = {
+            from,
+            to: options.to,
+            subject: options.subject,
+            html: options.html,
+          };
+        } else {
+          payload = {
+            from,
+            to: options.to,
+            subject: options.subject,
+            text: options.text || ' ',
+          };
+        }
 
         const resendResult = await resend.emails.send(payload);
         console.log('📦 Resend result:', JSON.stringify(resendResult, null, 2));
