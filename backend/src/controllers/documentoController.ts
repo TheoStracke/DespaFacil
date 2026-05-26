@@ -9,6 +9,7 @@ import path from 'path';
 import archiver from 'archiver';
 import { createAuditLog, AUDIT_ACTIONS } from '../services/auditLogService';
 import { createNotification, NOTIFICATION_TYPES } from '../services/notificationService';
+import { isAzureProvider, getAzureReadStream } from '../utils/azureStorage';
 
 export async function upload(req: AuthRequest, res: Response) {
   try {
@@ -175,12 +176,7 @@ export async function viewDocumento(req: AuthRequest, res: Response) {
       }
     }
 
-    // Verificar se o arquivo existe
-    if (!fs.existsSync(documento.path)) {
-      return res.status(404).json({ success: false, error: 'Arquivo não encontrado no servidor' });
-    }
-
-    // Definir headers para visualização inline
+    // Definir MIME type para visualização inline
     const mimeTypes: Record<string, string> = {
       '.pdf': 'application/pdf',
       '.jpg': 'image/jpeg',
@@ -199,21 +195,34 @@ export async function viewDocumento(req: AuthRequest, res: Response) {
     const ext = documento.filename.substring(documento.filename.lastIndexOf('.')).toLowerCase();
     const mimeType = mimeTypes[ext] || 'application/octet-stream';
 
-    // Configurar headers para inline display
     res.setHeader('Content-Type', mimeType);
     res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(documento.originalName)}"`);
     res.setHeader('Cache-Control', 'no-cache');
-    
-    // Ler e enviar arquivo
-    const fileStream = fs.createReadStream(documento.path);
-    fileStream.pipe(res);
-    
-    fileStream.on('error', (error) => {
-      console.error('Erro ao ler arquivo:', error);
-      if (!res.headersSent) {
-        res.status(500).json({ success: false, error: 'Erro ao ler arquivo' });
+
+    if (isAzureProvider()) {
+      // Azure: stream direto do Blob Storage
+      const azureStream = await getAzureReadStream(documento.path);
+      azureStream.pipe(res);
+      azureStream.on('error', (error) => {
+        console.error('Erro ao ler blob Azure:', error);
+        if (!res.headersSent) {
+          res.status(500).json({ success: false, error: 'Erro ao ler arquivo' });
+        }
+      });
+    } else {
+      // Local: verificar existência e fazer stream do disco
+      if (!fs.existsSync(documento.path)) {
+        return res.status(404).json({ success: false, error: 'Arquivo não encontrado no servidor' });
       }
-    });
+      const fileStream = fs.createReadStream(documento.path);
+      fileStream.pipe(res);
+      fileStream.on('error', (error) => {
+        console.error('Erro ao ler arquivo:', error);
+        if (!res.headersSent) {
+          res.status(500).json({ success: false, error: 'Erro ao ler arquivo' });
+        }
+      });
+    }
   } catch (err: any) {
     console.error('Erro em viewDocumento:', err);
     if (!res.headersSent) {
@@ -357,7 +366,20 @@ export async function downloadDocumento(req: AuthRequest, res: Response) {
       }
     }
 
-    res.download(documento.path, documento.filename);
+    if (isAzureProvider()) {
+      res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(documento.filename)}"`);
+      res.setHeader('Content-Type', 'application/octet-stream');
+      const azureStream = await getAzureReadStream(documento.path);
+      azureStream.pipe(res);
+      azureStream.on('error', (error) => {
+        console.error('Erro ao baixar blob Azure:', error);
+        if (!res.headersSent) {
+          res.status(500).json({ success: false, error: 'Erro ao baixar arquivo' });
+        }
+      });
+    } else {
+      res.download(documento.path, documento.filename);
+    }
   } catch (err: any) {
     res.status(400).json({ success: false, error: err.message });
   }
@@ -390,9 +412,16 @@ export async function downloadZipMotorista(req: AuthRequest, res: Response) {
     // Pipe para resposta
     archive.pipe(res);
 
-    // Adicionar arquivos
-    for (const f of files) {
-      archive.file(f.path, { name: f.name });
+    // Adicionar arquivos (local ou Azure)
+    if (isAzureProvider()) {
+      for (const f of files) {
+        const stream = await getAzureReadStream(f.path);
+        archive.append(stream, { name: f.name });
+      }
+    } else {
+      for (const f of files) {
+        archive.file(f.path, { name: f.name });
+      }
     }
 
     await archive.finalize();

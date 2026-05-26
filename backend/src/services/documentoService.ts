@@ -3,6 +3,7 @@ import { sendEmail } from '../utils/mailer';
 import path from 'path';
 import fs from 'fs';
 import { getAppUrl } from '../utils/appUrl';
+import { isAzureProvider, deleteFromAzure } from '../utils/azureStorage';
 
 export async function uploadDocumento(
   motoristaId: string,
@@ -50,9 +51,11 @@ export async function uploadDocumento(
   });
 
   if (existingDoc) {
-    // Remover arquivo antigo
+    // Remover arquivo antigo (local ou Azure)
     try {
-      if (fs.existsSync(existingDoc.path)) {
+      if (isAzureProvider()) {
+        await deleteFromAzure(existingDoc.path);
+      } else if (fs.existsSync(existingDoc.path)) {
         fs.unlinkSync(existingDoc.path);
       }
     } catch (err) {

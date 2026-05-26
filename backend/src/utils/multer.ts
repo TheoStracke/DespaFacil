@@ -1,6 +1,8 @@
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { Request, Response, NextFunction } from 'express';
+import { uploadToAzure } from './azureStorage';
 
 // Optional S3 deps loaded lazily to avoid build-time errors when not used
 let multerS3: any = null;
@@ -30,7 +32,10 @@ function buildFileName(original: string) {
 const provider = (process.env.STORAGE_PROVIDER || 'local').toLowerCase();
 
 let storage: multer.StorageEngine;
-if (provider === 's3') {
+if (provider === 'azure') {
+  // Azure: buffer em memória; o middleware azureUploadMiddleware faz o upload real
+  storage = multer.memoryStorage();
+} else if (provider === 's3') {
   if (!multerS3 || !S3ClientCtor) {
     throw new Error('STORAGE_PROVIDER=s3, mas as dependências não foram instaladas. Instale @aws-sdk/client-s3 e multer-s3.');
   }
@@ -133,20 +138,51 @@ export const upload = multer({
   fileFilter: (req: Express.Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
     const fileMimeType = file.mimetype.toLowerCase();
     const fileExtension = path.extname(file.originalname).toLowerCase();
-    
+
     // Aceitar se o MIME type está correto OU se a extensão está correta
     const isValidType = normalizedTypes.includes(fileMimeType);
     const isValidExtension = allowedExtensions.includes(fileExtension);
-    
+
     if (!isValidType && !isValidExtension) {
       console.log(`Arquivo rejeitado - MIME type: ${fileMimeType}, Extensão: ${fileExtension}`);
       console.log(`Tipos permitidos: ${normalizedTypes.join(', ')}`);
       return cb(new Error('Tipo de arquivo não permitido. Use PDF, imagens, planilhas (XLS, XLSX, CSV, ODS) ou documentos Word (DOC, DOCX).'));
     }
-    
+
     console.log(`Arquivo aceito - MIME type: ${fileMimeType}, Extensão: ${fileExtension}`);
     cb(null, true);
   },
 });
+
+/**
+ * Middleware para upload no Azure Blob Storage.
+ * Deve ser usado APÓS o middleware `upload` nas rotas quando STORAGE_PROVIDER=azure.
+ *
+ * Faz o upload do buffer para o Azure e preenche req.file.filename e req.file.path
+ * com o nome do blob — mantendo compatibilidade com o restante da aplicação.
+ *
+ * Em outros providers (local, s3) é um no-op.
+ */
+export async function azureUploadMiddleware(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  if (provider !== 'azure' || !req.file) {
+    return next();
+  }
+
+  try {
+    const blobName = buildFileName(req.file.originalname);
+    await uploadToAzure(req.file.buffer, blobName, req.file.mimetype);
+
+    // Preencher campos que o diskStorage preencheria automaticamente
+    req.file.filename = blobName;
+    (req.file as any).path = blobName; // blob name usado como "path" no banco
+    next();
+  } catch (err: any) {
+    next(err);
+  }
+}
 
 export default upload;

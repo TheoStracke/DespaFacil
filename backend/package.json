@@ -26,6 +26,7 @@
     "cleanup:negados": "node scripts/cleanup-negados.js"
   },
   "dependencies": {
+    "@azure/storage-blob": "^12.27.0",
     "@google-cloud/recaptcha-enterprise": "^6.3.1",
     "@prisma/client": "^5.22.0",
     "@react-email/components": "^1.0.1",
