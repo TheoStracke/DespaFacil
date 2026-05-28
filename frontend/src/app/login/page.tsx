@@ -31,11 +31,10 @@ export default function LoginPage() {
 
   // Aplicar máscara ao digitar CNPJ (se for email, não aplica máscara)
   const handleCnpjChange = (value: string) => {
-    // Se contém @ é email, não aplica máscara
-    if (value.includes('@')) {
+    // Se contém @ ou começa com letra, é email — não aplica máscara
+    if (value.includes('@') || /^[a-zA-Z]/.test(value)) {
       setCnpj(value)
     } else {
-      // Se não contém @, aplica máscara de CNPJ
       setCnpj(maskCNPJ(value))
     }
     if (errors.cnpj) {
