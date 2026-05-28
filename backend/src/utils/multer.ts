@@ -29,6 +29,43 @@ function buildFileName(original: string) {
 
 const provider = (process.env.STORAGE_PROVIDER || 'local').toLowerCase();
 
+// Azure Blob Storage custom multer engine
+class AzureBlobStorage implements multer.StorageEngine {
+  private containerClient: any;
+
+  constructor() {
+    const { ContainerClient } = require('@azure/storage-blob');
+    const sasUrl = process.env.AZURE_STORAGE_SAS_URL;
+    if (!sasUrl) {
+      throw new Error('STORAGE_PROVIDER=azure mas AZURE_STORAGE_SAS_URL não foi definido.');
+    }
+    this.containerClient = new ContainerClient(sasUrl);
+  }
+
+  _handleFile(req: Express.Request, file: Express.Multer.File, cb: (error?: any, info?: Partial<Express.Multer.File>) => void) {
+    const blobName = buildFileName(file.originalname);
+    const blockBlobClient = this.containerClient.getBlockBlobClient(blobName);
+
+    blockBlobClient
+      .uploadStream(file.stream, undefined, undefined, {
+        blobHTTPHeaders: { blobContentType: file.mimetype },
+      })
+      .then((result: any) => {
+        cb(null, {
+          filename: blobName,
+          path: blockBlobClient.url.split('?')[0], // URL sem SAS token — usamos a SAS no download
+          size: result.contentLength,
+        } as any);
+      })
+      .catch((err: any) => cb(err));
+  }
+
+  _removeFile(req: Express.Request, file: Express.Multer.File & { filename: string }, cb: (error: Error | null) => void) {
+    const blockBlobClient = this.containerClient.getBlockBlobClient(file.filename);
+    blockBlobClient.delete().then(() => cb(null)).catch(cb);
+  }
+}
+
 let storage: multer.StorageEngine;
 if (provider === 's3') {
   if (!multerS3 || !S3ClientCtor) {
@@ -56,6 +93,8 @@ if (provider === 's3') {
       cb(null, { fieldName: file.fieldname });
     },
   });
+} else if (provider === 'azure') {
+  storage = new AzureBlobStorage();
 } else {
   // local disk (default)
   const disk = multer.diskStorage({
@@ -81,7 +120,7 @@ const maxSize = parseInt(process.env.MAX_UPLOAD_SIZE || '10485760', 10);
 
 // Lista completa de tipos permitidos com todas as variações de MIME types
 const allowedTypes = (
-  process.env.ALLOWED_FILE_TYPES || 
+  process.env.ALLOWED_FILE_TYPES ||
   [
     // PDFs
     'application/pdf',
@@ -133,17 +172,17 @@ export const upload = multer({
   fileFilter: (req: Express.Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
     const fileMimeType = file.mimetype.toLowerCase();
     const fileExtension = path.extname(file.originalname).toLowerCase();
-    
+
     // Aceitar se o MIME type está correto OU se a extensão está correta
     const isValidType = normalizedTypes.includes(fileMimeType);
     const isValidExtension = allowedExtensions.includes(fileExtension);
-    
+
     if (!isValidType && !isValidExtension) {
       console.log(`Arquivo rejeitado - MIME type: ${fileMimeType}, Extensão: ${fileExtension}`);
       console.log(`Tipos permitidos: ${normalizedTypes.join(', ')}`);
       return cb(new Error('Tipo de arquivo não permitido. Use PDF, imagens, planilhas (XLS, XLSX, CSV, ODS) ou documentos Word (DOC, DOCX).'));
     }
-    
+
     console.log(`Arquivo aceito - MIME type: ${fileMimeType}, Extensão: ${fileExtension}`);
     cb(null, true);
   },

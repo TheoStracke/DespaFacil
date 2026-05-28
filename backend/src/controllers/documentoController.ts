@@ -5,10 +5,53 @@ import * as XLSX from 'xlsx';
 import prisma from '../prisma/client';
 import fs from 'fs';
 import path from 'path';
+import https from 'https';
+import http from 'http';
 // @ts-ignore - tipos opcionais para archiver
 import archiver from 'archiver';
 import { createAuditLog, AUDIT_ACTIONS } from '../services/auditLogService';
 import { createNotification, NOTIFICATION_TYPES } from '../services/notificationService';
+
+function isRemoteUrl(filePath: string) {
+  return filePath.startsWith('http://') || filePath.startsWith('https://');
+}
+
+// Para Azure, o blob é privado — adiciona o SAS token na URL para download
+function buildDownloadUrl(blobUrl: string) {
+  const sasToken = process.env.AZURE_STORAGE_SAS_TOKEN;
+  if (sasToken && blobUrl.startsWith('https://') && !blobUrl.includes('?')) {
+    return `${blobUrl}?${sasToken}`;
+  }
+  return blobUrl;
+}
+
+function streamRemoteFile(url: string, res: Response) {
+  const client = url.startsWith('https://') ? https : http;
+  client.get(url, (remoteRes) => {
+    if (remoteRes.statusCode && remoteRes.statusCode >= 400) {
+      res.status(404).json({ success: false, error: 'Arquivo não encontrado no storage' });
+      return;
+    }
+    remoteRes.pipe(res);
+  }).on('error', (err) => {
+    console.error('Erro ao buscar arquivo remoto:', err);
+    if (!res.headersSent) {
+      res.status(500).json({ success: false, error: 'Erro ao buscar arquivo' });
+    }
+  });
+}
+
+function fetchRemoteBuffer(url: string): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    const client = url.startsWith('https://') ? https : http;
+    client.get(url, (res) => {
+      const chunks: Buffer[] = [];
+      res.on('data', (chunk) => chunks.push(chunk));
+      res.on('end', () => resolve(Buffer.concat(chunks)));
+      res.on('error', reject);
+    }).on('error', reject);
+  });
+}
 
 export async function upload(req: AuthRequest, res: Response) {
   try {
@@ -175,11 +218,6 @@ export async function viewDocumento(req: AuthRequest, res: Response) {
       }
     }
 
-    // Verificar se o arquivo existe
-    if (!fs.existsSync(documento.path)) {
-      return res.status(404).json({ success: false, error: 'Arquivo não encontrado no servidor' });
-    }
-
     // Definir headers para visualização inline
     const mimeTypes: Record<string, string> = {
       '.pdf': 'application/pdf',
@@ -199,15 +237,22 @@ export async function viewDocumento(req: AuthRequest, res: Response) {
     const ext = documento.filename.substring(documento.filename.lastIndexOf('.')).toLowerCase();
     const mimeType = mimeTypes[ext] || 'application/octet-stream';
 
-    // Configurar headers para inline display
     res.setHeader('Content-Type', mimeType);
     res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(documento.originalName)}"`);
     res.setHeader('Cache-Control', 'no-cache');
-    
-    // Ler e enviar arquivo
+
+    if (isRemoteUrl(documento.path)) {
+      streamRemoteFile(buildDownloadUrl(documento.path), res);
+      return;
+    }
+
+    // Arquivo local
+    if (!fs.existsSync(documento.path)) {
+      return res.status(404).json({ success: false, error: 'Arquivo não encontrado no servidor' });
+    }
+
     const fileStream = fs.createReadStream(documento.path);
     fileStream.pipe(res);
-    
     fileStream.on('error', (error) => {
       console.error('Erro ao ler arquivo:', error);
       if (!res.headersSent) {
@@ -357,6 +402,11 @@ export async function downloadDocumento(req: AuthRequest, res: Response) {
       }
     }
 
+    if (isRemoteUrl(documento.path)) {
+      res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(documento.filename)}"`);
+      streamRemoteFile(buildDownloadUrl(documento.path), res);
+      return;
+    }
     res.download(documento.path, documento.filename);
   } catch (err: any) {
     res.status(400).json({ success: false, error: err.message });
@@ -392,7 +442,12 @@ export async function downloadZipMotorista(req: AuthRequest, res: Response) {
 
     // Adicionar arquivos
     for (const f of files) {
-      archive.file(f.path, { name: f.name });
+      if (isRemoteUrl(f.path)) {
+        const buffer = await fetchRemoteBuffer(buildDownloadUrl(f.path));
+        archive.append(buffer, { name: f.name });
+      } else {
+        archive.file(f.path, { name: f.name });
+      }
     }
 
     await archive.finalize();
