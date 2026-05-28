@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { authMiddleware, roleMiddleware } from '../middlewares/authMiddleware';
 import * as documentoController from '../controllers/documentoController';
-import upload from '../utils/multer';
+import upload, { azureUploadMiddleware } from '../utils/multer';
 
 const router = Router();
 
@@ -22,7 +22,7 @@ router.use(roleMiddleware(['ADMIN']));
 router.get('/export', documentoController.exportCSV);
 
 // Enviar certificado
-router.post('/certificados/send', upload.single('file'), documentoController.sendCertificate);
+router.post('/certificados/send', upload.single('file'), azureUploadMiddleware, documentoController.sendCertificate);
 
 // Baixar todos documentos do motorista (ZIP)
 router.get('/motoristas/:id/documentos/zip', documentoController.downloadZipMotorista);

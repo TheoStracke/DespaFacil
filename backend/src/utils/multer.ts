@@ -1,6 +1,8 @@
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { Request, Response, NextFunction } from 'express';
+import { uploadToAzure } from './azureStorage';
 
 // Optional S3 deps loaded lazily to avoid build-time errors when not used
 let multerS3: any = null;
@@ -67,7 +69,10 @@ class AzureBlobStorage implements multer.StorageEngine {
 }
 
 let storage: multer.StorageEngine;
-if (provider === 's3') {
+if (provider === 'azure') {
+  // Azure: buffer em memória; o middleware azureUploadMiddleware faz o upload real
+  storage = multer.memoryStorage();
+} else if (provider === 's3') {
   if (!multerS3 || !S3ClientCtor) {
     throw new Error('STORAGE_PROVIDER=s3, mas as dependências não foram instaladas. Instale @aws-sdk/client-s3 e multer-s3.');
   }
@@ -187,5 +192,36 @@ export const upload = multer({
     cb(null, true);
   },
 });
+
+/**
+ * Middleware para upload no Azure Blob Storage.
+ * Deve ser usado APÓS o middleware `upload` nas rotas quando STORAGE_PROVIDER=azure.
+ *
+ * Faz o upload do buffer para o Azure e preenche req.file.filename e req.file.path
+ * com o nome do blob — mantendo compatibilidade com o restante da aplicação.
+ *
+ * Em outros providers (local, s3) é um no-op.
+ */
+export async function azureUploadMiddleware(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  if (provider !== 'azure' || !req.file) {
+    return next();
+  }
+
+  try {
+    const blobName = buildFileName(req.file.originalname);
+    await uploadToAzure(req.file.buffer, blobName, req.file.mimetype);
+
+    // Preencher campos que o diskStorage preencheria automaticamente
+    req.file.filename = blobName;
+    (req.file as any).path = blobName; // blob name usado como "path" no banco
+    next();
+  } catch (err: any) {
+    next(err);
+  }
+}
 
 export default upload;

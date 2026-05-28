@@ -11,6 +11,7 @@ import http from 'http';
 import archiver from 'archiver';
 import { createAuditLog, AUDIT_ACTIONS } from '../services/auditLogService';
 import { createNotification, NOTIFICATION_TYPES } from '../services/notificationService';
+import { isAzureProvider, getAzureReadStream } from '../utils/azureStorage';
 
 function isRemoteUrl(filePath: string) {
   return filePath.startsWith('http://') || filePath.startsWith('https://');
@@ -241,24 +242,28 @@ export async function viewDocumento(req: AuthRequest, res: Response) {
     res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(documento.originalName)}"`);
     res.setHeader('Cache-Control', 'no-cache');
 
-    if (isRemoteUrl(documento.path)) {
-      streamRemoteFile(buildDownloadUrl(documento.path), res);
-      return;
-    }
-
-    // Arquivo local
-    if (!fs.existsSync(documento.path)) {
-      return res.status(404).json({ success: false, error: 'Arquivo não encontrado no servidor' });
-    }
-
-    const fileStream = fs.createReadStream(documento.path);
-    fileStream.pipe(res);
-    fileStream.on('error', (error) => {
-      console.error('Erro ao ler arquivo:', error);
-      if (!res.headersSent) {
-        res.status(500).json({ success: false, error: 'Erro ao ler arquivo' });
+    if (isAzureProvider()) {
+      const azureStream = await getAzureReadStream(documento.path);
+      azureStream.pipe(res);
+      azureStream.on('error', (error) => {
+        console.error('Erro ao ler blob Azure:', error);
+        if (!res.headersSent) {
+          res.status(500).json({ success: false, error: 'Erro ao ler arquivo' });
+        }
+      });
+    } else {
+      if (!fs.existsSync(documento.path)) {
+        return res.status(404).json({ success: false, error: 'Arquivo não encontrado no servidor' });
       }
-    });
+      const fileStream = fs.createReadStream(documento.path);
+      fileStream.pipe(res);
+      fileStream.on('error', (error) => {
+        console.error('Erro ao ler arquivo:', error);
+        if (!res.headersSent) {
+          res.status(500).json({ success: false, error: 'Erro ao ler arquivo' });
+        }
+      });
+    }
   } catch (err: any) {
     console.error('Erro em viewDocumento:', err);
     if (!res.headersSent) {
@@ -402,12 +407,20 @@ export async function downloadDocumento(req: AuthRequest, res: Response) {
       }
     }
 
-    if (isRemoteUrl(documento.path)) {
+    if (isAzureProvider()) {
       res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(documento.filename)}"`);
-      streamRemoteFile(buildDownloadUrl(documento.path), res);
-      return;
+      res.setHeader('Content-Type', 'application/octet-stream');
+      const azureStream = await getAzureReadStream(documento.path);
+      azureStream.pipe(res);
+      azureStream.on('error', (error) => {
+        console.error('Erro ao baixar blob Azure:', error);
+        if (!res.headersSent) {
+          res.status(500).json({ success: false, error: 'Erro ao baixar arquivo' });
+        }
+      });
+    } else {
+      res.download(documento.path, documento.filename);
     }
-    res.download(documento.path, documento.filename);
   } catch (err: any) {
     res.status(400).json({ success: false, error: err.message });
   }
@@ -440,12 +453,14 @@ export async function downloadZipMotorista(req: AuthRequest, res: Response) {
     // Pipe para resposta
     archive.pipe(res);
 
-    // Adicionar arquivos
-    for (const f of files) {
-      if (isRemoteUrl(f.path)) {
-        const buffer = await fetchRemoteBuffer(buildDownloadUrl(f.path));
-        archive.append(buffer, { name: f.name });
-      } else {
+    // Adicionar arquivos (local ou Azure)
+    if (isAzureProvider()) {
+      for (const f of files) {
+        const stream = await getAzureReadStream(f.path);
+        archive.append(stream, { name: f.name });
+      }
+    } else {
+      for (const f of files) {
         archive.file(f.path, { name: f.name });
       }
     }

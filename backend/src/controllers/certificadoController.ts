@@ -4,6 +4,7 @@ import prisma from '../prisma/client';
 import path from 'path';
 import fs from 'fs';
 import { createAuditLog, AUDIT_ACTIONS } from '../services/auditLogService';
+import { isAzureProvider, getAzureReadStream } from '../utils/azureStorage';
 
 // Listar todos certificados (admin e despachante)
 export async function listAll(req: AuthRequest, res: Response) {
@@ -138,13 +139,24 @@ export async function downloadCertificado(req: AuthRequest, res: Response) {
     }
 
     // Enviar arquivo
-    const filePath = path.resolve(certificado.path);
-    
-    if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ success: false, error: 'Arquivo não encontrado no servidor' });
+    if (isAzureProvider()) {
+      res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(certificado.originalName)}"`);
+      res.setHeader('Content-Type', 'application/octet-stream');
+      const azureStream = await getAzureReadStream(certificado.path);
+      azureStream.pipe(res);
+      azureStream.on('error', (error) => {
+        console.error('Erro ao baixar certificado do Azure:', error);
+        if (!res.headersSent) {
+          res.status(500).json({ success: false, error: 'Erro ao baixar certificado' });
+        }
+      });
+    } else {
+      const filePath = path.resolve(certificado.path);
+      if (!fs.existsSync(filePath)) {
+        return res.status(404).json({ success: false, error: 'Arquivo não encontrado no servidor' });
+      }
+      res.download(filePath, certificado.originalName);
     }
-
-    res.download(filePath, certificado.originalName);
   } catch (err: any) {
     res.status(400).json({ success: false, error: err.message });
   }

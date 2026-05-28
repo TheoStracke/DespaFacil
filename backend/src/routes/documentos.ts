@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { authMiddleware, roleMiddleware } from '../middlewares/authMiddleware';
 import * as documentoController from '../controllers/documentoController';
-import upload from '../utils/multer';
+import upload, { azureUploadMiddleware } from '../utils/multer';
 
 const router = Router();
 
@@ -13,6 +13,7 @@ router.post(
   '/upload',
   roleMiddleware(['DESPACHANTE', 'ADMIN']),
   upload.single('file'),
+  azureUploadMiddleware,
   documentoController.upload
 );
 
