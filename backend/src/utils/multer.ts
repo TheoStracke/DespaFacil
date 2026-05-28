@@ -16,11 +16,17 @@ try {
   // keep null if not installed
 }
 
+const provider = (process.env.STORAGE_PROVIDER || 'local').toLowerCase();
+
 const uploadsDir = process.env.UPLOADS_DIR
   ? path.resolve(process.env.UPLOADS_DIR)
   : path.join(process.cwd(), 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
+if (provider === 'local' && !fs.existsSync(uploadsDir)) {
+  try {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  } catch (_) {
+    // filesystem pode ser read-only em ambientes serverless
+  }
 }
 
 function buildFileName(original: string) {
@@ -28,8 +34,6 @@ function buildFileName(original: string) {
   const safeOriginalName = original.replace(/[^a-zA-Z0-9.\-]/g, '_');
   return uniqueSuffix + '-' + safeOriginalName;
 }
-
-const provider = (process.env.STORAGE_PROVIDER || 'local').toLowerCase();
 
 // Azure Blob Storage custom multer engine
 class AzureBlobStorage implements multer.StorageEngine {
@@ -98,8 +102,6 @@ if (provider === 'azure') {
       cb(null, { fieldName: file.fieldname });
     },
   });
-} else if (provider === 'azure') {
-  storage = new AzureBlobStorage();
 } else {
   // local disk (default)
   const disk = multer.diskStorage({
